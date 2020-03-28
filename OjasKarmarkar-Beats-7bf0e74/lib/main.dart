@@ -3,6 +3,7 @@ import 'package:beats/Models/Username.dart';
 import 'package:beats/models/PlaylistRepo.dart';
 import 'package:beats/models/BookmarkModel.dart';
 import 'package:beats/models/Now_Playing.dart';
+import 'package:beats/screens/login.dart';
 import 'package:flutter_media_notification/flutter_media_notification.dart';
 import 'models/RecentsModel.dart';
 import 'models/SongsModel.dart';
@@ -20,25 +21,25 @@ void main(List<String> args) {
   var rec = Recents();
   runApp(MultiProvider(providers: [
     ChangeNotifierProvider<BookmarkModel>(
-      builder: (context) => BookmarkModel(),
+      create: (context) => BookmarkModel(),
     ),
     ChangeNotifierProvider<PlaylistRepo>(
-      builder: (context) => PlaylistRepo(),
+      create: (context) => PlaylistRepo(),
     ),
     ChangeNotifierProvider<Username>(
-      builder: (context) => Username(),
+      create: (context) => Username(),
     ),
     ChangeNotifierProvider<Recents>(
-      builder: (context) => rec,
+      create: (context) => rec,
     ),
     ChangeNotifierProvider<ProgressModel>(
-      builder: (context) => prov,
+      create: (context) => prov,
     ),
     ChangeNotifierProvider<SongsModel>(
-      builder: (context) => SongsModel(prov, rec),
+      create: (context) => SongsModel(prov, rec),
     ),
-    ChangeNotifierProvider<ThemeChanger>(builder: (context) => ThemeChanger()),
-    ChangeNotifierProvider<NowPlaying>(builder: (context) => NowPlaying(false))
+    ChangeNotifierProvider<ThemeChanger>(create: (context) => ThemeChanger()),
+    ChangeNotifierProvider<NowPlaying>(create: (context) => NowPlaying(false))
   ], child: MyApp()));
 }
 
@@ -120,7 +121,7 @@ class SplashState extends State<Splash> {
     if (_seen) {
       SystemChrome.setEnabledSystemUIOverlays([]);
       Navigator.of(context).pushReplacement(
-          new MaterialPageRoute(builder: (context) => new MainScreen()));
+          new MaterialPageRoute(builder: (context) => new LoginPage()));
     } else {
       SystemChrome.setEnabledSystemUIOverlays([]);
       prefs.setBool('seen', true);

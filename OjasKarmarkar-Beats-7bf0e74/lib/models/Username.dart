@@ -7,7 +7,7 @@ String name;
 SharedPreferences prefs;
 
 Username(){
-  this.name = "Welcome";
+  this.name = "Bienvenido";
   init();
 }
 init() async{
