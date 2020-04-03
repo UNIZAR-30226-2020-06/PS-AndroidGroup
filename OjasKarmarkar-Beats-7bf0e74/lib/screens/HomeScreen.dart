@@ -1,4 +1,4 @@
-import 'package:beats/Models/Username.dart';
+import 'package:beats/models/Username.dart';
 import 'package:beats/models/PlayListHelper.dart';
 import 'package:beats/screens/Recents.dart';
 import 'package:beats/models/PlaylistRepo.dart';

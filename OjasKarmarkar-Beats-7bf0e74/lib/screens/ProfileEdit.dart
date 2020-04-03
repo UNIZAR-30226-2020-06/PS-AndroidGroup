@@ -1,21 +1,7 @@
 import 'package:beats/icono_personalizado.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
-
-import 'package:beats/Animations/transitions.dart';
-import 'package:beats/Models/Username.dart';
-import 'package:beats/models/ThemeModel.dart';
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_media_notification/flutter_media_notification.dart';
-import 'package:provider/provider.dart';
-import '../custom_icons.dart';
-import 'package:beats/models/SongsModel.dart';
 import 'MusicLibrary.dart';
-import 'SetttingsSubScreens/Theme.dart';
-import 'SetttingsSubScreens/PlayBack.dart';
-import 'SetttingsSubScreens/About_Us.dart';
-import 'package:share/share.dart';
 
 import 'login.dart';
 

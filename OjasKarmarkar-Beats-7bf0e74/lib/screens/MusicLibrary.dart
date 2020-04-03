@@ -1,5 +1,5 @@
 import 'package:beats/Animations/transitions.dart';
-import 'package:beats/Models/PlayListHelper.dart';
+import 'package:beats/models/PlayListHelper.dart';
 import 'package:beats/models/PlaylistRepo.dart';
 import 'package:beats/models/ThemeModel.dart';
 import 'package:beats/models/BookmarkModel.dart';

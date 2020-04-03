@@ -1,5 +1,5 @@
 import 'package:beats/Animations/transitions.dart';
-import 'package:beats/Models/Username.dart';
+import 'package:beats/models/Username.dart';
 import 'package:beats/models/ThemeModel.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
