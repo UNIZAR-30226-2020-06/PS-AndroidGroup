@@ -36,4 +36,5 @@ class CustomIcons {
   static const IconData step_backward = const IconData(0xf31e, fontFamily: _kFontFam);
   static const IconData step_forward = const IconData(0xf31f, fontFamily: _kFontFam);
   static const IconData user = const IconData(0xf364, fontFamily: _kFontFam);
+  static const IconData logout = IconData(0xe800, fontFamily: _kFontFam);
 }

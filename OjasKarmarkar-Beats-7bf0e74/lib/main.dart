@@ -3,6 +3,7 @@ import 'package:beats/Models/Username.dart';
 import 'package:beats/models/PlaylistRepo.dart';
 import 'package:beats/models/BookmarkModel.dart';
 import 'package:beats/models/Now_Playing.dart';
+import 'package:beats/screens/Register.dart';
 import 'package:beats/screens/login.dart';
 import 'package:flutter_media_notification/flutter_media_notification.dart';
 import 'models/RecentsModel.dart';
@@ -16,7 +17,19 @@ import './screens/MainScreen.dart';
 import 'models/ThemeModel.dart';
 import 'package:beats/models/ProgressModel.dart';
 
+
 void main(List<String> args) {
+  MaterialApp(
+      debugShowCheckedModeBanner: false,
+      home: LoginPage(),
+      initialRoute: '/',
+      routes: {
+        // When navigating to the "/" route, build the FirstScreen widget.
+        '/': (context) => LoginPage(),
+        // When navigating to the "/second" route, build the SecondScreen widget.
+        '/second': (context) => RegisterPage(),
+      }
+  );
   var prov = ProgressModel();
   var rec = Recents();
   runApp(MultiProvider(providers: [
@@ -109,7 +122,7 @@ class SplashState extends State<Splash> {
   Widget build(BuildContext context) {
     return new Scaffold(
       body: new Center(
-        child: new Text('Loading...'),
+        child: new Text('Preparando el musicote...'),
       ),
     );
   }
@@ -139,4 +152,5 @@ class SplashState extends State<Splash> {
     super.initState();
     checkFirstSeen();
   }
+
 }

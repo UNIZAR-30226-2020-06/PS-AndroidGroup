@@ -80,35 +80,56 @@ class _RegisterPageState extends State<RegisterPage> {
                                       border: Border(bottom: BorderSide(color: Colors.grey[200]))
                                   ),
                                   child: TextField(
+                                    style: TextStyle(fontSize: 16),
                                     decoration: InputDecoration(
                                         hintText: "Nombre de usuario*",
-                                        hintStyle: TextStyle(color: Colors.grey),
+                                        hintStyle: TextStyle(fontSize: 15.0, color: Colors.grey),
                                         border: InputBorder.none
                                     ),
                                   ),
                                 ),
+
                                 Container(
                                   padding: EdgeInsets.all(10),
                                   decoration: BoxDecoration(
                                       border: Border(bottom: BorderSide(color: Colors.grey[200]))
                                   ),
                                   child: TextField(
-                                    decoration: InputDecoration(
-                                        hintText: "Correo*",
-                                        hintStyle: TextStyle(color: Colors.grey),
-                                        border: InputBorder.none
-                                    ),
-                                  ),
-                                ),
-                                Container(
-                                  padding: EdgeInsets.all(10),
-                                  decoration: BoxDecoration(
-                                      border: Border(bottom: BorderSide(color: Colors.grey[200]))
-                                  ),
-                                  child: TextField(
+                                    style: TextStyle(fontSize: 16),
                                     decoration: InputDecoration(
                                         hintText: "Descripción",
-                                        hintStyle: TextStyle(color: Colors.grey),
+                                        hintStyle: TextStyle(fontSize: 15.0, color: Colors.grey),
+                                        border: InputBorder.none
+                                    ),
+                                  ),
+                                ),
+
+                                Container(
+                                  padding: EdgeInsets.all(10),
+                                  decoration: BoxDecoration(
+                                      border: Border(bottom: BorderSide(color: Colors.grey[200]))
+                                  ),
+                                  child: TextField(
+                                    style: TextStyle(fontSize: 16),
+                                    decoration: InputDecoration(
+                                        hintText: "Correo*",
+                                        hintStyle: TextStyle(fontSize: 15.0, color: Colors.grey),
+                                        border: InputBorder.none
+                                    ),
+                                  ),
+                                ),
+
+                                Container(
+                                  padding: EdgeInsets.all(10),
+                                  decoration: BoxDecoration(
+                                      border: Border(bottom: BorderSide(color: Colors.grey[200]))
+                                  ),
+                                  child: TextField(
+                                    style: TextStyle(fontSize: 16),
+                                    obscureText: true,
+                                    decoration: InputDecoration(
+                                        hintText: "Contraseña*",
+                                        hintStyle: TextStyle(fontSize: 15.0, color: Colors.grey),
                                         border: InputBorder.none
                                     ),
                                   ),
@@ -119,9 +140,11 @@ class _RegisterPageState extends State<RegisterPage> {
                                       border: Border(bottom: BorderSide(color: Colors.grey[200]))
                                   ),
                                   child: TextField(
+                                    obscureText: true,
+                                    style: TextStyle(fontSize: 16),
                                     decoration: InputDecoration(
-                                        hintText: "Contraseña*",
-                                        hintStyle: TextStyle(color: Colors.grey),
+                                        hintText: "Repite la contraseña*",
+                                        hintStyle: TextStyle(fontSize: 15.0, color: Colors.grey),
                                         border: InputBorder.none
                                     ),
                                   ),
@@ -132,7 +155,11 @@ class _RegisterPageState extends State<RegisterPage> {
                           SizedBox(height: 40,),
                           Text("Campos obligatorios*", style: TextStyle(color: Colors.red),),
                           SizedBox(height: 40,),
-                          Container(
+                          InkWell(
+                              onTap: (){
+                                Navigator.pop(context);
+                              },
+                              child: new Container(
                             height: 50,
                             margin: EdgeInsets.symmetric(horizontal: 50),
                             decoration: BoxDecoration(
@@ -141,9 +168,15 @@ class _RegisterPageState extends State<RegisterPage> {
                             ),
                             child: Center(
                               child: Text("Crear cuenta", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),),
+
                             ),
-                          ),
-                          Text("¿Ya tienes cuenta? Inicia sesión", style: TextStyle(color: Colors.blue),),
+
+                            ),
+                            ),
+                            GestureDetector(
+                              onTap: () { Navigator.pop(context); },
+                              child: Text("¿Ya tienes cuenta? Inicia sesión"),
+                            ),
                           SizedBox(height: 40,),
                         ],
                       )
