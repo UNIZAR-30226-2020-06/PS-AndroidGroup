@@ -7,6 +7,7 @@ import 'HomeScreen.dart';
 import 'Register.dart';
 import 'Settings.dart';
 import 'MusicLibrary.dart';
+import 'UploadSong.dart';
 
 class MainScreen extends StatefulWidget {
   @override
@@ -17,7 +18,7 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver{
 
 
   var index = 1;
-  var screens = [HomeScreen(), Library(), Bookmarks(), SettingsScreen(), ProfilePage()];
+  var screens = [HomeScreen(), Library(), UploadSong(), Bookmarks(), SettingsScreen(), ProfilePage()];
 
   @override
   Widget build(BuildContext context) {
@@ -38,6 +39,10 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver{
                     text: "Canciones",
                     selectedColor: Colors.deepPurpleAccent),
                 ExpandingBottomBarItem(
+                    icon: Icons.backup,
+                    text: "Agregar",
+                    selectedColor: Colors.orange),
+                ExpandingBottomBarItem(
                     icon: Icons.favorite_border,
                     text: "Favoritos",
                     selectedColor: Colors.red),
@@ -46,9 +51,9 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver{
                     text: "Ajustes",
                     selectedColor: Colors.blueAccent),
                 ExpandingBottomBarItem(
-                    icon: Icons.settings,
-                    text: "Perfil editable",
-                    selectedColor: Colors.blueAccent),
+                    icon: Icons.supervised_user_circle,
+                    text: "Perfil",
+                    selectedColor: Colors.orange),
               ],
               selectedIndex: index,
               onIndexChanged: (i) {

@@ -1,4 +1,11 @@
+import 'dart:convert';
+import 'dart:developer';
+import 'dart:io';
+
+
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:http/http.dart' as http;
 
 void main() => runApp(
     MaterialApp(
@@ -12,8 +19,38 @@ class RegisterPage extends StatefulWidget {
   _RegisterPageState createState() => _RegisterPageState();
 }
 class _RegisterPageState extends State<RegisterPage> {
+  Future<Album> datosRegistro;
+  Future<Album> _futureAlbum;
+  TextEditingController controllerNickname;
+
+  @override
+  void initState() {
+    super.initState();
+   // datosRegistro = fetchAlbum();
+    //+log(datosRegistro.toString());
+  }
+
+  String id;
+  String nickName;
+  String photoUrl;
+
+  SharedPreferences prefs;
+
+  bool isLoading = false;
+  File avatarImageFile;
+
+  final usernameController = TextEditingController();
+  final descriptionController = TextEditingController();
+  final emailController = TextEditingController();
+  final passwordController = TextEditingController();
+  final securePasswordController = TextEditingController();
+
+
+
+
   @override
   Widget build(BuildContext context) {
+
     return Scaffold(
       body: Container(
         width: double.infinity,
@@ -80,6 +117,7 @@ class _RegisterPageState extends State<RegisterPage> {
                                       border: Border(bottom: BorderSide(color: Colors.grey[200]))
                                   ),
                                   child: TextField(
+                                    controller: usernameController,
                                     style: TextStyle(fontSize: 16),
                                     decoration: InputDecoration(
                                         hintText: "Nombre de usuario*",
@@ -95,6 +133,7 @@ class _RegisterPageState extends State<RegisterPage> {
                                       border: Border(bottom: BorderSide(color: Colors.grey[200]))
                                   ),
                                   child: TextField(
+                                    controller: descriptionController,
                                     style: TextStyle(fontSize: 16),
                                     decoration: InputDecoration(
                                         hintText: "Descripción",
@@ -110,6 +149,7 @@ class _RegisterPageState extends State<RegisterPage> {
                                       border: Border(bottom: BorderSide(color: Colors.grey[200]))
                                   ),
                                   child: TextField(
+                                    controller: emailController,
                                     style: TextStyle(fontSize: 16),
                                     decoration: InputDecoration(
                                         hintText: "Correo*",
@@ -125,6 +165,7 @@ class _RegisterPageState extends State<RegisterPage> {
                                       border: Border(bottom: BorderSide(color: Colors.grey[200]))
                                   ),
                                   child: TextField(
+                                    controller: passwordController,
                                     style: TextStyle(fontSize: 16),
                                     obscureText: true,
                                     decoration: InputDecoration(
@@ -140,6 +181,7 @@ class _RegisterPageState extends State<RegisterPage> {
                                       border: Border(bottom: BorderSide(color: Colors.grey[200]))
                                   ),
                                   child: TextField(
+                                    controller: securePasswordController,
                                     obscureText: true,
                                     style: TextStyle(fontSize: 16),
                                     decoration: InputDecoration(
@@ -156,8 +198,23 @@ class _RegisterPageState extends State<RegisterPage> {
                           Text("Campos obligatorios*", style: TextStyle(color: Colors.red),),
                           SizedBox(height: 40,),
                           InkWell(
-                              onTap: (){
-                                Navigator.pop(context);
+                              onTap: (){ setState(() {
+                                _futureAlbum = createAlbum(usernameController.text);
+                              });
+                                return showDialog(
+                                    context: context,
+                                    builder: (context) {
+                                    return AlertDialog(
+                                    // Retrieve the text the that user has entered by using the
+                                    // TextEditingController.
+                                      content: Text(usernameController.text),
+
+                                    );
+                                    },
+                                );
+
+
+                                  //Navigator.pop(context);
                               },
                               child: new Container(
                             height: 50,
@@ -177,7 +234,35 @@ class _RegisterPageState extends State<RegisterPage> {
                               onTap: () { Navigator.pop(context); },
                               child: Text("¿Ya tienes cuenta? Inicia sesión"),
                             ),
-                          SizedBox(height: 40,),
+                          SizedBox(height: 50,
+                          child: FutureBuilder<Album>(
+                            future: datosRegistro,
+                            builder: (context, snapshot) {
+                              if (snapshot.hasData) {
+                                return Text(snapshot.data.title);
+                              } else if (snapshot.hasError) {
+                                return Text("${snapshot.error}");
+                              }
+
+                              // By default, show a loading spinner.
+                              return CircularProgressIndicator();
+                            },
+                          ),
+                          ),
+
+                          SizedBox(height: 40,child: FutureBuilder<Album>(
+                            future: _futureAlbum,
+                            builder: (context, snapshot) {
+                              if (snapshot.hasData) {
+                                return Text(snapshot.data.title);
+                              } else if (snapshot.hasError) {
+                                return Text("${snapshot.error}");
+                              }
+
+                              return CircularProgressIndicator();
+                            },
+                          ),)
+
                         ],
                       )
 
@@ -189,5 +274,59 @@ class _RegisterPageState extends State<RegisterPage> {
         ),
       ),
     );
+  }
+}
+
+class Album {
+  final int userId;
+  final int id;
+  final String title;
+
+  Album({this.userId, this.id, this.title});
+
+  factory Album.fromJson(Map<String, dynamic> json) {
+    return Album(
+      userId: json['userId'],
+      id: json['id'],
+      title: json['title'],
+    );
+  }
+  int getUserId(){
+    return userId;
+  }
+}
+
+Future<Album> fetchAlbum() async {
+  final response = await http.get('http://34.69.44.48:8080/Espotify/android_testing');
+
+  if (response.statusCode == 500) {
+    // If the server did return a 200 OK response,
+    // then parse the JSON.
+    return Album.fromJson(json.decode(response.body));
+  } else {
+    // If the server did not return a 200 OK response,
+    // then throw an exception.
+    throw Exception('Fallo al cargar login');
+  }
+}
+
+Future<Album> createAlbum(String title) async {
+  final http.Response response = await http.post(
+    'http://34.69.44.48:8080/Espotify/android_testing',
+    headers: <String, String>{
+      'Content-Type': 'application/json; charset=UTF-8',
+    },
+    body: jsonEncode(<String, String>{
+      'title': title,
+    }),
+  );
+  if (response.statusCode == 200) {
+    // If the server did return a 201 CREATED response,
+    // then parse the JSON.
+    return Album.fromJson(json.decode(response.body));
+  } else {
+    // If the server did not return a 201 CREATED response,
+    // then throw an exception.
+    throw Exception('Failed to load album');
   }
 }

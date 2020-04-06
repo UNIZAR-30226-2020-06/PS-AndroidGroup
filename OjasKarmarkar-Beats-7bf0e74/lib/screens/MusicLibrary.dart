@@ -41,7 +41,7 @@ class Library extends StatelessWidget {
           body: (model.songs == null)
               ? Center(
                   child: Text(
-                    "No Songs",
+                    "No hay canciones",
                     style: Theme.of(context).textTheme.display1,
                   ),
                 )
@@ -81,7 +81,7 @@ class Library extends StatelessWidget {
                                       child: Stack(
                                         children: <Widget>[
                                           Text(
-                                            "Songs",
+                                            "Canciones",
                                             style: TextStyle(
                                                 fontWeight: FontWeight.bold,
                                                 fontSize: 30,
@@ -156,7 +156,7 @@ class Library extends StatelessWidget {
                                     Padding(
                                       padding: const EdgeInsets.all(8.0),
                                       child: Text(
-                                        "Add to Playlist",
+                                        "Añadir a Playlist",
                                         style: Theme.of(context)
                                             .textTheme
                                             .display1,
@@ -192,7 +192,7 @@ class Library extends StatelessWidget {
                                           },
                                         )
                                       : Center(
-                                          child: Text("No Playlist"),
+                                          child: Text("No hay Playlist"),
                                         ),
                                 )
                               ],
@@ -277,16 +277,27 @@ class Library extends StatelessWidget {
             icon: Icon(
               Icons.music_note,
               color: Colors.white,
+
             ),
           ),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(70),
             // Box decoration takes a gradient
             gradient: LinearGradient(
-              colors: <Color>[
-                themeChanger.accentColor,
-                Color(0xFF1976D2),
-                Color(0xFF42A5F5),
+              begin: Alignment.topRight,
+              end: Alignment.bottomLeft,
+              colors: pos % 2 == 0
+                  ? [
+                Colors.orangeAccent,
+                Colors.orange,
+                Colors.deepOrange,
+                Colors.orange,
+              ]
+                  : [
+                Colors.pinkAccent,
+                Colors.pink,
+                Colors.pinkAccent,
+                Colors.pink,
               ],
             ),
           ));

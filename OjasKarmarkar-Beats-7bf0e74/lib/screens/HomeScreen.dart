@@ -35,23 +35,20 @@ class _HomeScreenState extends State<HomeScreen> {
                     children: <Widget>[
                       Padding(
                         padding: EdgeInsets.only(
-                            top: height * 0.08, left: width * 0.1),
+                            top: height * 0.08, left: width * 0.0001),
                         child: Text(
-                          username.getName() + ",",
+                          username.getName(),
                           style: Theme.of(context).textTheme.headline,
                         ),
                       ),
                       Padding(
                         padding: EdgeInsets.only(
                             top: height * 0.005, left: width * 0.1),
-                        child: Text("Welcome",
+                        child: Text("¿Qué hay de nuevo Scooby Doo?",
                             style: Theme.of(context).textTheme.subhead),
                       ),
                     ],
                   ),
-                  Align(
-                      alignment: Alignment.topRight,
-                      child: Image.asset("assets/headphone.png"))
                 ],
               ),
             ),
@@ -153,7 +150,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                                 padding: EdgeInsets.only(
                                                     top: 10.0, bottom: 20.0),
                                                 decoration: BoxDecoration(
-                                                  color: Colors.blue,
+                                                  color: Colors.orange,
                                                   borderRadius: BorderRadius.only(
                                                       bottomLeft:
                                                           Radius.circular(32.0),
@@ -220,10 +217,10 @@ class _HomeScreenState extends State<HomeScreen> {
                                         stops: [0.1, 0.5, 0.7, 0.9],
                                         colors: pos % 2 == 0
                                             ? [
-                                                Colors.lightBlue,
-                                                Colors.blue,
-                                                Colors.blueAccent,
-                                                Colors.blue,
+                                                Colors.orangeAccent,
+                                                Colors.orange,
+                                                Colors.deepOrange,
+                                                Colors.orange,
                                               ]
                                             : [
                                                 Colors.pinkAccent,
@@ -342,20 +339,20 @@ class _HomeScreenState extends State<HomeScreen> {
                                                                     disabledBorder: OutlineInputBorder(
                                                                         borderSide: BorderSide(
                                                                             color: Colors
-                                                                                .greenAccent)),
+                                                                                .deepOrange)),
                                                                     enabledBorder: OutlineInputBorder(
                                                                         borderSide: BorderSide(
                                                                             color: Colors
-                                                                                .greenAccent)),
+                                                                                .deepOrange)),
                                                                     errorText: error
-                                                                        ? "Name cant be null"
+                                                                        ? "El nombre no puede ser nulo"
                                                                         : null,
                                                                     errorStyle: Theme.of(
                                                                             context)
                                                                         .textTheme
                                                                         .display2,
                                                                     labelText:
-                                                                        "Enter Name",
+                                                                        "Pon tu nombre",
                                                                     labelStyle: Theme.of(
                                                                             context)
                                                                         .textTheme
@@ -446,7 +443,7 @@ class _HomeScreenState extends State<HomeScreen> {
               child: Align(
                 alignment: Alignment.center,
                 child: Text(
-                  "Recently Played",
+                  "Escuchadas recientemente",
                   style: Theme.of(context).textTheme.display1,
                 ),
               ),
