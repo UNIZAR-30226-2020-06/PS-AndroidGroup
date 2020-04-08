@@ -1,5 +1,6 @@
 import 'package:beats/screens/Bookmarks.dart';
 import 'package:beats/screens/ProfileEdit.dart';
+import 'package:beats/screens/UserProfile.dart';
 import 'package:beats/screens/login.dart';
 import 'package:flutter/material.dart';
 import 'package:expanding_bottom_bar/expanding_bottom_bar.dart';
@@ -18,7 +19,7 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver{
 
 
   var index = 1;
-  var screens = [HomeScreen(), Library(), UploadSong(), Bookmarks(), SettingsScreen(), ProfilePage()];
+  var screens = [HomeScreen(), Library(), UploadSong(), Bookmarks(), SettingsScreen(),UserProfile()];
 
   @override
   Widget build(BuildContext context) {

@@ -10,6 +10,9 @@ class PlaylistRepo extends ChangeNotifier {
 
   PlaylistRepo() {
     init();
+    if(!playlist.contains("Favoritos")){
+      playlist.add("Favoritos");
+    }
   }
 
   init() async {
@@ -44,5 +47,14 @@ class PlaylistRepo extends ChangeNotifier {
     playlist.add(name);
     await prefList.setStringList("playlist", playlist);
     notifyListeners();
+  }
+
+  contains(String name) async {
+    for(String e in playlist){
+      if(e ==name){
+        return true;
+      }
+    }
+    return false;
   }
 }

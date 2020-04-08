@@ -192,7 +192,7 @@ class Library extends StatelessWidget {
                                           },
                                         )
                                       : Center(
-                                          child: Text("No hay Playlist"),
+                                          child: Text("No existen Playlists"),
                                         ),
                                 )
                               ],

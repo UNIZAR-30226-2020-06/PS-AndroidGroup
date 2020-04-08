@@ -93,7 +93,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                               mainAxisSize: MainAxisSize.min,
                                               children: <Widget>[
                                                 Text(
-                                                  "New Playlist",
+                                                  "Nueva Playlist",
                                                   style: TextStyle(
                                                       fontSize: 24.0,
                                                       fontFamily: 'Sans'),
@@ -127,12 +127,12 @@ class _HomeScreenState extends State<HomeScreen> {
                                                                 color: Colors
                                                                     .greenAccent)),
                                                     errorText: error
-                                                        ? "Name cant be null"
+                                                        ? "El nombre no puede ser nulo"
                                                         : null,
                                                     errorStyle: Theme.of(context)
                                                         .textTheme
                                                         .display2,
-                                                    labelText: "Enter Name",
+                                                    labelText: "Introduce un nombre",
                                                     labelStyle: Theme.of(context)
                                                         .textTheme
                                                         .display2,
@@ -158,7 +158,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                                           Radius.circular(32.0)),
                                                 ),
                                                 child: Text(
-                                                  "Create!",
+                                                  "¡Crear!",
                                                   style: TextStyle(
                                                       fontFamily: 'Sans',
                                                       color: Colors.white),
@@ -308,7 +308,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                                                       .min,
                                                               children: <Widget>[
                                                                 Text(
-                                                                  "Edit",
+                                                                  "Editar",
                                                                   style: TextStyle(
                                                                       fontSize:
                                                                           24.0,
@@ -352,7 +352,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                                                         .textTheme
                                                                         .display2,
                                                                     labelText:
-                                                                        "Pon tu nombre",
+                                                                        "Ponle un nombre",
                                                                     labelStyle: Theme.of(
                                                                             context)
                                                                         .textTheme
@@ -401,7 +401,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                                                               32.0)),
                                                                 ),
                                                                 child: Text(
-                                                                  "Done",
+                                                                  "Aplicar",
                                                                   style: TextStyle(
                                                                       fontFamily:
                                                                           'Sans',
