@@ -1,5 +1,8 @@
+import 'dart:convert';
+
 import 'package:beats/screens/MainScreen.dart';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 
 import 'Register.dart';
 
@@ -13,6 +16,10 @@ class _LoginPageState extends State<LoginPage> {
 
   var index = 1;
   var screens = [RegisterPage()];
+
+  final emailController = TextEditingController();
+  final passwordController = TextEditingController();
+  Future<Login> _futureRespuesta;
 
   @override
   Widget build(BuildContext context) {
@@ -79,9 +86,10 @@ class _LoginPageState extends State<LoginPage> {
                                     border: Border(bottom: BorderSide(color: Colors.grey[200]))
                                 ),
                                 child: TextField(
+                                  controller: emailController,
                                   style: TextStyle(fontSize: 16),
                                   decoration: InputDecoration(
-                                      hintText: "Nombre de usuario",
+                                      hintText: "Correo electrónico",
                                       hintStyle: TextStyle(fontSize: 15.0, color: Colors.grey),
                                       border: InputBorder.none
                                   ),
@@ -93,6 +101,7 @@ class _LoginPageState extends State<LoginPage> {
                                     border: Border(bottom: BorderSide(color: Colors.grey[200]))
                                 ),
                                 child: TextField(
+                                  controller: passwordController,
                                   obscureText: true,
                                   style: TextStyle(fontSize: 16),
                                   decoration: InputDecoration(
@@ -109,9 +118,11 @@ class _LoginPageState extends State<LoginPage> {
                         Text("¿Olvidaste la contraseña?", style: TextStyle(color: Colors.blue),),
                         SizedBox(height: 40,),
                       GestureDetector(
-                        onTap: () { Navigator.push(context, new MaterialPageRoute(
-                            builder: (context) =>
-                            new MainScreen())); },
+                        onTap: () {
+                          setState(() {
+                            _futureRespuesta = logearUsuario(emailController.text, passwordController.text );
+                          });
+                         },
                         child: Container(
                           height: 50,
                           margin: EdgeInsets.symmetric(horizontal: 50),
@@ -130,7 +141,24 @@ class _LoginPageState extends State<LoginPage> {
                               new RegisterPage())); },
                           child: Text("¿No tienes cuenta? Regístrate"),
                         ),
-                        SizedBox(height: 40,),
+                        SizedBox(height: 40,child: FutureBuilder<Login>(
+                          future: _futureRespuesta,
+                          builder: (context, snapshot) {
+                            if (snapshot.hasData) {
+                              if(snapshot.data.respuesta == "error"){
+                                return Text(snapshot.data.respuesta);
+                              }else{
+                                Navigator.push(context, new MaterialPageRoute(
+                                    builder: (context) =>
+                                    new MainScreen()));
+                              }
+                            } else if (snapshot.hasError) {
+                              return Text("${snapshot.error}");
+                            }
+
+                            return CircularProgressIndicator();
+                          },
+                        ),)
                           ],
                         )
 
@@ -146,4 +174,43 @@ class _LoginPageState extends State<LoginPage> {
 
   }
 
+}
+
+class Login {
+  final String respuesta;
+
+  Login({this.respuesta});
+
+  factory Login.fromJson(Map<String, dynamic> json) {
+    return Login(
+      respuesta: json['respuesta'],
+    );
+  }
+  String getUserId(){
+    return respuesta;
+  }
+}
+
+Future<Login> logearUsuario(String email, String contrasenya) async {
+  Map data = {
+    'email': email,
+    'contrasenya': contrasenya,
+  };
+  final http.Response response = await http.post(
+    'http://34.69.44.48:8080/Espotify/validacion_android',
+    headers: <String, String>{
+      'Content-Type': 'application/json; charset=UTF-8',
+    },
+    body: jsonEncode(data),
+
+  );
+  if (response.statusCode == 200) {
+    // If the server did return a 201 CREATED response,
+    // then parse the JSON.
+    return Login.fromJson(json.decode(response.body));
+  } else {
+    // If the server did not return a 201 CREATED response,
+    // then throw an exception.
+    throw Exception('Fallo al enviar petición');
+  }
 }

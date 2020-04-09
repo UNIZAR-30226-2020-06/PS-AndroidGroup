@@ -19,8 +19,7 @@ class RegisterPage extends StatefulWidget {
   _RegisterPageState createState() => _RegisterPageState();
 }
 class _RegisterPageState extends State<RegisterPage> {
-  Future<Album> datosRegistro;
-  Future<Album> _futureAlbum;
+  Future<Registro> _futureRespuesta;
   TextEditingController controllerNickname;
 
   @override
@@ -97,8 +96,6 @@ class _RegisterPageState extends State<RegisterPage> {
                       child: Column(
                         children: <Widget>[
                           SizedBox(height: 60,),
-                          Align(
-                          child: Image.asset("assets/espotify.png")),
                           Container(
                             decoration: BoxDecoration(
                                 color: Colors.white,
@@ -199,21 +196,9 @@ class _RegisterPageState extends State<RegisterPage> {
                           SizedBox(height: 40,),
                           InkWell(
                               onTap: (){ setState(() {
-                                _futureAlbum = createAlbum(usernameController.text);
+                                _futureRespuesta = registrarUsuario(usernameController.text, passwordController.text,
+                                securePasswordController.text, descriptionController.text, emailController.text);
                               });
-                                return showDialog(
-                                    context: context,
-                                    builder: (context) {
-                                    return AlertDialog(
-                                    // Retrieve the text the that user has entered by using the
-                                    // TextEditingController.
-                                      content: Text(usernameController.text),
-
-                                    );
-                                    },
-                                );
-
-
                                   //Navigator.pop(context);
                               },
                               child: new Container(
@@ -234,27 +219,12 @@ class _RegisterPageState extends State<RegisterPage> {
                               onTap: () { Navigator.pop(context); },
                               child: Text("¿Ya tienes cuenta? Inicia sesión"),
                             ),
-                          SizedBox(height: 50,
-                          child: FutureBuilder<Album>(
-                            future: datosRegistro,
+
+                          SizedBox(height: 40,child: FutureBuilder<Registro>(
+                            future: _futureRespuesta,
                             builder: (context, snapshot) {
                               if (snapshot.hasData) {
-                                return Text(snapshot.data.title);
-                              } else if (snapshot.hasError) {
-                                return Text("${snapshot.error}");
-                              }
-
-                              // By default, show a loading spinner.
-                              return CircularProgressIndicator();
-                            },
-                          ),
-                          ),
-
-                          SizedBox(height: 40,child: FutureBuilder<Album>(
-                            future: _futureAlbum,
-                            builder: (context, snapshot) {
-                              if (snapshot.hasData) {
-                                return Text(snapshot.data.title);
+                                return Text(snapshot.data.respuesta);
                               } else if (snapshot.hasError) {
                                 return Text("${snapshot.error}");
                               }
@@ -277,56 +247,48 @@ class _RegisterPageState extends State<RegisterPage> {
   }
 }
 
-class Album {
-  final int userId;
-  final int id;
-  final String title;
+class Registro {
+  final String respuesta;
 
-  Album({this.userId, this.id, this.title});
+  Registro({this.respuesta});
 
-  factory Album.fromJson(Map<String, dynamic> json) {
-    return Album(
-      userId: json['userId'],
-      id: json['id'],
-      title: json['title'],
+  factory Registro.fromJson(Map<String, dynamic> json) {
+    return Registro(
+      respuesta: json['respuesta'],
     );
   }
-  int getUserId(){
-    return userId;
+  String getUserId(){
+    return respuesta;
   }
 }
 
-Future<Album> fetchAlbum() async {
-  final response = await http.get('http://34.69.44.48:8080/Espotify/android_testing');
-
-  if (response.statusCode == 500) {
-    // If the server did return a 200 OK response,
-    // then parse the JSON.
-    return Album.fromJson(json.decode(response.body));
-  } else {
-    // If the server did not return a 200 OK response,
-    // then throw an exception.
-    throw Exception('Fallo al cargar login');
-  }
-}
-
-Future<Album> createAlbum(String title) async {
+Future<Registro> registrarUsuario(String nombreUsuario, String contrasenya, String repiteContrasenya,
+  String descripcion, String correo) async {
+  Map data = {
+    'nombreUsuario': nombreUsuario,
+    'contrasenya': contrasenya,
+    'repiteContrasenya': repiteContrasenya,
+    'descripcion': descripcion,
+    'correo': correo,
+  };
   final http.Response response = await http.post(
     'http://34.69.44.48:8080/Espotify/android_testing',
     headers: <String, String>{
       'Content-Type': 'application/json; charset=UTF-8',
     },
-    body: jsonEncode(<String, String>{
-      'title': title,
-    }),
+    body: jsonEncode(data),
+
+    //body: jsonEncode(<String, String>{
+    //  'nombreUsuario': nombreUsuario,
+    //}),
   );
   if (response.statusCode == 200) {
     // If the server did return a 201 CREATED response,
     // then parse the JSON.
-    return Album.fromJson(json.decode(response.body));
+    return Registro.fromJson(json.decode(response.body));
   } else {
     // If the server did not return a 201 CREATED response,
     // then throw an exception.
-    throw Exception('Failed to load album');
+    throw Exception('Fallo al enviar petición');
   }
 }
