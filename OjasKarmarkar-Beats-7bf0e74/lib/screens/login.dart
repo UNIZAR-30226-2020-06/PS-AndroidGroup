@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:beats/screens/MainScreen.dart';
 import 'package:flutter/material.dart';
@@ -19,10 +20,12 @@ class _LoginPageState extends State<LoginPage> {
 
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
+  TextEditingController controlador = TextEditingController();
   Future<Login> _futureRespuesta;
   @override
   void initState() {
     super.initState();
+    controlador.text = "";
   }
 
   @override
@@ -125,7 +128,7 @@ class _LoginPageState extends State<LoginPage> {
                       GestureDetector(
                         onTap: () {
                           setState(() {
-                            _futureRespuesta = logearUsuario(emailController.text, passwordController.text );
+                            esperaLogin(context, emailController.text, passwordController.text, controlador);
                           });
                          },
                         child: Container(
@@ -146,24 +149,7 @@ class _LoginPageState extends State<LoginPage> {
                               new RegisterPage())); },
                           child: Text("¿No tienes cuenta? Regístrate"),
                         ),
-                        SizedBox(height: 40,child: FutureBuilder<Login>(
-                          future: _futureRespuesta,
-                          builder: (context, snapshot) {
-                            if (snapshot.hasData) {
-                              if(snapshot.data.respuesta == "error"){
-                                return Text(snapshot.data.respuesta);
-                              }else{
-                                Navigator.push(context, new MaterialPageRoute(
-                                    builder: (context) =>
-                                    new MainScreen()));
-                              }
-                            } else if (snapshot.hasError) {
-                              return Text("${snapshot.error}");
-                            }
-
-                            return Text("");
-                          },
-                        ),)
+                        SizedBox(height: 40,child: Text(controlador.text))
                           ],
                         )
 
@@ -180,6 +166,8 @@ class _LoginPageState extends State<LoginPage> {
   }
 
 }
+
+
 
 class Login {
   final String respuesta;
@@ -218,4 +206,14 @@ Future<Login> logearUsuario(String email, String contrasenya) async {
     // then throw an exception.
     throw Exception('Fallo al enviar petición');
   }
+}
+
+void esperaLogin(BuildContext context, String email,String contrasenya, TextEditingController controlador) async {
+  Login l = await logearUsuario(email, contrasenya);
+  if(l.respuesta!= "error"){
+    Navigator.push(context, MaterialPageRoute(builder: (context) => MainScreen()));
+  }else{
+    controlador.text = "Login sin éxito";
+  }
+
 }

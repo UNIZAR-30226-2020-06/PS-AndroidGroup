@@ -48,8 +48,10 @@ flutter_icons:
 
 
 dev_dependencies:
+  audioplayers: ^0.15.1
   flutter_test:
     sdk: flutter
+
 
 
 # For information on the generic Dart part of this file, see the

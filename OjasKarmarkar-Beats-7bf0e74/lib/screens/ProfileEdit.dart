@@ -27,12 +27,12 @@ class _ProfilePageState extends State<ProfilePage>
   final FocusNode myFocusNode = FocusNode();
   TextEditingController txt = TextEditingController();
   bool error = false;
-  TextEditingController usernameController;
-  TextEditingController emailController;
-  TextEditingController passwordController;
-  TextEditingController securePasswordController;
-  TextEditingController descriptionController;
-  TextEditingController playlistController;
+  TextEditingController usernameController = new TextEditingController();
+  TextEditingController emailController = new TextEditingController();
+  TextEditingController passwordController = new TextEditingController();
+  TextEditingController securePasswordController = new TextEditingController();
+  TextEditingController descriptionController = new TextEditingController();
+  TextEditingController playlistController = new TextEditingController();
   Future<Perfil> _futureRespuesta;
   List<String> playlists;
   PlaylistRepo playlistRepo;
@@ -45,9 +45,7 @@ class _ProfilePageState extends State<ProfilePage>
     // TODO: implement initState
     super.initState();
     _futureRespuesta = obtenerPerfil("kifixo@hotmail.com");
-    emailController = new TextEditingController(text: 'Initial value');
-
-
+    recibirDatos("kifixo@hotmail.com", usernameController);
 
 
 
@@ -168,37 +166,7 @@ class _ProfilePageState extends State<ProfilePage>
                                 ],
                               )),
 
-                          SizedBox(height: 500, child:new FutureBuilder<Perfil>(
-                            future: _futureRespuesta,
-                            builder: (context, snapshot) {
-                              if (snapshot.hasData) {
-                                if(snapshot.data.respuesta == "error"){
-                                  log('data: "error pero bien"');
-                                  return Text(snapshot.data.respuesta);
-                                }else{
-                                  emailController = new TextEditingController(text: snapshot.data.email);
-                                  usernameController = new TextEditingController(text: snapshot.data.nombreUsuario);
-                                  //passwordController = new TextEditingController(text: snapshot.data.contrasenya);
-                                  //securePasswordController = new TextEditingController(text: snapshot.data.repetirContraseya);
-                                  descriptionController = new TextEditingController(text: snapshot.data.descripcion);
-                                  playlistController = new TextEditingController(text: snapshot.data.playlists);
-                                  //usernameController.text = snapshot.data.nombreUsuario;
-                                  //descriptionController.text = snapshot.data.descripcion;
-                                  //emailController.text = ;
-                                  String h = snapshot.data.nombreUsuario;
-                                  log('data: $h');
-                                  //String playlistsAux = snapshot.data.playlists;
 
-                                  //playlists = playlistsAux.split('|');
-                                }
-                              } else if (snapshot.hasError) {
-                                log('data: "error"');
-                                return Text("${snapshot.error}");
-                              }
-
-                              return Text("");
-                            },
-                          ),),
                           Padding(
                               padding: EdgeInsets.only(
                                   left: 25.0, right: 25.0, top: 25.0),
@@ -222,12 +190,12 @@ class _ProfilePageState extends State<ProfilePage>
                           Padding(
                               padding: EdgeInsets.only(
                                   left: 25.0, right: 25.0, top: 2.0),
-                              child: new Row(
+                              child:  Row(
                                 mainAxisSize: MainAxisSize.max,
                                 children: <Widget>[
 
-                                  new Flexible(
-                                    child: new TextField(
+                                   Flexible(
+                                    child: TextField(
 
                                       controller: usernameController,
                                       style: TextStyle(fontSize: 16),
@@ -235,6 +203,7 @@ class _ProfilePageState extends State<ProfilePage>
                                         hintText: "Ejemplo123",
                                         hintStyle: TextStyle(fontSize: 15.0)
                                       ),
+                                      enabled: _status,
                                       autofocus: !_status,
 
                                     ),
@@ -871,8 +840,8 @@ class _ProfilePageState extends State<ProfilePage>
           ),
 
         ));
-  }
 
+  }
   @override
   void dispose() {
     // Clean up the controller when the Widget is disposed
@@ -1159,5 +1128,12 @@ Future<Perfil> obtenerPerfil(String email) async {
     // If the server did not return a 201 CREATED response,
     // then throw an exception.
     throw Exception('Fallo al enviar petición');
+  }
+}
+
+void recibirDatos(String email, TextEditingController usernameController) async{
+  Perfil p = await obtenerPerfil(email);
+  if(p.nombreUsuario != null){
+    usernameController.text = p.nombreUsuario;
   }
 }

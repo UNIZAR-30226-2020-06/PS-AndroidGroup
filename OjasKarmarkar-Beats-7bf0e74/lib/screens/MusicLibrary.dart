@@ -458,6 +458,7 @@ class Search extends SearchDelegate<Song> {
           child: ListTile(
             onTap: () {
               model.player.stop();
+              //model.playURI(suggestion[index].uri);
               model.playURI(suggestion[index].uri);
               model.playlist = false;
               close(context, null);

@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flute_music_player/flute_music_player.dart';
 import 'package:beats/models/ProgressModel.dart';
@@ -5,6 +7,7 @@ import 'package:flutter_media_notification/flutter_media_notification.dart';
 import 'dart:math';
 import 'RecentsModel.dart';
 import 'package:flutter/services.dart';
+import 'package:http/http.dart' as http;
 
 enum PlayerState { PLAYING, PAUSED, STOPPED }
 
@@ -181,5 +184,48 @@ class SongsModel extends ChangeNotifier {
       await MediaNotification.showNotification(
           title: title, author: author, isPlaying: isPlaying);
     } on PlatformException {}
+  }
+}
+
+
+class Cancion {
+  final String respuesta;
+
+  Cancion({this.respuesta,});
+
+  factory Cancion.fromJson(Map<String, dynamic> json) {
+    return Cancion(
+      respuesta: json['nombreUsuario'],
+
+
+
+    );
+
+  }
+  String getUserId(){
+    return respuesta;
+  }
+}
+
+Future<Cancion> obtenerPerfil(String email) async {
+  Map data = {
+    'email': email,
+  };
+  final http.Response response = await http.post(
+    'http://34.69.44.48:8080/Espotify/perfil_android',
+    headers: <String, String>{
+      'Content-Type': 'application/json; charset=UTF-8',
+    },
+    body: jsonEncode(data),
+
+  );
+  if (response.statusCode == 200) {
+    // If the server did return a 201 CREATED response,
+    // then parse the JSON.
+    return Cancion.fromJson(json.decode(response.body));
+  } else {
+    // If the server did not return a 201 CREATED response,
+    // then throw an exception.
+    throw Exception('Fallo al enviar petición');
   }
 }
