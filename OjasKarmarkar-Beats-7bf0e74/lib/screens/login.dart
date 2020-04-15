@@ -20,6 +20,10 @@ class _LoginPageState extends State<LoginPage> {
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
   Future<Login> _futureRespuesta;
+  @override
+  void initState() {
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -67,6 +71,7 @@ class _LoginPageState extends State<LoginPage> {
                     padding: EdgeInsets.all(30),
                     child: Column(
                       children: <Widget>[
+
                         SizedBox(height: 60,),
                         Container(
                           decoration: BoxDecoration(
@@ -156,7 +161,7 @@ class _LoginPageState extends State<LoginPage> {
                               return Text("${snapshot.error}");
                             }
 
-                            return CircularProgressIndicator();
+                            return Text("");
                           },
                         ),)
                           ],

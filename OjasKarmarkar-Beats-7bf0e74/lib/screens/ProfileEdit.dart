@@ -1,3 +1,5 @@
+import 'dart:convert';
+import 'dart:developer';
 import 'dart:io';
 
 import 'package:beats/icono_personalizado.dart';
@@ -10,6 +12,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:provider/provider.dart';
 import 'MusicLibrary.dart';
+import 'package:http/http.dart' as http;
 
 import 'login.dart';
 
@@ -24,6 +27,16 @@ class _ProfilePageState extends State<ProfilePage>
   final FocusNode myFocusNode = FocusNode();
   TextEditingController txt = TextEditingController();
   bool error = false;
+  TextEditingController usernameController;
+  TextEditingController emailController;
+  TextEditingController passwordController;
+  TextEditingController securePasswordController;
+  TextEditingController descriptionController;
+  TextEditingController playlistController;
+  Future<Perfil> _futureRespuesta;
+  List<String> playlists;
+  PlaylistRepo playlistRepo;
+
 
   SongsModel model;
 
@@ -31,6 +44,12 @@ class _ProfilePageState extends State<ProfilePage>
   void initState() {
     // TODO: implement initState
     super.initState();
+    _futureRespuesta = obtenerPerfil("kifixo@hotmail.com");
+    emailController = new TextEditingController(text: 'Initial value');
+
+
+
+
 
   }
 
@@ -119,6 +138,7 @@ class _ProfilePageState extends State<ProfilePage>
                         crossAxisAlignment: CrossAxisAlignment.start,
                         mainAxisAlignment: MainAxisAlignment.start,
                         children: <Widget>[
+
                           Padding(
                               padding: EdgeInsets.only(
                                   left: 25.0, right: 25.0, top: 25.0),
@@ -147,6 +167,38 @@ class _ProfilePageState extends State<ProfilePage>
                                   )
                                 ],
                               )),
+
+                          SizedBox(height: 500, child:new FutureBuilder<Perfil>(
+                            future: _futureRespuesta,
+                            builder: (context, snapshot) {
+                              if (snapshot.hasData) {
+                                if(snapshot.data.respuesta == "error"){
+                                  log('data: "error pero bien"');
+                                  return Text(snapshot.data.respuesta);
+                                }else{
+                                  emailController = new TextEditingController(text: snapshot.data.email);
+                                  usernameController = new TextEditingController(text: snapshot.data.nombreUsuario);
+                                  //passwordController = new TextEditingController(text: snapshot.data.contrasenya);
+                                  //securePasswordController = new TextEditingController(text: snapshot.data.repetirContraseya);
+                                  descriptionController = new TextEditingController(text: snapshot.data.descripcion);
+                                  playlistController = new TextEditingController(text: snapshot.data.playlists);
+                                  //usernameController.text = snapshot.data.nombreUsuario;
+                                  //descriptionController.text = snapshot.data.descripcion;
+                                  //emailController.text = ;
+                                  String h = snapshot.data.nombreUsuario;
+                                  log('data: $h');
+                                  //String playlistsAux = snapshot.data.playlists;
+
+                                  //playlists = playlistsAux.split('|');
+                                }
+                              } else if (snapshot.hasError) {
+                                log('data: "error"');
+                                return Text("${snapshot.error}");
+                              }
+
+                              return Text("");
+                            },
+                          ),),
                           Padding(
                               padding: EdgeInsets.only(
                                   left: 25.0, right: 25.0, top: 25.0),
@@ -173,14 +225,16 @@ class _ProfilePageState extends State<ProfilePage>
                               child: new Row(
                                 mainAxisSize: MainAxisSize.max,
                                 children: <Widget>[
+
                                   new Flexible(
                                     child: new TextField(
+
+                                      controller: usernameController,
                                       style: TextStyle(fontSize: 16),
                                       decoration: const InputDecoration(
                                         hintText: "Ejemplo123",
                                         hintStyle: TextStyle(fontSize: 15.0)
                                       ),
-                                      enabled: !_status,
                                       autofocus: !_status,
 
                                     ),
@@ -215,11 +269,13 @@ class _ProfilePageState extends State<ProfilePage>
                                 children: <Widget>[
                                   new Flexible(
                                     child: new TextField(
+
+                                      controller: descriptionController,
                                       style: TextStyle(fontSize: 16),
                                       decoration: const InputDecoration(
                                           hintText: "Eduardo el próximo sucesor de Queen",
                                           hintStyle: TextStyle(fontSize: 15.0)),
-                                      enabled: !_status,
+                                      enabled: _status,
                                     ),
                                   ),
                                 ],
@@ -252,11 +308,12 @@ class _ProfilePageState extends State<ProfilePage>
                                 children: <Widget>[
                                   new Flexible(
                                     child: new TextField(
+                                      controller: emailController,
                                       style: TextStyle(fontSize: 16),
                                       decoration: const InputDecoration(
                                           hintText: "ejemplo123@gmail.com",
                                           hintStyle: TextStyle(fontSize: 15.0)),
-                                      enabled: !_status,
+                                      enabled: _status,
                                     ),
                                   ),
                                 ],
@@ -337,7 +394,6 @@ class _ProfilePageState extends State<ProfilePage>
                                   ),
                                 ],
                               )),
-
                           Padding(
                               padding: EdgeInsets.only(
                                   left: 25.0, right: 25.0, top: 25.0),
@@ -369,6 +425,11 @@ class _ProfilePageState extends State<ProfilePage>
 
                                     itemCount: playlistRepo.playlist.length + 1,
                                     itemBuilder: (context, pos) {
+                                      //if(playlists.isNotEmpty){
+                                        //for(String e in playlists){
+                                        //  playlistRepo.add(e);
+                                        //}
+                                      //}
                                       var padd = (pos == 0) ? width * 0.08 : 5.0;
                                       if (pos == (playlistRepo.playlist.length)) {
                                         return GestureDetector(
@@ -1048,4 +1109,55 @@ class _ProfilePageState extends State<ProfilePage>
     }
   }
 
+}
+
+class Perfil {
+  final String respuesta;
+  final String nombreUsuario;
+  final String descripcion;
+  final String email;
+  final String contrasenya;
+  final String repetirContraseya;
+  final String playlists;
+
+  Perfil({this.respuesta, this.nombreUsuario, this.descripcion, this.email,
+    this.contrasenya, this.repetirContraseya, this.playlists});
+
+  factory Perfil.fromJson(Map<String, dynamic> json) {
+    return Perfil(
+      nombreUsuario: json['nombreUsuario'],
+      descripcion: json['descripcion'],
+      email: json['email'],
+      //playlists: json['lista'],
+
+
+    );
+
+  }
+  String getUserId(){
+    return respuesta;
+  }
+}
+
+Future<Perfil> obtenerPerfil(String email) async {
+  Map data = {
+    'email': email,
+  };
+  final http.Response response = await http.post(
+    'http://34.69.44.48:8080/Espotify/perfil_android',
+    headers: <String, String>{
+      'Content-Type': 'application/json; charset=UTF-8',
+    },
+    body: jsonEncode(data),
+
+  );
+  if (response.statusCode == 200) {
+    // If the server did return a 201 CREATED response,
+    // then parse the JSON.
+    return Perfil.fromJson(json.decode(response.body));
+  } else {
+    // If the server did not return a 201 CREATED response,
+    // then throw an exception.
+    throw Exception('Fallo al enviar petición');
+  }
 }

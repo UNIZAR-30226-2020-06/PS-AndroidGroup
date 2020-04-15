@@ -229,7 +229,7 @@ class _RegisterPageState extends State<RegisterPage> {
                                 return Text("${snapshot.error}");
                               }
 
-                              return CircularProgressIndicator();
+                              return Text("");
                             },
                           ),)
 
@@ -272,7 +272,7 @@ Future<Registro> registrarUsuario(String nombreUsuario, String contrasenya, Stri
     'correo': correo,
   };
   final http.Response response = await http.post(
-    'http://34.69.44.48:8080/Espotify/android_testing',
+    'http://34.69.44.48:8080/Espotify/registro_android',
     headers: <String, String>{
       'Content-Type': 'application/json; charset=UTF-8',
     },

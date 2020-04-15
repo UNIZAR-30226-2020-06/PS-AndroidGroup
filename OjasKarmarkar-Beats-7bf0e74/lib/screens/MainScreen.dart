@@ -19,7 +19,7 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver{
 
 
   var index = 1;
-  var screens = [HomeScreen(), Library(), UploadSong(), Bookmarks(), SettingsScreen(),UserProfile()];
+  var screens = [HomeScreen(), Library(), UploadSong(), Bookmarks(), SettingsScreen(), ProfilePage()];
 
   @override
   Widget build(BuildContext context) {
