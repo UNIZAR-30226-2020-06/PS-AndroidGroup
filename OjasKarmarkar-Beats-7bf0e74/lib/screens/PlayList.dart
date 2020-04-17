@@ -1,8 +1,11 @@
+import 'dart:convert';
+import 'dart:developer';
 import 'dart:io';
 
 import 'package:beats/models/PlaylistRepo.dart';
 import 'package:beats/models/SongsModel.dart';
 import 'package:beats/models/PlayListHelper.dart';
+import 'package:beats/reproductorMusica.dart';
 
 import 'package:flute_music_player/flute_music_player.dart';
 import 'package:flutter/material.dart';
@@ -10,6 +13,9 @@ import 'package:flutter_media_notification/flutter_media_notification.dart';
 import 'package:provider/provider.dart';
 import '../custom_icons.dart';
 import 'MusicLibrary.dart';
+import 'package:http/http.dart' as http;
+
+import 'ProfileEdit.dart';
 
 class PLayListScreen extends StatefulWidget {
   @override
@@ -23,13 +29,17 @@ class _PLayListScreenState extends State<PLayListScreen> {
   TextEditingController editingController;
   List<Song> songs;
 
+  //final String email;
+
+  //_PLayListScreenState({Key key, @required this.email}) : super(key: key);
+
   
 
   @override
   void didChangeDependencies() {
     playlistRepo = Provider.of<PlaylistRepo>(context);
     name = playlistRepo.playlist[playlistRepo.selected];
-    initData();
+    initData2();
     model = Provider.of<SongsModel>(context);
     super.didChangeDependencies();
   }
@@ -50,7 +60,7 @@ class _PLayListScreenState extends State<PLayListScreen> {
                   snap: false,
                   flexibleSpace: Container(
                     height: 200,
-                    color: Colors.blue,
+                    color: Colors.orange,
                     child: Stack(children: <Widget>[
                       Padding(
                           padding: EdgeInsets.only(
@@ -103,7 +113,7 @@ class _PLayListScreenState extends State<PLayListScreen> {
                                   model.player.stop();
                                   await PlaylistHelper(name)
                                       .deleteSong(songs[pos]);
-                                  initData();
+                                  initData2();
                                 },
                               ),
                               onTap: () {
@@ -112,8 +122,10 @@ class _PLayListScreenState extends State<PLayListScreen> {
                                 model.playlist = true;
                                 model.playlistSongs = songs;
                                 model.currentSong = songs[pos];
-                             
+                                //Navigator.of(context).push(new MaterialPageRoute(
+                                //    builder: (context) => new ExampleApp(url: model.currentSong.uri)));
                                 model.play();
+
                               },
                               leading: CircleAvatar(child: getImage(pos)),
                               title: Text(
@@ -159,6 +171,25 @@ class _PLayListScreenState extends State<PLayListScreen> {
     setState(() {});
   }
 
+  void initData2() async {
+    var helper = PlaylistHelper(name);
+    Canciones l = await obtenerCanciones("kifixo@hotmail.com","patata");
+    var listaNombres = l.getNombresAudio().split('|');
+    var listaUrls = l.getUrlsAudio().split('|');
+    log('data: $listaUrls');
+    List<Song> listaCanciones = new List<Song>();
+    Song aux = new Song(0,"","","",0,0,"",null);
+    for(int i = 0; i<listaNombres.length; i++){
+      aux.title = listaNombres.elementAt(i);
+      aux.uri = listaUrls.elementAt(i);
+      listaCanciones.add(aux);
+    }
+    songs = listaCanciones;
+    setState(() {});
+  }
+
+
+
   getImage(pos) {
     if (songs[pos].albumArt != null) {
       return ClipRRect(
@@ -174,7 +205,7 @@ class _PLayListScreenState extends State<PLayListScreen> {
       return Container(
         decoration: BoxDecoration(
           color: Colors.black,
-          border: Border.all(color: Colors.greenAccent),
+          border: Border.all(color: Colors.orangeAccent),
           borderRadius: BorderRadius.only(
               topLeft: Radius.circular(40.0),
               topRight: Radius.circular(10.0),
@@ -242,5 +273,57 @@ class _PLayListScreenState extends State<PLayListScreen> {
         width: width * 0.62,
       );
     } else {}
+  }
+}
+
+class Canciones {
+  final String respuesta;
+  final String nombresAudio;
+  final String urlsAudio;
+  final String genero;
+  final String autor;
+  Canciones({this.respuesta, this.nombresAudio,this.urlsAudio, this.genero, this.autor});
+
+  factory Canciones.fromJson(Map<String, dynamic> json) {
+    return Canciones(
+      nombresAudio: json['nombresAudio'],
+      urlsAudio: json['urlsAudio'],
+
+
+    );
+
+  }
+  String getUserId(){
+    return respuesta;
+  }
+  String getNombresAudio(){
+    return nombresAudio;
+  }
+  String getUrlsAudio(){
+    return urlsAudio;
+  }
+}
+
+Future<Canciones> obtenerCanciones(String email, String nombrePlaylist) async {
+  Map data = {
+    'email': email,
+    'nombrePlaylist': nombrePlaylist,
+  };
+  final http.Response response = await http.post(
+    'http://34.69.44.48:8080/Espotify/obtener_audios_android',
+    headers: <String, String>{
+      'Content-Type': 'application/json; charset=UTF-8',
+    },
+    body: jsonEncode(data),
+
+  );
+  if (response.statusCode == 200) {
+    // If the server did return a 201 CREATED response,
+    // then parse the JSON.
+    return Canciones.fromJson(json.decode(response.body));
+  } else {
+    // If the server did not return a 201 CREATED response,
+    // then throw an exception.
+    throw Exception('Fallo al enviar petición');
   }
 }

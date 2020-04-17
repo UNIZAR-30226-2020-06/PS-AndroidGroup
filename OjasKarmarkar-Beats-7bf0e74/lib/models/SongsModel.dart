@@ -7,7 +7,8 @@ import 'package:flutter_media_notification/flutter_media_notification.dart';
 import 'dart:math';
 import 'RecentsModel.dart';
 import 'package:flutter/services.dart';
-import 'package:http/http.dart' as http;
+import 'package:beats/screens/PlayList.dart';
+
 
 enum PlayerState { PLAYING, PAUSED, STOPPED }
 
@@ -34,7 +35,18 @@ class SongsModel extends ChangeNotifier {
   }
 
   fetchSongs() async {
-    songs = await MusicFinder.allSongs();
+    //songs = await MusicFinder.allSongs();
+    Canciones c = await obtenerCanciones("kifixo@hotmail.com", "patata");
+    var listaNombres = c.getNombresAudio().split('|');
+    var listaUrls = c.getUrlsAudio().split('|');
+    List<Song> listaCanciones = new List<Song>();
+    Song aux = new Song(0,"","","",0,0,"",null);
+    for(int i = 0; i<listaNombres.length; i++){
+      aux.title = listaNombres.elementAt(i);
+      aux.uri = listaUrls.elementAt(i);
+      listaCanciones.add(aux);
+    }
+    songs = listaCanciones;
     if (songs.length == 0) songs = null;
     player = new MusicFinder();
     initValues();
@@ -85,9 +97,9 @@ class SongsModel extends ChangeNotifier {
     player.seek(pos);
   }
 
-  play() {
+  play() async {
     var song = currentSong;
-    player.play(song.uri, isLocal: true);
+    player.play("https://espotify.ddns.net/almacen-mp3/15.mp3", isLocal: false);
     currentState = PlayerState.PLAYING;
     recents.add(song);
     showNotification(song.title, song.artist, true);
@@ -188,44 +200,4 @@ class SongsModel extends ChangeNotifier {
 }
 
 
-class Cancion {
-  final String respuesta;
 
-  Cancion({this.respuesta,});
-
-  factory Cancion.fromJson(Map<String, dynamic> json) {
-    return Cancion(
-      respuesta: json['nombreUsuario'],
-
-
-
-    );
-
-  }
-  String getUserId(){
-    return respuesta;
-  }
-}
-
-Future<Cancion> obtenerPerfil(String email) async {
-  Map data = {
-    'email': email,
-  };
-  final http.Response response = await http.post(
-    'http://34.69.44.48:8080/Espotify/perfil_android',
-    headers: <String, String>{
-      'Content-Type': 'application/json; charset=UTF-8',
-    },
-    body: jsonEncode(data),
-
-  );
-  if (response.statusCode == 200) {
-    // If the server did return a 201 CREATED response,
-    // then parse the JSON.
-    return Cancion.fromJson(json.decode(response.body));
-  } else {
-    // If the server did not return a 201 CREATED response,
-    // then throw an exception.
-    throw Exception('Fallo al enviar petición');
-  }
-}

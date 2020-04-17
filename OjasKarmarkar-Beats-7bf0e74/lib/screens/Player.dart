@@ -149,7 +149,7 @@ class _PlayBackPageState extends State<PlayBackPage> {
                               },
                               icon: Icon(
                                 Icons.loop,
-                                color: model.repeat ? Colors.pink : Colors.grey,
+                                color: model.repeat ? Colors.orange : Colors.grey,
                                 size: 35.0,
                               ),
                             ),
@@ -188,8 +188,8 @@ class _PlayBackPageState extends State<PlayBackPage> {
                                         gradient: LinearGradient(
                                           colors: <Color>[
                                             themeChanger.accentColor,
-                                            Color(0xFF1976D2),
-                                            Color(0xFF42A5F5),
+                                            Color(0xFF996000),
+                                            Color(0xFF996500),
                                           ],
                                         ),
                                         borderRadius: BorderRadius.all(
@@ -234,7 +234,7 @@ class _PlayBackPageState extends State<PlayBackPage> {
                                   icon: Icon(
                                     Icons.shuffle,
                                     color: model.shuffle
-                                        ? Colors.pink
+                                        ? Colors.orange
                                         : Colors.grey,
                                     size: 35.0,
                                   )),
@@ -281,7 +281,7 @@ class _PlayBackPageState extends State<PlayBackPage> {
                                         : Icons.favorite_border,
                                     color: bookmark
                                             .alreadyExists(model.currentSong)
-                                        ? Colors.pink
+                                        ? Colors.orange
                                         : Colors.grey,
                                     size: 35.0,
                                   ),
@@ -325,7 +325,7 @@ class _PlayBackPageState extends State<PlayBackPage> {
                                                         Icons
                                                             .add_circle_outline,
                                                         color:
-                                                            Colors.greenAccent,
+                                                            Colors.orangeAccent,
                                                       ),
                                                     ),
                                                   )
@@ -511,7 +511,7 @@ class _PlayBackPageState extends State<PlayBackPage> {
                           value: a.position.toDouble(),
                         ),
                         data: SliderTheme.of(context).copyWith(
-                            thumbColor: Color(0xfff1f2f6),
+                            thumbColor: Color(0xFF996000),
                             activeTrackColor: themeChanger.accentColor));
                   }),
                   Padding(
@@ -553,8 +553,8 @@ class _PlayBackPageState extends State<PlayBackPage> {
                                       gradient: LinearGradient(
                                         colors: <Color>[
                                           themeChanger.accentColor,
-                                          Color(0xFF1976D2),
-                                          Color(0xFF42A5F5),
+                                          Color(0xFF995000),
+                                          Color(0xFF996000),
                                         ],
                                       ),
                                       borderRadius: BorderRadius.all(
@@ -617,7 +617,7 @@ class _PlayBackPageState extends State<PlayBackPage> {
                                     ? Icons.favorite
                                     : Icons.favorite_border,
                                 color: bookmark.alreadyExists(model.currentSong)
-                                    ? Colors.pink
+                                    ? Colors.orange
                                     : Colors.grey,
                                 size: 35.0,
                               ),
@@ -632,7 +632,7 @@ class _PlayBackPageState extends State<PlayBackPage> {
                           },
                           icon: Icon(
                             Icons.loop,
-                            color: model.repeat ? Colors.pink : Colors.grey,
+                            color: model.repeat ? Colors.orange : Colors.grey,
                             size: 35.0,
                           ),
                         ),
@@ -644,7 +644,7 @@ class _PlayBackPageState extends State<PlayBackPage> {
                           },
                           icon: Icon(
                             Icons.shuffle,
-                            color: model.shuffle ? Colors.pink : Colors.grey,
+                            color: model.shuffle ? Colors.orange : Colors.grey,
                             size: 35.0,
                           ),
                         ),
@@ -669,7 +669,7 @@ class _PlayBackPageState extends State<PlayBackPage> {
                                                 MainAxisAlignment.spaceEvenly,
                                             children: <Widget>[
                                               Text(
-                                                "Add to Playlist",
+                                                "Añadir a Playlist",
                                                 style: Theme.of(context)
                                                     .textTheme
                                                     .display1,
@@ -687,7 +687,7 @@ class _PlayBackPageState extends State<PlayBackPage> {
                                                   },
                                                   child: Icon(
                                                     Icons.add_circle_outline,
-                                                    color: Colors.greenAccent,
+                                                    color: Colors.orangeAccent,
                                                   ),
                                                 ),
                                               )
@@ -779,7 +779,7 @@ class _PlayBackPageState extends State<PlayBackPage> {
           return Padding(
             padding: const EdgeInsets.all(8.0),
             child: AlertDialog(
-              shape: Border.all(color: Colors.greenAccent),
+              shape: Border.all(color: Colors.orangeAccent),
               backgroundColor: Theme.of(context).backgroundColor,
               title: Text(
                 'Add',

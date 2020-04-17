@@ -2,19 +2,18 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 
-class PlaylistRepo extends ChangeNotifier {
+class LocalPlaylistRepo extends ChangeNotifier {
 
   List<String> playlist = [];
   SharedPreferences prefList;
   int selected;
 
-  PlaylistRepo() {
+  LocalPlaylistRepo() {
     init();
   }
 
 
   init() async {
-    playlist.clear();
     prefList = await SharedPreferences.getInstance();
     List<String> list = prefList.getStringList("playlist");
     updatePlayList(list);
@@ -42,9 +41,6 @@ class PlaylistRepo extends ChangeNotifier {
     notifyListeners();
   }
 
-  generateInitialPlayList(List<String> list){
-    playlist = list;
-  }
 
   add(String name) async {
     playlist.add(name);

@@ -16,6 +16,7 @@ import 'package:http/http.dart' as http;
 
 import 'login.dart';
 
+
 class ProfilePage extends StatefulWidget {
   @override
   _ProfilePageState createState() => _ProfilePageState();
@@ -35,8 +36,9 @@ class _ProfilePageState extends State<ProfilePage>
   TextEditingController playlistController = new TextEditingController();
   Future<Perfil> _futureRespuesta;
   List<String> playlists;
-  PlaylistRepo playlistRepo;
+  PlaylistRepo playlistRepo = new PlaylistRepo();
 
+  TextEditingController textFieldController = TextEditingController();
 
   SongsModel model;
 
@@ -45,11 +47,13 @@ class _ProfilePageState extends State<ProfilePage>
     // TODO: implement initState
     super.initState();
     _futureRespuesta = obtenerPerfil("kifixo@hotmail.com");
-    recibirDatos("kifixo@hotmail.com", usernameController);
+    recibirDatos("kifixo@hotmail.com", usernameController,
+        descriptionController, emailController, playlistRepo);
 
 
 
   }
+
 
   @override
   Widget build(BuildContext context) {
@@ -394,11 +398,7 @@ class _ProfilePageState extends State<ProfilePage>
 
                                     itemCount: playlistRepo.playlist.length + 1,
                                     itemBuilder: (context, pos) {
-                                      //if(playlists.isNotEmpty){
-                                        //for(String e in playlists){
-                                        //  playlistRepo.add(e);
-                                        //}
-                                      //}
+                                      anyadePlaylists("kifixo@hotmail.com", playlistRepo);
                                       var padd = (pos == 0) ? width * 0.08 : 5.0;
                                       if (pos == (playlistRepo.playlist.length)) {
                                         return GestureDetector(
@@ -418,7 +418,7 @@ class _ProfilePageState extends State<ProfilePage>
                                                     ),
                                                     contentPadding: EdgeInsets.only(top: 10.0),
                                                     content: Container(
-                                                      width: 200.0,
+                                                      width: 50.0,
                                                       child: Column(
                                                         mainAxisAlignment:
                                                         MainAxisAlignment.start,
@@ -484,6 +484,7 @@ class _ProfilePageState extends State<ProfilePage>
                                                           InkWell(
                                                             onTap: () {
                                                               validate(context, playlistRepo);
+
                                                             },
                                                             child: Container(
                                                               padding: EdgeInsets.only(
@@ -818,7 +819,7 @@ class _ProfilePageState extends State<ProfilePage>
                                           child: GestureDetector(
                                             onTap: () {
                                             },
-                                            child: getImage(model, pos),
+                                            //child: getImage(model, pos),
                                           ),
                                         );
 
@@ -841,6 +842,24 @@ class _ProfilePageState extends State<ProfilePage>
 
         ));
 
+
+
+  }
+
+
+  Future<String> anyadePlaylists(String email, PlaylistRepo playlistRepo) async{
+
+    Perfil p = await obtenerPerfil(email);
+    String s = p.playlists;
+    log('data: $s');
+    if(p.nombreUsuario != null){
+      var playlistss = p.playlists.split('|');
+      log('data: $playlistss');
+      playlistRepo.generateInitialPlayList(playlistss);
+
+    }
+
+    return "";
   }
   @override
   void dispose() {
@@ -980,10 +999,21 @@ class _ProfilePageState extends State<ProfilePage>
       txt.text.toString().isEmpty ? error = true : error = false;
     });
     if (txt.text.toString().isNotEmpty) {
-        repo.add(txt.text);
-        txt.clear();
-        Navigator.of(context).pop();
+      crearPlaylist2(emailController.text, txt.text, context, playlistRepo);
+
+
+
       }
+  }
+  void crearPlaylist2(String email, String nombrePlaylist,
+      BuildContext context, PlaylistRepo playlistRepo)async{
+    Respuesta r = await crearPlaylist(email, nombrePlaylist);
+    if(r.getUserId()=="ok"){
+      playlistRepo.add(nombrePlaylist);
+    }
+    txt.clear();
+    Navigator.of(context).pop();
+
   }
 
 
@@ -1097,7 +1127,7 @@ class Perfil {
       nombreUsuario: json['nombreUsuario'],
       descripcion: json['descripcion'],
       email: json['email'],
-      //playlists: json['lista'],
+      playlists: json['lista'],
 
 
     );
@@ -1131,9 +1161,62 @@ Future<Perfil> obtenerPerfil(String email) async {
   }
 }
 
-void recibirDatos(String email, TextEditingController usernameController) async{
+void recibirDatos(String email, TextEditingController usernameController,
+    TextEditingController descriptionController,
+    TextEditingController emailController, PlaylistRepo playlistRepo) async{
   Perfil p = await obtenerPerfil(email);
   if(p.nombreUsuario != null){
     usernameController.text = p.nombreUsuario;
+    descriptionController.text = p.descripcion;
+    emailController.text = p.email;
+
+  }
+
+}
+
+Future<Respuesta> crearPlaylist(String email, String nombrePlaylist) async {
+  Map data = {
+    'email': email,
+    'nombrePlaylist': nombrePlaylist,
+  };
+  final http.Response response = await http.post(
+    'http://34.69.44.48:8080/Espotify/crear_lista_android',
+    headers: <String, String>{
+      'Content-Type': 'application/json; charset=UTF-8',
+    },
+    body: jsonEncode(data),
+
+  );
+  if (response.statusCode == 200) {
+    // If the server did return a 201 CREATED response,
+    // then parse the JSON.
+    return Respuesta.fromJson(json.decode(response.body));
+  } else {
+    // If the server did not return a 201 CREATED response,
+    // then throw an exception.
+    throw Exception('Fallo al enviar petición');
   }
 }
+
+
+
+class Respuesta {
+  final String creado;
+
+  Respuesta({this.creado});
+
+  factory Respuesta.fromJson(Map<String, dynamic> json) {
+    return Respuesta(
+      creado: json['creado'],
+
+    );
+
+  }
+  String getUserId(){
+    return creado;
+  }
+}
+
+
+
+

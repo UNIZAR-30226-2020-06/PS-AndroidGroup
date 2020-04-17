@@ -1,24 +1,25 @@
 import 'package:beats/Animations/transitions.dart';
-import 'package:beats/models/LocalPlaylistRepo.dart';
 import 'package:beats/models/PlayListHelper.dart';
+import 'package:beats/models/PlaylistRepo.dart';
 import 'package:beats/models/ThemeModel.dart';
+import 'package:beats/models/BookmarkModel.dart';
 import 'package:beats/models/const.dart';
-import 'package:beats/screens/UploadSongData.dart';
 import 'package:flute_music_player/flute_music_player.dart';
 import 'package:flutter/material.dart';
 import 'dart:io';
-import 'package:beats/models/LocalSongsModel.dart';
+import 'package:beats/models/SongsModel.dart';
+import '../custom_icons.dart';
 import 'package:provider/provider.dart';
 import 'Player.dart';
 
 double height, width;
 
-
-class UploadSong extends StatelessWidget {
+class PodcastLibrary extends StatelessWidget {
   TextEditingController editingController;
 
-  LocalSongsModel model;
+  SongsModel model;
 
+  BookmarkModel b;
 
   ThemeChanger themeChanger;
 
@@ -28,7 +29,8 @@ class UploadSong extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    model = Provider.of<LocalSongsModel>(context);
+    model = Provider.of<SongsModel>(context);
+    b = Provider.of<BookmarkModel>(context);
     height = MediaQuery.of(context).size.height;
     width = MediaQuery.of(context).size.width;
     themeChanger = Provider.of<ThemeChanger>(context);
@@ -39,7 +41,7 @@ class UploadSong extends StatelessWidget {
           body: (model.songs == null)
               ? Center(
             child: Text(
-              "No tienes canciones en el móvil",
+              "No hay podcasts",
               style: Theme.of(context).textTheme.display1,
             ),
           )
@@ -79,7 +81,7 @@ class UploadSong extends StatelessWidget {
                               child: Stack(
                                 children: <Widget>[
                                   Text(
-                                    "Sube una canción",
+                                    "Podcasts",
                                     style: TextStyle(
                                         fontWeight: FontWeight.bold,
                                         fontSize: 30,
@@ -106,6 +108,7 @@ class UploadSong extends StatelessWidget {
                   ),
                   Align(
                     alignment: Alignment.bottomLeft,
+                    child: showStatus(model, context),
                   )
                 ],
               ))),
@@ -113,7 +116,7 @@ class UploadSong extends StatelessWidget {
     );
   }
 
-  getLoading(LocalSongsModel model) {
+  getLoading(SongsModel model) {
     if (model.songs.length == 0) {
       return Expanded(
           child: Center(
@@ -124,7 +127,7 @@ class UploadSong extends StatelessWidget {
         child: ListView.builder(
           itemCount: model.songs.length,
           itemBuilder: (context, pos) {
-            return Consumer<LocalPlaylistRepo>(builder: (context, repo, _) {
+            return Consumer<PlaylistRepo>(builder: (context, repo, _) {
               return ListTile(
                 trailing: PopupMenuButton<String>(
                   icon: Icon(
@@ -153,7 +156,7 @@ class UploadSong extends StatelessWidget {
                                     Padding(
                                       padding: const EdgeInsets.all(8.0),
                                       child: Text(
-                                        "Subir canción",
+                                        "Añadir a Playlist",
                                         style: Theme.of(context)
                                             .textTheme
                                             .display1,
@@ -189,7 +192,7 @@ class UploadSong extends StatelessWidget {
                                     },
                                   )
                                       : Center(
-                                    child: Text("No Playlist"),
+                                    child: Text("No existen Playlists"),
                                   ),
                                 )
                               ],
@@ -210,23 +213,29 @@ class UploadSong extends StatelessWidget {
                     //}
                   },
                   itemBuilder: (BuildContext context) {
-                    return Constants.customizedChoices.map((String choice) {
+                    return Constants.choices.map((String choice) {
                       return PopupMenuItem<String>(
                         value: choice,
-                        child: GestureDetector(
-                            onTap: () { Navigator.push(context, new MaterialPageRoute(
-                                builder: (context) =>
-                                new UploadSongData())); },
-                            child: Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child:  Text(choice,
-                                style: Theme.of(context).textTheme.display2,),
-                            ),
+                        child: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Text(
+                            choice,
+                            style: Theme.of(context).textTheme.display2,
+                          ),
                         ),
                       );
                     }).toList();
                   },
                 ),
+                onTap: () async {
+                  model.player.stop();
+                  model.playlist = false;
+                  model.currentSong = model.songs[pos];
+
+
+                  //Reset the list. So we can change to next song.
+                  model.play();
+                },
                 leading: CircleAvatar(child: getImage(model, pos)),
                 title: Text(
                   model.songs[pos].title,
@@ -268,25 +277,28 @@ class UploadSong extends StatelessWidget {
             icon: Icon(
               Icons.music_note,
               color: Colors.white,
+
             ),
           ),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(70),
             // Box decoration takes a gradient
             gradient: LinearGradient(
+              begin: Alignment.topRight,
+              end: Alignment.bottomLeft,
               colors: pos % 2 == 0
-            ? [
-            Colors.orangeAccent,
+                  ? [
+                Colors.orangeAccent,
                 Colors.orange,
                 Colors.deepOrange,
                 Colors.orange,
-                ]
-                    : [
+              ]
+                  : [
                 Colors.pinkAccent,
                 Colors.pink,
                 Colors.pinkAccent,
                 Colors.pink,
-                ],
+              ],
             ),
           ));
     }
@@ -296,11 +308,96 @@ class UploadSong extends StatelessWidget {
     Navigator.push(context, SlideRightRoute(page: PlayBackPage()));
   }
 
+  showStatus(model, BuildContext context) {
+    if (model.currentSong != null) {
+      return Container(
+        decoration: BoxDecoration(
+            color: Theme.of(context).backgroundColor,
+            border: Border(
+              top: BorderSide(
+                color: Theme.of(context).textTheme.display1.color,
+              ),
+            )),
+        height: height * 0.06,
+        width: width,
+        child: ListView.builder(
+          scrollDirection: Axis.horizontal,
+          itemCount: 1,
+          itemBuilder: (context, pos) {
+            return GestureDetector(
+              onTap: () {
+                Navigator.push(context, Scale(page: PlayBackPage()));
+              },
+              child: Stack(
+                children: <Widget>[
+                  Row(
+                    children: <Widget>[
+                      IconButton(
+                        color: Theme.of(context).textTheme.display1.color,
+                        icon: Icon(Icons.arrow_drop_up),
+                        onPressed: () {
+                          Navigator.push(context, Scale(page: PlayBackPage()));
+                        },
+                      ),
+                      Container(
+                        width: width * 0.75,
+                        child: Padding(
+                          padding: EdgeInsets.only(left: 20.0),
+                          child: Text(
+                            model.currentSong.title,
+                            style: Theme.of(context).textTheme.display2,
+                            maxLines: 1,
+                          ),
+                        ),
+                      ),
+                      Padding(
+                        padding: EdgeInsets.only(right: 20),
+                        child: IconButton(
+                          icon: model.currentState == PlayerState.PAUSED ||
+                              model.currentState == PlayerState.STOPPED
+                              ? Icon(
+                            CustomIcons.play,
+                            color: Theme.of(context)
+                                .textTheme
+                                .display1
+                                .color,
+                            size: 20.0,
+                          )
+                              : Icon(
+                            CustomIcons.pause,
+                            color: Theme.of(context)
+                                .textTheme
+                                .display1
+                                .color,
+                            size: 20.0,
+                          ),
+                          onPressed: () {
+                            if (model.currentState == PlayerState.PAUSED ||
+                                model.currentState == PlayerState.STOPPED) {
+                              model.play();
 
+
+                            } else {
+
+                              model.pause();
+                            }
+                          },
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            );
+          },
+        ),
+      );
+    } else {}
+  }
 }
 
 class Search extends SearchDelegate<Song> {
-  LocalSongsModel model;
+  SongsModel model;
   @override
   List<Widget> buildActions(BuildContext context) {
     // actions
@@ -311,7 +408,7 @@ class Search extends SearchDelegate<Song> {
         },
         icon: Icon(
           Icons.clear,
-          color: Colors.orange,
+          color: Colors.grey,
         ),
       )
     ];
@@ -338,7 +435,7 @@ class Search extends SearchDelegate<Song> {
 
   @override
   Widget buildSuggestions(BuildContext context) {
-    model = Provider.of<LocalSongsModel>(context);
+    model = Provider.of<SongsModel>(context);
     List<Song> dummy = <Song>[];
     List<Song> recents = <Song>[];
     for (int i = 0; i < model.songs.length; i++) {
@@ -360,9 +457,11 @@ class Search extends SearchDelegate<Song> {
           padding: const EdgeInsets.all(8.0),
           child: ListTile(
             onTap: () {
-              Navigator.push(context, new MaterialPageRoute(
-                  builder: (context) =>
-                  new UploadSongData()));
+              model.player.stop();
+              //model.playURI(suggestion[index].uri);
+              model.playURI(suggestion[index].uri);
+              model.playlist = false;
+              close(context, null);
             },
             title: Text.rich(
               TextSpan(

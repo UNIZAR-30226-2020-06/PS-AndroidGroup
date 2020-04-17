@@ -3,6 +3,7 @@ import 'dart:developer';
 import 'dart:io';
 
 
+import 'package:beats/screens/login.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
@@ -196,7 +197,7 @@ class _RegisterPageState extends State<RegisterPage> {
                           SizedBox(height: 40,),
                           InkWell(
                               onTap: (){ setState(() {
-                                _futureRespuesta = registrarUsuario(usernameController.text, passwordController.text,
+                                _futureRespuesta = esperaRegistro(context, usernameController.text, passwordController.text,
                                 securePasswordController.text, descriptionController.text, emailController.text);
                               });
                                   //Navigator.pop(context);
@@ -291,4 +292,14 @@ Future<Registro> registrarUsuario(String nombreUsuario, String contrasenya, Stri
     // then throw an exception.
     throw Exception('Fallo al enviar petición');
   }
+}
+
+Future<Registro> esperaRegistro(BuildContext context, String nombreUsuario, String contrasenya, String repiteContrasenya,
+String descripcion, String correo) async {
+  Registro l = await registrarUsuario(nombreUsuario, contrasenya, repiteContrasenya,
+      descripcion, correo);
+  if(l.respuesta!= "error"){
+    Navigator.push(context, MaterialPageRoute(builder: (context) => LoginPage()));
+  }
+  return l;
 }

@@ -1,4 +1,7 @@
+import 'package:beats/PlayerWidget.dart';
+import 'package:beats/reproductorMusica.dart';
 import 'package:beats/screens/Bookmarks.dart';
+import 'package:beats/screens/PodcastLibrary.dart';
 import 'package:beats/screens/ProfileEdit.dart';
 import 'package:beats/screens/UserProfile.dart';
 import 'package:beats/screens/login.dart';
@@ -19,7 +22,7 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver{
 
 
   var index = 1;
-  var screens = [HomeScreen(), Library(), UploadSong(), Bookmarks(), SettingsScreen(), ProfilePage()];
+  var screens = [PodcastLibrary(), Library(), UploadSong(), Bookmarks(), SettingsScreen(), ProfilePage()];
 
   @override
   Widget build(BuildContext context) {
@@ -32,8 +35,8 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver{
               navBarHeight: 70,
               items: [
                 ExpandingBottomBarItem(
-                    icon: Icons.home,
-                    text: "Inicio",
+                    icon: Icons.mic,
+                    text: "Podcasts",
                     selectedColor: Colors.pinkAccent),
                 ExpandingBottomBarItem(
                     icon: Icons.music_note,
@@ -61,6 +64,8 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver{
                 setState(() {
                   index = i;
                 });
+
+
               })
     );
   }
