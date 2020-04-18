@@ -3,9 +3,9 @@ import 'dart:developer';
 import 'dart:io';
 
 import 'package:beats/icono_personalizado.dart';
+import 'package:beats/models/MisCancionesModel.dart';
 import 'package:beats/models/PlayListHelper.dart';
 import 'package:beats/models/PlaylistRepo.dart';
-import 'package:beats/models/PlaylistRepo2.dart';
 import 'package:beats/models/SongsModel.dart';
 import 'package:beats/models/Username.dart';
 import 'package:beats/models/const.dart';
@@ -40,7 +40,7 @@ class _ProfilePageState extends State<ProfilePage>
   Future<Perfil> _futureRespuesta;
   List<String> playlists;
   PlaylistRepo playlistRepo = new PlaylistRepo();
-  PlaylistRepo2 playlistRepo2 = new PlaylistRepo2();
+  MisCancionesModel misCanciones = new MisCancionesModel();
 
   TextEditingController textFieldController = TextEditingController();
 
@@ -49,10 +49,7 @@ class _ProfilePageState extends State<ProfilePage>
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
-
-
 
 
   }
@@ -62,11 +59,13 @@ class _ProfilePageState extends State<ProfilePage>
   Widget build(BuildContext context) {
     model = Provider.of<SongsModel>(context);
     username = Provider.of<Username>(context);
+    playlistRepo = Provider.of<PlaylistRepo>(context);
+    misCanciones = Provider.of<MisCancionesModel>(context);
     _futureRespuesta = obtenerPerfil(username.email);
     recibirDatos(username.email, usernameController,
         descriptionController, emailController);
 
-    anyadePlaylists(username.email, playlistRepo, playlistRepo2);
+    anyadePlaylists(username.email, playlistRepo, misCanciones);
     return new Scaffold(
         body: new Container(
           color: Colors.white,
@@ -408,6 +407,8 @@ class _ProfilePageState extends State<ProfilePage>
                                     itemCount: playlistRepo.playlist.length + 1,
                                     itemBuilder: (context, pos) {
 
+
+
                                       var padd = (pos == 0) ? width * 0.08 : 5.0;
                                       if (pos == (playlistRepo.playlist.length)) {
                                         return GestureDetector(
@@ -548,6 +549,8 @@ class _ProfilePageState extends State<ProfilePage>
                                               borderRadius: BorderRadius.circular(20)),
                                           child: GestureDetector(
                                             onTap: () {
+                                              misCanciones.selected = null;
+                                              playlistRepo.selected = null;
                                               playlistRepo.selected = pos;
                                               Navigator.of(context).push(new MaterialPageRoute(
                                                   builder: (context) => new PLayListScreen()));
@@ -813,17 +816,19 @@ class _ProfilePageState extends State<ProfilePage>
                               padding: EdgeInsets.only(top: height * 0.08),
                               child: SizedBox(
                                 height: height * 0.23,
-                                child: new Consumer<PlaylistRepo2>(
-                                  builder: (context2, playlistRepo2, _) => ListView.builder(
+                                child: new Consumer<MisCancionesModel>(
+                                  builder: (context, misCanciones, _) => ListView.builder(
 
                                     itemCount: 2,
-                                    itemBuilder: (context2, pos) {
+                                    itemBuilder: (context, pos) {
 
                                       var padd = (pos == 0) ? width * 0.08 : 5.0;
-                                      if (pos == (playlistRepo2.playlist.length)) {
+                                      if (pos == (misCanciones.playlist.length + 1)) {
                                         return GestureDetector(
                                           onTap: () {
-                                            playlistRepo2.selected = pos;
+                                            misCanciones.selected = null;
+                                            playlistRepo.selected = null;
+                                            misCanciones.selected = pos;
                                             Navigator.of(context).push(new MaterialPageRoute(
                                                 builder: (context) => new UploadSong()));
                                           },
@@ -852,7 +857,9 @@ class _ProfilePageState extends State<ProfilePage>
                                               borderRadius: BorderRadius.circular(20)),
                                           child: GestureDetector(
                                             onTap: () {
-                                              playlistRepo2.selected = pos;
+                                              misCanciones.selected = null;
+                                              playlistRepo.selected = null;
+                                              misCanciones.selected = pos;
                                               Navigator.of(context).push(new MaterialPageRoute(
                                                   builder: (context) => new PLayListScreen()));
                                             },
@@ -918,7 +925,7 @@ class _ProfilePageState extends State<ProfilePage>
   }
 
 
-   anyadePlaylists(String email, PlaylistRepo playlistRepo, PlaylistRepo2 playlistRepo2) async {
+   anyadePlaylists(String email, PlaylistRepo playlistRepo, MisCancionesModel misCanciones) async {
      Perfil p = await obtenerPerfil(email);
      String s = p.playlists;
      if (p.nombreUsuario != null) {
@@ -930,7 +937,7 @@ class _ProfilePageState extends State<ProfilePage>
        username.setCancionesUrl(p.urls);
        List<String> lista = new List<String>();
        lista.add("Mis canciones");
-       playlistRepo2.generateInitialPlayList(lista);
+       misCanciones.generateInitialPlayList(lista);
      }
    }
   @override

@@ -18,6 +18,7 @@ environment:
 
 dependencies:
   http: 0.12.0+4
+  flute_music_player: ^0.0.6
   flutter:
     sdk: flutter
 
@@ -29,7 +30,6 @@ dependencies:
   dots_indicator: ^1.0.0
   permission_handler:
   expanding_bottom_bar:
-  flute_music_player:
   provider:
   pref_dessert:
   path_provider:

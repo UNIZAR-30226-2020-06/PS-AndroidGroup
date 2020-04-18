@@ -41,7 +41,6 @@ getEmail(){
 setCanciones(String x){
   prefs.setString("canciones", x);
   canciones = x;
-  notifyListeners();
 }
 
 getCanciones(){
@@ -50,7 +49,6 @@ getCanciones(){
 setCancionesUrl(String x){
   prefs.setString("cancionesUrl", x);
   cancionesUrl = x;
-  notifyListeners();
 }
 
 getCancionesUrl(){

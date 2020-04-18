@@ -1,7 +1,7 @@
 import 'dart:async';
+import 'package:beats/models/MisCancionesModel.dart';
 import 'package:beats/models/Username.dart';
 import 'package:beats/models/PlaylistRepo.dart';
-import 'package:beats/models/PlaylistRepo2.dart';
 import 'package:beats/models/BookmarkModel.dart';
 import 'package:beats/models/Now_Playing.dart';
 import 'package:beats/screens/Register.dart';
@@ -42,8 +42,8 @@ void main(List<String> args) {
     ChangeNotifierProvider<PlaylistRepo>(
       create: (context) => PlaylistRepo(),
     ),
-    ChangeNotifierProvider<PlaylistRepo2>(
-      create: (context) => PlaylistRepo2(),
+    ChangeNotifierProvider<MisCancionesModel>(
+      create: (context) => MisCancionesModel(),
     ),
     ChangeNotifierProvider<LocalPlaylistRepo>(
       create: (context) => LocalPlaylistRepo(),

@@ -2,13 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 
-class PlaylistRepo2 extends ChangeNotifier {
+class MisCancionesModel extends ChangeNotifier {
 
   List<String> playlist = [];
   SharedPreferences prefList;
   int selected;
 
-  PlaylistRepo() {
+  MisCancionesModel() {
     init();
   }
 

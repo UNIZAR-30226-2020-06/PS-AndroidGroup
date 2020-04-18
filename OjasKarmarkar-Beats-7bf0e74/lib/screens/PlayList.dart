@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';
 
+import 'package:beats/models/MisCancionesModel.dart';
 import 'package:beats/models/PlaylistRepo.dart';
 import 'package:beats/models/SongsModel.dart';
 import 'package:beats/models/PlayListHelper.dart';
@@ -25,8 +26,10 @@ class PLayListScreen extends StatefulWidget {
 
 class _PLayListScreenState extends State<PLayListScreen> {
   PlaylistRepo playlistRepo;
+  MisCancionesModel misCanciones;
   SongsModel model;
   String name;
+  String name2;
   TextEditingController editingController;
   List<Song> songs;
   Username username;
@@ -38,12 +41,28 @@ class _PLayListScreenState extends State<PLayListScreen> {
 
   @override
   void didChangeDependencies() {
+    username = Provider.of<Username>(context);
     playlistRepo = Provider.of<PlaylistRepo>(context);
-    name = playlistRepo.playlist[playlistRepo.selected];
-    if(name == "Mis canciones"){
-      initData3();
-    }else{
+    misCanciones = Provider.of<MisCancionesModel>(context);
+    if(playlistRepo.selected != null)
+    {
+      name = playlistRepo.playlist[playlistRepo.selected];
+      playlistRepo.selected = null;
       initData2();
+    }
+
+    int stringer = misCanciones.selected;
+    int stringerr = playlistRepo.selected;
+
+    log("miscanciones: $stringer");
+    log("playlistrepo: $stringerr");
+
+    if(misCanciones.selected != null) {
+      name =
+      misCanciones.playlist[misCanciones.selected];
+      log("name: $name");
+      misCanciones.selected = null;
+      initData3();
     }
 
     model = Provider.of<SongsModel>(context);
@@ -82,6 +101,7 @@ class _PLayListScreenState extends State<PLayListScreen> {
                               ),
                               onPressed: () {
                                 Navigator.pop(context);
+
                               },
                             ),
                           )),
@@ -171,15 +191,15 @@ class _PLayListScreenState extends State<PLayListScreen> {
     );
   }
 
-  void initData() async {
-    var helper = PlaylistHelper(name);
-    songs = await helper.getSongs();
-    setState(() {});
-  }
+  //void initData() async {
+  //  var helper = PlaylistHelper(name);
+  //  songs = await helper.getSongs();
+  //  setState(() {});
+  //}
 
   void initData2() async {
     var helper = PlaylistHelper(name);
-    Canciones l = await obtenerCanciones("kifixo@hotmail.com","patata");
+    Canciones l = await obtenerCanciones(username.email, name);
     var listaNombres = l.getNombresAudio().split('|');
     var listaUrls = l.getUrlsAudio().split('|');
     log('data: $listaUrls');
