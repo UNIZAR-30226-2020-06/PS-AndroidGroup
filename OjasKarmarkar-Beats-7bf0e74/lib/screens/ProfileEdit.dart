@@ -66,7 +66,8 @@ class _ProfilePageState extends State<ProfilePage>
     recibirDatos(username.email, usernameController,
         descriptionController, emailController);
 
-
+    anyadePlaylists(username.email, playlistRepo);
+    anyadeCanciones(username.email, playlistRepo2);
     return new Scaffold(
         body: new Container(
           color: Colors.white,
@@ -407,7 +408,7 @@ class _ProfilePageState extends State<ProfilePage>
 
                                     itemCount: playlistRepo.playlist.length + 1,
                                     itemBuilder: (context, pos) {
-                                      anyadePlaylists(username.email, playlistRepo);
+
                                       var padd = (pos == 0) ? width * 0.08 : 5.0;
                                       if (pos == (playlistRepo.playlist.length)) {
                                         return GestureDetector(
@@ -818,7 +819,7 @@ class _ProfilePageState extends State<ProfilePage>
 
                                     itemCount: 2,
                                     itemBuilder: (context2, pos) {
-                                      anyadeCanciones(username.email, playlistRepo2);
+
                                       var padd = (pos == 0) ? width * 0.08 : 5.0;
                                       if (pos == (playlistRepo2.playlist.length)) {
                                         return GestureDetector(
