@@ -1,11 +1,14 @@
 import 'dart:async';
 import 'package:beats/models/Username.dart';
 import 'package:beats/models/PlaylistRepo.dart';
+import 'package:beats/models/PlaylistRepo2.dart';
 import 'package:beats/models/BookmarkModel.dart';
 import 'package:beats/models/Now_Playing.dart';
 import 'package:beats/screens/Register.dart';
 import 'package:beats/screens/login.dart';
 import 'package:flutter_media_notification/flutter_media_notification.dart';
+import 'models/LocalPlaylistRepo.dart';
+import 'models/LocalSongsModel.dart';
 import 'models/RecentsModel.dart';
 import 'models/SongsModel.dart';
 import 'package:provider/provider.dart';
@@ -39,6 +42,12 @@ void main(List<String> args) {
     ChangeNotifierProvider<PlaylistRepo>(
       create: (context) => PlaylistRepo(),
     ),
+    ChangeNotifierProvider<PlaylistRepo2>(
+      create: (context) => PlaylistRepo2(),
+    ),
+    ChangeNotifierProvider<LocalPlaylistRepo>(
+      create: (context) => LocalPlaylistRepo(),
+    ),
     ChangeNotifierProvider<Username>(
       create: (context) => Username(),
     ),
@@ -50,6 +59,9 @@ void main(List<String> args) {
     ),
     ChangeNotifierProvider<SongsModel>(
       create: (context) => SongsModel(prov, rec),
+    ),
+    ChangeNotifierProvider<LocalSongsModel>(
+      create: (context) => LocalSongsModel(),
     ),
     ChangeNotifierProvider<ThemeChanger>(create: (context) => ThemeChanger()),
     ChangeNotifierProvider<NowPlaying>(create: (context) => NowPlaying(false))

@@ -1,3 +1,6 @@
+import 'dart:convert';
+import 'dart:developer';
+
 import 'package:beats/Animations/transitions.dart';
 import 'package:beats/models/PlayListHelper.dart';
 import 'package:beats/models/PlaylistRepo.dart';
@@ -11,6 +14,7 @@ import 'package:beats/models/SongsModel.dart';
 import '../custom_icons.dart';
 import 'package:provider/provider.dart';
 import 'Player.dart';
+import 'package:http/http.dart' as http;
 
 double height, width;
 
@@ -30,6 +34,11 @@ class Library extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     model = Provider.of<SongsModel>(context);
+    for(int i=0; i<model.getSongs().length;i++){
+      String s = model.getSongs().elementAt(i).title;
+      log('cancion: $s');
+    }
+
     b = Provider.of<BookmarkModel>(context);
     height = MediaQuery.of(context).size.height;
     width = MediaQuery.of(context).size.width;
@@ -135,7 +144,7 @@ class Library extends StatelessWidget {
                     color: Colors.grey,
                   ),
                   onSelected: (String choice) async {
-                    print("debug " + choice);
+                    log("data: $choice");
                     if (choice == Constants.pl) {
                       showDialog(
                           context: context,

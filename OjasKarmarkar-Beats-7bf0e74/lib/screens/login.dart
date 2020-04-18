@@ -2,8 +2,10 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:beats/screens/MainScreen.dart';
+import 'package:beats/models/Username.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:provider/provider.dart';
 
 import 'Register.dart';
 
@@ -22,6 +24,7 @@ class _LoginPageState extends State<LoginPage> {
   final passwordController = TextEditingController();
   TextEditingController controlador = TextEditingController();
   Future<Login> _futureRespuesta;
+  Username username;
   @override
   void initState() {
     super.initState();
@@ -30,6 +33,7 @@ class _LoginPageState extends State<LoginPage> {
 
   @override
   Widget build(BuildContext context) {
+    username = Provider.of<Username>(context);
     return Scaffold(
       body: Container(
         width: double.infinity,
@@ -128,7 +132,7 @@ class _LoginPageState extends State<LoginPage> {
                       GestureDetector(
                         onTap: () {
                           setState(() {
-                            esperaLogin(context, emailController.text, passwordController.text, controlador);
+                            esperaLogin(context, emailController.text, passwordController.text, controlador, username);
                           });
                          },
                         child: Container(
@@ -208,9 +212,11 @@ Future<Login> logearUsuario(String email, String contrasenya) async {
   }
 }
 
-void esperaLogin(BuildContext context, String email,String contrasenya, TextEditingController controlador) async {
+void esperaLogin(BuildContext context, String email,String contrasenya,
+    TextEditingController controlador, Username username) async {
   Login l = await logearUsuario(email, contrasenya);
   if(l.respuesta!= "error"){
+    username.email = email;
     Navigator.push(context, MaterialPageRoute(builder: (context) => MainScreen()));
   }else{
     controlador.text = "Login sin éxito";

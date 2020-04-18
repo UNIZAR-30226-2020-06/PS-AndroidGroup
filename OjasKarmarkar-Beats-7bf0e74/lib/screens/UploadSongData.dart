@@ -5,22 +5,23 @@ import 'MusicLibrary.dart';
 
 import 'UploadSong.dart';
 import 'login.dart';
+import 'package:flutter_uploader/flutter_uploader.dart';
 
-class UploadSongData extends StatefulWidget {
-  @override
-  _UploadSongDataState createState() => _UploadSongDataState();
-}
 
-class _UploadSongDataState extends State<UploadSongData>
-    with SingleTickerProviderStateMixin {
+
+class UploadSongDataState extends StatelessWidget   {
   bool _status = false;
   final FocusNode myFocusNode = FocusNode();
+  final String archivo;
+  final uploader = FlutterUploader();
 
-  @override
-  void initState() {
-    // TODO: implement initState
-    super.initState();
-  }
+  TextEditingController titleController = new TextEditingController();
+  TextEditingController descriptionController = new TextEditingController();
+
+
+
+  UploadSongDataState({Key key, @required this.archivo}) : super(key: key);
+
 
   @override
   Widget build(BuildContext context) {
@@ -135,6 +136,7 @@ class _UploadSongDataState extends State<UploadSongData>
                                 children: <Widget>[
                                   new Flexible(
                                     child: new TextField(
+                                      controller: titleController,
                                       style: TextStyle(fontSize: 16),
                                       decoration: const InputDecoration(
                                           hintText: "Ejemplo123",
@@ -234,12 +236,6 @@ class _UploadSongDataState extends State<UploadSongData>
         ));
   }
 
-  @override
-  void dispose() {
-    // Clean up the controller when the Widget is disposed
-    myFocusNode.dispose();
-    super.dispose();
-  }
 
   Widget _getActionButtons() {
     return Padding(
@@ -257,8 +253,7 @@ class _UploadSongDataState extends State<UploadSongData>
                     textColor: Colors.white,
                     color: Colors.green,
                     onPressed: () {
-                        Navigator.pop(context);
-
+                        upload(titleController.text, archivo);
                     },
                     shape: new RoundedRectangleBorder(
                         borderRadius: new BorderRadius.circular(20.0)),
@@ -275,7 +270,6 @@ class _UploadSongDataState extends State<UploadSongData>
                     textColor: Colors.white,
                     color: Colors.red,
                     onPressed: () {
-                      Navigator.pop(context);
                     },
                     shape: new RoundedRectangleBorder(
                         borderRadius: new BorderRadius.circular(20.0)),
@@ -287,5 +281,16 @@ class _UploadSongDataState extends State<UploadSongData>
       ),
     );
   }
+  upload(String filename, String savedDir) async{
+    final taskId = await uploader.enqueue(
+        url: "https://34.69.44.48:8080/Espotify/cancion_subir_android", //required: url to upload to
+        files: [FileItem(filename: filename, savedDir: savedDir, fieldname:"file")], // required: list of files that you want to upload
+        method: UploadMethod.POST, // HTTP method  (POST or PUT or PATCH)
+        headers: {"tambien": "tambien", "tmb": "tmb"},
+        data: {"name": "cualquier cosa"}, // any data you want to send in upload request
+        showNotification: false, // send local notification (android only) for upload status
+        tag: "upload 1"); // unique tag for upload task
+  }
 
 }
+

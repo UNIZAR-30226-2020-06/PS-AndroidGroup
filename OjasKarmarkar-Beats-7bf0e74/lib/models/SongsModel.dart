@@ -1,20 +1,21 @@
 import 'dart:convert';
+import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flute_music_player/flute_music_player.dart';
 import 'package:beats/models/ProgressModel.dart';
 import 'package:flutter_media_notification/flutter_media_notification.dart';
-import 'dart:math';
 import 'RecentsModel.dart';
 import 'package:flutter/services.dart';
 import 'package:beats/screens/PlayList.dart';
-
+import 'package:http/http.dart' as http;
+import 'package:flutter/foundation.dart';
 
 enum PlayerState { PLAYING, PAUSED, STOPPED }
 
 class SongsModel extends ChangeNotifier {
   // Thousands of stuff packed into this ChangeNotifier
-  var songs = <Song>[];
+  List<Song> songs = new List<Song>();
   var duplicate = <Song>[]; // Duplicate of songs variable for Search function
   Song currentSong;
   bool playlist = false;
@@ -35,18 +36,20 @@ class SongsModel extends ChangeNotifier {
   }
 
   fetchSongs() async {
-    //songs = await MusicFinder.allSongs();
-    Canciones c = await obtenerCanciones("kifixo@hotmail.com", "patata");
-    var listaNombres = c.getNombresAudio().split('|');
-    var listaUrls = c.getUrlsAudio().split('|');
-    List<Song> listaCanciones = new List<Song>();
-    Song aux = new Song(0,"","","",0,0,"",null);
+    ListaCancionesDefault c = await obtenerListaCanciones();
+    List<String> listaNombres = c.getNombresAudio().split('|');
+    List<String> listaUrls = c.getUrlsAudio().split('|');
+
     for(int i = 0; i<listaNombres.length; i++){
-      aux.title = listaNombres.elementAt(i);
-      aux.uri = listaUrls.elementAt(i);
-      listaCanciones.add(aux);
+      songs.add(new Song(1,"", listaNombres[i], "",0,0,listaUrls[i],null));
+      String yy = songs[i].title;
+      debugPrint('data: $yy');
     }
-    songs = listaCanciones;
+    for(int j=0; j<listaNombres.length;j++){
+      String yoy = songs[j].title;
+      debugPrint('finalote: $yoy');
+    }
+
     if (songs.length == 0) songs = null;
     player = new MusicFinder();
     initValues();
@@ -59,6 +62,7 @@ class SongsModel extends ChangeNotifier {
 
     notifyListeners();
   }
+
 
   updateUI() {
     notifyListeners();
@@ -74,6 +78,7 @@ class SongsModel extends ChangeNotifier {
       }
     }
   }
+
 
   initValues() {
     player.setDurationHandler((d) {
@@ -99,11 +104,15 @@ class SongsModel extends ChangeNotifier {
 
   play() async {
     var song = currentSong;
-    player.play("https://espotify.ddns.net/almacen-mp3/15.mp3", isLocal: false);
+    player.play(song.uri, isLocal: false);
     currentState = PlayerState.PLAYING;
     recents.add(song);
     showNotification(song.title, song.artist, true);
     updateUI();
+  }
+
+  List<Song> getSongs(){
+    return songs;
   }
 
   stop() {
@@ -201,3 +210,45 @@ class SongsModel extends ChangeNotifier {
 
 
 
+class ListaCancionesDefault {
+  final String nombresAudio;
+  final String urlsAudio;
+
+
+  ListaCancionesDefault({this.nombresAudio, this.urlsAudio});
+
+  factory ListaCancionesDefault.fromJson(Map<String, dynamic> json) {
+    return ListaCancionesDefault(
+      nombresAudio: json['nombresAudio'],
+      urlsAudio: json['urlsAudio'],
+    );
+  }
+  String getNombresAudio(){
+    return nombresAudio;
+  }
+  String getUrlsAudio(){
+    return urlsAudio;
+  }
+}
+
+Future<ListaCancionesDefault> obtenerListaCanciones() async {
+  Map data = {
+  };
+  final http.Response response = await http.post(
+    'http://34.69.44.48:8080/Espotify/obtener_randomaudios_android',
+    headers: <String, String>{
+      'Content-Type': 'application/json; charset=UTF-8',
+    },
+    body: jsonEncode(data),
+
+  );
+  if (response.statusCode == 200) {
+    // If the server did return a 201 CREATED response,
+    // then parse the JSON.
+    return ListaCancionesDefault.fromJson(json.decode(response.body));
+  } else {
+    // If the server did not return a 201 CREATED response,
+    // then throw an exception.
+    throw Exception('Fallo al enviar petición');
+  }
+}

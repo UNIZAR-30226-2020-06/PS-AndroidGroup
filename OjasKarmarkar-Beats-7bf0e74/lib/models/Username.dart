@@ -4,6 +4,9 @@ import 'package:shared_preferences/shared_preferences.dart';
 class Username with ChangeNotifier{
 
 String name;
+String email;
+String canciones;
+String cancionesUrl;
 SharedPreferences prefs;
 
 Username(){
@@ -24,6 +27,34 @@ setName(String x){
 }
 getName(){
   return name;
+}
+
+setEmail(String x){
+  prefs.setString("email", x);
+  email = x;
+  notifyListeners();
+}
+
+getEmail(){
+  return email;
+}
+setCanciones(String x){
+  prefs.setString("canciones", x);
+  canciones = x;
+  notifyListeners();
+}
+
+getCanciones(){
+  return canciones;
+}
+setCancionesUrl(String x){
+  prefs.setString("cancionesUrl", x);
+  cancionesUrl = x;
+  notifyListeners();
+}
+
+getCancionesUrl(){
+  return cancionesUrl;
 }
 
 }

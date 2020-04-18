@@ -11,6 +11,7 @@ import 'package:beats/models/SongsModel.dart';
 import '../custom_icons.dart';
 import 'package:provider/provider.dart';
 import 'Player.dart';
+import 'package:http/http.dart' as http;
 
 double height, width;
 

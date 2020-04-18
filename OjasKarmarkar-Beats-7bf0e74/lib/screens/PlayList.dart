@@ -5,6 +5,7 @@ import 'dart:io';
 import 'package:beats/models/PlaylistRepo.dart';
 import 'package:beats/models/SongsModel.dart';
 import 'package:beats/models/PlayListHelper.dart';
+import 'package:beats/models/Username.dart';
 import 'package:beats/reproductorMusica.dart';
 
 import 'package:flute_music_player/flute_music_player.dart';
@@ -28,7 +29,7 @@ class _PLayListScreenState extends State<PLayListScreen> {
   String name;
   TextEditingController editingController;
   List<Song> songs;
-
+  Username username;
   //final String email;
 
   //_PLayListScreenState({Key key, @required this.email}) : super(key: key);
@@ -39,7 +40,12 @@ class _PLayListScreenState extends State<PLayListScreen> {
   void didChangeDependencies() {
     playlistRepo = Provider.of<PlaylistRepo>(context);
     name = playlistRepo.playlist[playlistRepo.selected];
-    initData2();
+    if(name == "Mis canciones"){
+      initData3();
+    }else{
+      initData2();
+    }
+
     model = Provider.of<SongsModel>(context);
     super.didChangeDependencies();
   }
@@ -176,6 +182,22 @@ class _PLayListScreenState extends State<PLayListScreen> {
     Canciones l = await obtenerCanciones("kifixo@hotmail.com","patata");
     var listaNombres = l.getNombresAudio().split('|');
     var listaUrls = l.getUrlsAudio().split('|');
+    log('data: $listaUrls');
+    List<Song> listaCanciones = new List<Song>();
+    Song aux = new Song(0,"","","",0,0,"",null);
+    for(int i = 0; i<listaNombres.length; i++){
+      aux.title = listaNombres.elementAt(i);
+      aux.uri = listaUrls.elementAt(i);
+      listaCanciones.add(aux);
+    }
+    songs = listaCanciones;
+    setState(() {});
+  }
+
+  void initData3() async{
+    var helper = PlaylistHelper(name);
+    var listaNombres = username.getCanciones().split('|');
+    var listaUrls = username.getCancionesUrl().split('|');
     log('data: $listaUrls');
     List<Song> listaCanciones = new List<Song>();
     Song aux = new Song(0,"","","",0,0,"",null);

@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:beats/Animations/transitions.dart';
 import 'package:beats/models/LocalPlaylistRepo.dart';
 import 'package:beats/models/PlayListHelper.dart';
@@ -10,8 +12,9 @@ import 'dart:io';
 import 'package:beats/models/LocalSongsModel.dart';
 import 'package:provider/provider.dart';
 import 'Player.dart';
+import 'package:beats/screens/UploadSongData.dart';
 
-double height, width;
+double height1, width1;
 
 
 class UploadSong extends StatelessWidget {
@@ -26,11 +29,12 @@ class UploadSong extends StatelessWidget {
 
   bool error = false;
 
+
   @override
   Widget build(BuildContext context) {
     model = Provider.of<LocalSongsModel>(context);
-    height = MediaQuery.of(context).size.height;
-    width = MediaQuery.of(context).size.width;
+    height1 = MediaQuery.of(context).size.height;
+    width1 = MediaQuery.of(context).size.width;
     themeChanger = Provider.of<ThemeChanger>(context);
     return WillPopScope(
       child: Scaffold(
@@ -68,13 +72,13 @@ class UploadSong extends StatelessWidget {
                         ],
                         backgroundColor:
                         Theme.of(context).backgroundColor,
-                        expandedHeight: height * 0.11,
+                        expandedHeight: height1 * 0.11,
                         pinned: true,
                         flexibleSpace: Align(
                           alignment: Alignment.centerLeft,
                           child: Padding(
                             padding:
-                            EdgeInsets.only(left: width * 0.06),
+                            EdgeInsets.only(left: width1 * 0.06),
                             child: Container(
                               child: Stack(
                                 children: <Widget>[
@@ -132,7 +136,6 @@ class UploadSong extends StatelessWidget {
                     color: Colors.grey,
                   ),
                   onSelected: (String choice) async {
-                    print("debug " + choice);
                     if (choice == Constants.pl) {
                       showDialog(
                           context: context,
@@ -214,9 +217,11 @@ class UploadSong extends StatelessWidget {
                       return PopupMenuItem<String>(
                         value: choice,
                         child: GestureDetector(
-                            onTap: () { Navigator.push(context, new MaterialPageRoute(
+                            onTap: () { String s = model.songs[pos].uri;
+                            log('Uri: $s');
+                              Navigator.push(context, new MaterialPageRoute(
                                 builder: (context) =>
-                                new UploadSongData())); },
+                                new UploadSongDataState(archivo: choice,))); },
                             child: Padding(
                               padding: const EdgeInsets.all(8.0),
                               child:  Text(choice,
@@ -359,10 +364,10 @@ class Search extends SearchDelegate<Song> {
         return Padding(
           padding: const EdgeInsets.all(8.0),
           child: ListTile(
-            onTap: () {
+            onTap: () {String s = suggestion[index].uri;
+            log('Uri2: $s');
               Navigator.push(context, new MaterialPageRoute(
-                  builder: (context) =>
-                  new UploadSongData()));
+                  builder: (context) => new UploadSongDataState(archivo: suggestion[index].uri)));
             },
             title: Text.rich(
               TextSpan(
@@ -382,7 +387,7 @@ class Search extends SearchDelegate<Song> {
                   ]),
               style: TextStyle(color: Colors.black, fontSize: 18),
             ),
-            leading: CircleAvatar(child: Icon(Icons.music_note)),
+            leading: CircleAvatar(child: Icon(Icons.music_note, color: Colors.white,), backgroundColor: Colors.orange,),
           ),
         );
       },

@@ -5,9 +5,12 @@ import 'dart:io';
 import 'package:beats/icono_personalizado.dart';
 import 'package:beats/models/PlayListHelper.dart';
 import 'package:beats/models/PlaylistRepo.dart';
+import 'package:beats/models/PlaylistRepo2.dart';
 import 'package:beats/models/SongsModel.dart';
+import 'package:beats/models/Username.dart';
 import 'package:beats/models/const.dart';
 import 'package:beats/screens/PlayList.dart';
+import 'package:beats/screens/UploadSong.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:provider/provider.dart';
@@ -37,18 +40,18 @@ class _ProfilePageState extends State<ProfilePage>
   Future<Perfil> _futureRespuesta;
   List<String> playlists;
   PlaylistRepo playlistRepo = new PlaylistRepo();
+  PlaylistRepo2 playlistRepo2 = new PlaylistRepo2();
 
   TextEditingController textFieldController = TextEditingController();
 
   SongsModel model;
+  Username username;
 
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
-    _futureRespuesta = obtenerPerfil("kifixo@hotmail.com");
-    recibirDatos("kifixo@hotmail.com", usernameController,
-        descriptionController, emailController, playlistRepo);
+
 
 
 
@@ -58,6 +61,12 @@ class _ProfilePageState extends State<ProfilePage>
   @override
   Widget build(BuildContext context) {
     model = Provider.of<SongsModel>(context);
+    username = Provider.of<Username>(context);
+    _futureRespuesta = obtenerPerfil(username.email);
+    recibirDatos(username.email, usernameController,
+        descriptionController, emailController);
+
+
     return new Scaffold(
         body: new Container(
           color: Colors.white,
@@ -398,7 +407,7 @@ class _ProfilePageState extends State<ProfilePage>
 
                                     itemCount: playlistRepo.playlist.length + 1,
                                     itemBuilder: (context, pos) {
-                                      anyadePlaylists("kifixo@hotmail.com", playlistRepo);
+                                      anyadePlaylists(username.email, playlistRepo);
                                       var padd = (pos == 0) ? width * 0.08 : 5.0;
                                       if (pos == (playlistRepo.playlist.length)) {
                                         return GestureDetector(
@@ -800,29 +809,91 @@ class _ProfilePageState extends State<ProfilePage>
                                 ],
                               )),
 
-
                           Padding(
-                              padding: EdgeInsets.only(top: height * 0.03),
+                              padding: EdgeInsets.only(top: height * 0.08),
                               child: SizedBox(
-                                height: height * 0.09,
-                                child: Consumer<PlaylistRepo>(
-                                  builder: (context, playlistRepo, _) => ListView.builder(
+                                height: height * 0.23,
+                                child: new Consumer<PlaylistRepo2>(
+                                  builder: (context2, playlistRepo2, _) => ListView.builder(
 
-                                    itemCount: playlistRepo.playlist.length + 1,
-                                    itemBuilder: (context, pos) {
+                                    itemCount: 2,
+                                    itemBuilder: (context2, pos) {
+                                      anyadeCanciones(username.email, playlistRepo2);
                                       var padd = (pos == 0) ? width * 0.08 : 5.0;
-                                      return Card(
+                                      if (pos == (playlistRepo2.playlist.length)) {
+                                        return GestureDetector(
+                                          onTap: () {
+                                            playlistRepo2.selected = pos;
+                                            Navigator.of(context).push(new MaterialPageRoute(
+                                                builder: (context) => new UploadSong()));
+                                          },
+                                          child: Card(
+                                            margin: EdgeInsets.only(left: padd, right: 5.0),
+                                            elevation: 5,
+                                            shape: RoundedRectangleBorder(
+                                                side: BorderSide(color: Colors.orangeAccent),
+                                                borderRadius: BorderRadius.circular(20)),
+                                            child: ClipRRect(
+                                                borderRadius: BorderRadius.circular(20),
+                                                child: Container(
+                                                    width: width * 0.4,
+                                                    child: Center(
+                                                        child: Icon(
+                                                          Icons.add,
+                                                          size: 25,
+                                                        )))),
+                                          ),
+                                        );
+                                      } else {
+                                        return Card(
                                           margin: EdgeInsets.only(left: padd, right: 5.0),
                                           elevation: 20,
                                           shape: RoundedRectangleBorder(
-                                              borderRadius: BorderRadius.circular(500)),
+                                              borderRadius: BorderRadius.circular(20)),
                                           child: GestureDetector(
                                             onTap: () {
+                                              playlistRepo2.selected = pos;
+                                              Navigator.of(context).push(new MaterialPageRoute(
+                                                  builder: (context) => new PLayListScreen()));
                                             },
-                                            //child: getImage(model, pos),
+                                            child: ClipRRect(
+                                                borderRadius: BorderRadius.circular(20),
+                                                child: Container(
+                                                  width: width * 0.4,
+                                                  decoration: BoxDecoration(
+                                                    // Box decoration takes a gradient
+                                                    gradient: LinearGradient(
+                                                      // Where the linear gradient begins and ends
+                                                      begin: Alignment.topRight,
+                                                      end: Alignment.bottomLeft,
+                                                      // Add one stop for each color. Stops should increase from 0 to 1
+                                                      stops: [0.1, 0.5, 0.7, 0.9],
+                                                      colors: pos % 2 == 0
+                                                          ? [
+                                                        Colors.orangeAccent,
+                                                        Colors.orange,
+                                                        Colors.deepOrange,
+                                                        Colors.orange,
+                                                      ]
+                                                          : [
+                                                        Colors.pinkAccent,
+                                                        Colors.pink,
+                                                        Colors.pinkAccent,
+                                                        Colors.pink,
+                                                      ],
+                                                    ),
+                                                  ),
+                                                  child: Stack(children: <Widget>[
+
+                                                    Center(
+                                                        child: Text("Mis canciones",
+                                                            style:
+                                                            TextStyle(color: Colors.white)))
+                                                  ]),
+                                                )),
                                           ),
                                         );
-
+                                      }
                                     },
                                     scrollDirection: Axis.horizontal,
                                   ),
@@ -847,11 +918,10 @@ class _ProfilePageState extends State<ProfilePage>
   }
 
 
-  Future<String> anyadePlaylists(String email, PlaylistRepo playlistRepo) async{
+   anyadePlaylists(String email, PlaylistRepo playlistRepo) async{
 
     Perfil p = await obtenerPerfil(email);
     String s = p.playlists;
-    log('data: $s');
     if(p.nombreUsuario != null){
       var playlistss = p.playlists.split('|');
       log('data: $playlistss');
@@ -859,7 +929,21 @@ class _ProfilePageState extends State<ProfilePage>
 
     }
 
-    return "";
+  }
+
+  anyadeCanciones(String email, PlaylistRepo2 playlistRepo) async{
+
+    Perfil p = await obtenerPerfil(email);
+    String s = p.canciones;
+    log('canciones: $s');
+    if(p.nombreUsuario != null){
+      username.setCanciones(s);
+      username.setCancionesUrl(p.urls);
+      List<String> lista = new List<String>();
+      lista.add("Mis canciones");
+      playlistRepo.generateInitialPlayList(lista);
+
+    }
   }
   @override
   void dispose() {
@@ -1001,8 +1085,6 @@ class _ProfilePageState extends State<ProfilePage>
     if (txt.text.toString().isNotEmpty) {
       crearPlaylist2(emailController.text, txt.text, context, playlistRepo);
 
-
-
       }
   }
   void crearPlaylist2(String email, String nombrePlaylist,
@@ -1118,9 +1200,11 @@ class Perfil {
   final String contrasenya;
   final String repetirContraseya;
   final String playlists;
+  final String canciones;
+  final String urls;
 
   Perfil({this.respuesta, this.nombreUsuario, this.descripcion, this.email,
-    this.contrasenya, this.repetirContraseya, this.playlists});
+    this.contrasenya, this.repetirContraseya, this.playlists, this.canciones, this.urls});
 
   factory Perfil.fromJson(Map<String, dynamic> json) {
     return Perfil(
@@ -1128,6 +1212,8 @@ class Perfil {
       descripcion: json['descripcion'],
       email: json['email'],
       playlists: json['lista'],
+      canciones: json['audiosTitulo'],
+      urls: json['audiosUrl']
 
 
     );
@@ -1163,7 +1249,7 @@ Future<Perfil> obtenerPerfil(String email) async {
 
 void recibirDatos(String email, TextEditingController usernameController,
     TextEditingController descriptionController,
-    TextEditingController emailController, PlaylistRepo playlistRepo) async{
+    TextEditingController emailController) async{
   Perfil p = await obtenerPerfil(email);
   if(p.nombreUsuario != null){
     usernameController.text = p.nombreUsuario;
