@@ -66,8 +66,7 @@ class _ProfilePageState extends State<ProfilePage>
     recibirDatos(username.email, usernameController,
         descriptionController, emailController);
 
-    anyadePlaylists(username.email, playlistRepo);
-    anyadeCanciones(username.email, playlistRepo2);
+    anyadePlaylists(username.email, playlistRepo, playlistRepo2);
     return new Scaffold(
         body: new Container(
           color: Colors.white,
@@ -919,33 +918,21 @@ class _ProfilePageState extends State<ProfilePage>
   }
 
 
-   anyadePlaylists(String email, PlaylistRepo playlistRepo) async{
+   anyadePlaylists(String email, PlaylistRepo playlistRepo, PlaylistRepo2 playlistRepo2) async {
+     Perfil p = await obtenerPerfil(email);
+     String s = p.playlists;
+     if (p.nombreUsuario != null) {
+       var playlistss = p.playlists.split('|');
+       log('data: $playlistss');
+       playlistRepo.generateInitialPlayList(playlistss);
 
-    Perfil p = await obtenerPerfil(email);
-    String s = p.playlists;
-    if(p.nombreUsuario != null){
-      var playlistss = p.playlists.split('|');
-      log('data: $playlistss');
-      playlistRepo.generateInitialPlayList(playlistss);
-
-    }
-
-  }
-
-  anyadeCanciones(String email, PlaylistRepo2 playlistRepo) async{
-
-    Perfil p = await obtenerPerfil(email);
-    String s = p.canciones;
-    log('canciones: $s');
-    if(p.nombreUsuario != null){
-      username.setCanciones(s);
-      username.setCancionesUrl(p.urls);
-      List<String> lista = new List<String>();
-      lista.add("Mis canciones");
-      playlistRepo.generateInitialPlayList(lista);
-
-    }
-  }
+       username.setCanciones(p.canciones);
+       username.setCancionesUrl(p.urls);
+       List<String> lista = new List<String>();
+       lista.add("Mis canciones");
+       playlistRepo2.generateInitialPlayList(lista);
+     }
+   }
   @override
   void dispose() {
     // Clean up the controller when the Widget is disposed
