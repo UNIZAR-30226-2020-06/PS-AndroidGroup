@@ -44,19 +44,19 @@ class _PLayListScreenState extends State<PLayListScreen> {
     username = Provider.of<Username>(context);
     playlistRepo = Provider.of<PlaylistRepo>(context);
     misCanciones = Provider.of<MisCancionesModel>(context);
+    model = Provider.of<SongsModel>(context);
+    int stringer = misCanciones.selected;
+    int stringerr = playlistRepo.selected;
+
+
+    log("miscanciones: $stringer");
+    log("playlistrepo: $stringerr");
     if(playlistRepo.selected != null)
     {
       name = playlistRepo.playlist[playlistRepo.selected];
       playlistRepo.selected = null;
       initData2();
     }
-
-    int stringer = misCanciones.selected;
-    int stringerr = playlistRepo.selected;
-
-    log("miscanciones: $stringer");
-    log("playlistrepo: $stringerr");
-
     if(misCanciones.selected != null) {
       name =
       misCanciones.playlist[misCanciones.selected];
@@ -65,12 +65,14 @@ class _PLayListScreenState extends State<PLayListScreen> {
       initData3();
     }
 
-    model = Provider.of<SongsModel>(context);
+
+
     super.didChangeDependencies();
   }
 
   @override
   Widget build(BuildContext context) {
+
     return Scaffold(
       backgroundColor: Theme.of(context).backgroundColor,
       body: NestedScrollView(
@@ -137,8 +139,6 @@ class _PLayListScreenState extends State<PLayListScreen> {
                                 ),
                                 onPressed: () async {
                                   model.player.stop();
-                                  await PlaylistHelper(name)
-                                      .deleteSong(songs[pos]);
                                   initData2();
                                 },
                               ),
@@ -178,7 +178,7 @@ class _PLayListScreenState extends State<PLayListScreen> {
                     ])
                   : Center(
                       child: Text(
-                        "No Songs",
+                        "No hay canciones",
                         style: Theme.of(context).textTheme.display2,
                       ),
                     )
@@ -198,36 +198,33 @@ class _PLayListScreenState extends State<PLayListScreen> {
   //}
 
   void initData2() async {
-    var helper = PlaylistHelper(name);
     Canciones l = await obtenerCanciones(username.email, name);
     var listaNombres = l.getNombresAudio().split('|');
     var listaUrls = l.getUrlsAudio().split('|');
-    log('data: $listaUrls');
+    log('initData2: $listaNombres');
     List<Song> listaCanciones = new List<Song>();
-    Song aux = new Song(0,"","","",0,0,"",null);
     for(int i = 0; i<listaNombres.length; i++){
-      aux.title = listaNombres.elementAt(i);
-      aux.uri = listaUrls.elementAt(i);
-      listaCanciones.add(aux);
+      listaCanciones.add(new Song(1,"", listaNombres[i], "",0,0,listaUrls[i],null));
     }
+
     songs = listaCanciones;
+    model.fetchSongsManual(songs);
     setState(() {});
   }
 
   void initData3() async{
-    var helper = PlaylistHelper(name);
     var listaNombres = username.getCanciones().split('|');
     var listaUrls = username.getCancionesUrl().split('|');
-    log('data: $listaUrls');
+    log('initData3: $listaUrls');
     List<Song> listaCanciones = new List<Song>();
     Song aux = new Song(0,"","","",0,0,"",null);
     for(int i = 0; i<listaNombres.length; i++){
-      aux.title = listaNombres.elementAt(i);
-      aux.uri = listaUrls.elementAt(i);
-      listaCanciones.add(aux);
+      listaCanciones.add(new Song(1,"", listaNombres[i], "",0,0,listaUrls[i],null));
     }
     songs = listaCanciones;
+    model.fetchSongsManual(songs);
     setState(() {});
+
   }
 
 

@@ -12,7 +12,6 @@ import 'dart:io';
 import 'package:beats/models/LocalSongsModel.dart';
 import 'package:provider/provider.dart';
 import 'Player.dart';
-import 'package:beats/screens/UploadSongData.dart';
 
 double height1, width1;
 
@@ -113,7 +112,7 @@ class UploadSong extends StatelessWidget {
                   )
                 ],
               ))),
-      onWillPop: () {},
+      onWillPop: () {Navigator.pop(context);},
     );
   }
 
@@ -221,7 +220,7 @@ class UploadSong extends StatelessWidget {
                             log('Uri: $s');
                               Navigator.push(context, new MaterialPageRoute(
                                 builder: (context) =>
-                                new UploadSongDataState(archivo: choice,))); },
+                                new UploadSongDataState(archivo: s,))); },
                             child: Padding(
                               padding: const EdgeInsets.all(8.0),
                               child:  Text(choice,

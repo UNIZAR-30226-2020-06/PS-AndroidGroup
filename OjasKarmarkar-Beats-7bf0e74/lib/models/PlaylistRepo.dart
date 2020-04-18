@@ -42,8 +42,9 @@ class PlaylistRepo extends ChangeNotifier {
     notifyListeners();
   }
 
-  generateInitialPlayList(List<String> list){
+  generateInitialPlayList(List<String> list) async{
     playlist = list;
+
   }
 
   add(String name) async {

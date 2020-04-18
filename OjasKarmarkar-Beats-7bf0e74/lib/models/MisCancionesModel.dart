@@ -16,12 +16,12 @@ class MisCancionesModel extends ChangeNotifier {
   init() async {
     playlist.clear();
     prefList = await SharedPreferences.getInstance();
-    List<String> list = prefList.getStringList("playlist");
+    List<String> list = prefList.getStringList("misCanciones");
     updatePlayList(list);
   }
 
   push()async {
-    prefList.setStringList("playlist", playlist);
+    prefList.setStringList("misCanciones", playlist);
   }
 
   getList() {
@@ -31,7 +31,7 @@ class MisCancionesModel extends ChangeNotifier {
   delete(String name)async{
     playlist.remove(name);
     notifyListeners();
-    await prefList.setStringList("playlist", playlist);
+    await prefList.setStringList("misCanciones", playlist);
     notifyListeners();
   }
 
@@ -42,13 +42,13 @@ class MisCancionesModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  generateInitialPlayList(List<String> list){
+  generateInitialPlayList(List<String> list) async{
     playlist = list;
   }
 
   add(String name) async {
     playlist.add(name);
-    await prefList.setStringList("playlist", playlist);
+    await prefList.setStringList("misCanciones", playlist);
     notifyListeners();
   }
 

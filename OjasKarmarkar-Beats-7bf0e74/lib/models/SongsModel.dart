@@ -63,6 +63,28 @@ class SongsModel extends ChangeNotifier {
     notifyListeners();
   }
 
+  fetchSongsManual(List<Song> canciones){
+    String s = canciones[0].title;
+    String so = canciones[1].title;
+    debugPrint('manual: $s');
+    debugPrint('manual: $so');
+    songs = canciones;
+    s = songs[0].title;
+    so = songs[1].title;
+    debugPrint('manual: $s');
+    debugPrint('manual: $so');
+    if (songs.length == 0) songs = null;
+    player = new MusicFinder();
+    initValues();
+    player.setPositionHandler((p) {
+      prog.setPosition(p.inSeconds);
+    });
+    s = songs[0].title;
+    so = songs[1].title;
+    debugPrint('manual: $s');
+    debugPrint('manual: $so');
+  }
+
 
   updateUI() {
     notifyListeners();

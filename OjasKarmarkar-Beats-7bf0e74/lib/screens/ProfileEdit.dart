@@ -37,7 +37,6 @@ class _ProfilePageState extends State<ProfilePage>
   TextEditingController securePasswordController = new TextEditingController();
   TextEditingController descriptionController = new TextEditingController();
   TextEditingController playlistController = new TextEditingController();
-  Future<Perfil> _futureRespuesta;
   List<String> playlists;
   PlaylistRepo playlistRepo = new PlaylistRepo();
   MisCancionesModel misCanciones = new MisCancionesModel();
@@ -55,16 +54,17 @@ class _ProfilePageState extends State<ProfilePage>
   }
 
 
+
+
   @override
   Widget build(BuildContext context) {
     model = Provider.of<SongsModel>(context);
     username = Provider.of<Username>(context);
     playlistRepo = Provider.of<PlaylistRepo>(context);
     misCanciones = Provider.of<MisCancionesModel>(context);
-    _futureRespuesta = obtenerPerfil(username.email);
+
     recibirDatos(username.email, usernameController,
         descriptionController, emailController);
-
     anyadePlaylists(username.email, playlistRepo, misCanciones);
     return new Scaffold(
         body: new Container(
@@ -406,7 +406,6 @@ class _ProfilePageState extends State<ProfilePage>
 
                                     itemCount: playlistRepo.playlist.length + 1,
                                     itemBuilder: (context, pos) {
-
 
 
                                       var padd = (pos == 0) ? width * 0.08 : 5.0;
@@ -813,17 +812,17 @@ class _ProfilePageState extends State<ProfilePage>
                               )),
 
                           Padding(
-                              padding: EdgeInsets.only(top: height * 0.08),
+                              padding: EdgeInsets.only(top: height * 0.04),
                               child: SizedBox(
                                 height: height * 0.23,
                                 child: new Consumer<MisCancionesModel>(
                                   builder: (context, misCanciones, _) => ListView.builder(
 
-                                    itemCount: 2,
-                                    itemBuilder: (context, pos) {
 
+                                    itemCount: misCanciones.playlist.length+1,
+                                    itemBuilder: (context, pos) {
                                       var padd = (pos == 0) ? width * 0.08 : 5.0;
-                                      if (pos == (misCanciones.playlist.length + 1)) {
+                                      if (pos == (misCanciones.playlist.length)) {
                                         return GestureDetector(
                                           onTap: () {
                                             misCanciones.selected = null;
@@ -935,9 +934,6 @@ class _ProfilePageState extends State<ProfilePage>
 
        username.setCanciones(p.canciones);
        username.setCancionesUrl(p.urls);
-       List<String> lista = new List<String>();
-       lista.add("Mis canciones");
-       misCanciones.generateInitialPlayList(lista);
      }
    }
   @override

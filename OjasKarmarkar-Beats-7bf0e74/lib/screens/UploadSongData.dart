@@ -224,7 +224,7 @@ class UploadSongDataState extends StatelessWidget   {
                                 ],
                               )),
 
-                          !_status ? _getActionButtons() : new Container(),
+                          !_status ? _getActionButtons(context) : new Container(),
                         ],
                       ),
                     ),
@@ -237,7 +237,7 @@ class UploadSongDataState extends StatelessWidget   {
   }
 
 
-  Widget _getActionButtons() {
+  Widget _getActionButtons(BuildContext context) {
     return Padding(
       padding: EdgeInsets.only(left: 25.0, right: 25.0, top: 45.0),
       child: new Row(
@@ -270,6 +270,7 @@ class UploadSongDataState extends StatelessWidget   {
                     textColor: Colors.white,
                     color: Colors.red,
                     onPressed: () {
+                      Navigator.pop(context);
                     },
                     shape: new RoundedRectangleBorder(
                         borderRadius: new BorderRadius.circular(20.0)),
