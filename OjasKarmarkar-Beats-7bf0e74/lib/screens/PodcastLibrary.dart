@@ -7,7 +7,7 @@ import 'package:beats/models/const.dart';
 import 'package:flute_music_player/flute_music_player.dart';
 import 'package:flutter/material.dart';
 import 'dart:io';
-import 'package:beats/models/SongsModel.dart';
+import 'package:beats/models/PodcastsModel.dart';
 import '../custom_icons.dart';
 import 'package:provider/provider.dart';
 import 'Player.dart';
@@ -18,7 +18,7 @@ double height, width;
 class PodcastLibrary extends StatelessWidget {
   TextEditingController editingController;
 
-  SongsModel model;
+  PodcastsModel model;
 
   BookmarkModel b;
 
@@ -30,7 +30,7 @@ class PodcastLibrary extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    model = Provider.of<SongsModel>(context);
+    model = Provider.of<PodcastsModel>(context);
     b = Provider.of<BookmarkModel>(context);
     height = MediaQuery.of(context).size.height;
     width = MediaQuery.of(context).size.width;
@@ -39,7 +39,7 @@ class PodcastLibrary extends StatelessWidget {
       child: Scaffold(
           resizeToAvoidBottomInset: false,
           backgroundColor: Theme.of(context).backgroundColor,
-          body: (model.songs == null)
+          body: (model.podcasts == null)
               ? Center(
             child: Text(
               "No hay podcasts",
@@ -117,8 +117,8 @@ class PodcastLibrary extends StatelessWidget {
     );
   }
 
-  getLoading(SongsModel model) {
-    if (model.songs.length == 0) {
+  getLoading(PodcastsModel model) {
+    if (model.podcasts.length == 0) {
       return Expanded(
           child: Center(
             child: CircularProgressIndicator(),
@@ -126,7 +126,7 @@ class PodcastLibrary extends StatelessWidget {
     } else {
       return Expanded(
         child: ListView.builder(
-          itemCount: model.songs.length,
+          itemCount: model.podcasts.length,
           itemBuilder: (context, pos) {
             return Consumer<PlaylistRepo>(builder: (context, repo, _) {
               return ListTile(
@@ -179,7 +179,7 @@ class PodcastLibrary extends StatelessWidget {
                                           onTap: () {
                                             PlaylistHelper(
                                                 repo.playlist[index])
-                                                .add(model.songs[pos]);
+                                                .add(model.podcasts[pos]);
                                             Navigator.pop(context);
                                           },
                                           title: Text(
@@ -200,10 +200,10 @@ class PodcastLibrary extends StatelessWidget {
                             );
                           });
                     } // else if (choice == Constants.bm) {
-                    // if (!b.alreadyExists(model.songs[pos])) {
-                    //   b.add(model.songs[pos]);
+                    // if (!b.alreadyExists(model.podcasts[pos])) {
+                    //   b.add(model.podcasts[pos]);
                     // } else {
-                    //    b.remove(model.songs[pos]);
+                    //    b.remove(model.podcasts[pos]);
                     // }
                     //} else if (choice == Constants.de) {
 
@@ -231,7 +231,7 @@ class PodcastLibrary extends StatelessWidget {
                 onTap: () async {
                   model.player.stop();
                   model.playlist = false;
-                  model.currentSong = model.songs[pos];
+                  model.currentSong = model.podcasts[pos];
 
 
                   //Reset the list. So we can change to next song.
@@ -239,7 +239,7 @@ class PodcastLibrary extends StatelessWidget {
                 },
                 leading: CircleAvatar(child: getImage(model, pos)),
                 title: Text(
-                  model.songs[pos].title,
+                  model.podcasts[pos].title,
                   maxLines: 1,
                   style: TextStyle(
                       fontSize: 15,
@@ -249,7 +249,7 @@ class PodcastLibrary extends StatelessWidget {
                 subtitle: Padding(
                   padding: const EdgeInsets.only(top: 10.0),
                   child: Text(
-                    model.songs[pos].artist,
+                    model.podcasts[pos].artist,
                     maxLines: 1,
                     style: TextStyle(
                         color: Theme.of(context).textTheme.display1.color,
@@ -266,11 +266,11 @@ class PodcastLibrary extends StatelessWidget {
   }
 
   getImage(model, pos) {
-    if (model.songs[pos].albumArt != null) {
+    if (model.podcasts[pos].albumArt != null) {
       return ClipRRect(
           borderRadius: BorderRadius.circular(20),
           child:
-          Image.file(File.fromUri(Uri.parse(model.songs[pos].albumArt))));
+          Image.file(File.fromUri(Uri.parse(model.podcasts[pos].albumArt))));
     } else {
       return Container(
           child: IconButton(
@@ -398,7 +398,7 @@ class PodcastLibrary extends StatelessWidget {
 }
 
 class Search extends SearchDelegate<Song> {
-  SongsModel model;
+  PodcastsModel model;
   @override
   List<Widget> buildActions(BuildContext context) {
     // actions
@@ -436,14 +436,14 @@ class Search extends SearchDelegate<Song> {
 
   @override
   Widget buildSuggestions(BuildContext context) {
-    model = Provider.of<SongsModel>(context);
+    model = Provider.of<PodcastsModel>(context);
     List<Song> dummy = <Song>[];
     List<Song> recents = <Song>[];
-    for (int i = 0; i < model.songs.length; i++) {
-      dummy.add(model.songs[i]);
+    for (int i = 0; i < model.podcasts.length; i++) {
+      dummy.add(model.podcasts[i]);
     }
     //for (int i = 0; i < 4; i++) {
-    // recents.add(model.songs[i].title);
+    // recents.add(model.podcasts[i].title);
     //}
     var suggestion = query.isEmpty
         ? recents

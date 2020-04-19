@@ -20,7 +20,7 @@ class PlayBackPage extends StatefulWidget {
 class _PlayBackPageState extends State<PlayBackPage> {
   SongsModel model;
   ThemeChanger themeChanger;
-  Library x;
+  MusicLibrary x;
   PageController pg;
   NowPlaying playScreen;
   int currentPage = 1;

@@ -197,19 +197,7 @@ class UploadSong extends StatelessWidget {
                               ],
                             );
                           });
-                    } // else if (choice == Constants.bm) {
-                    // if (!b.alreadyExists(model.songs[pos])) {
-                    //   b.add(model.songs[pos]);
-                    // } else {
-                    //    b.remove(model.songs[pos]);
-                    // }
-                    //} else if (choice == Constants.de) {
-
-                    //   model.fetchSongs();
-                    // }else if(choice == Constants.re){
-                    //   Directory x = await getExternalStorageDirectory();
-                    //   await File("${x.path}../../").rename(x.path);
-                    //}
+                    }
                   },
                   itemBuilder: (BuildContext context) {
                     return Constants.customizedChoices.map((String choice) {

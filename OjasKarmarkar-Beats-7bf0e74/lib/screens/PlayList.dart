@@ -7,8 +7,9 @@ import 'package:beats/models/PlaylistRepo.dart';
 import 'package:beats/models/SongsModel.dart';
 import 'package:beats/models/PlayListHelper.dart';
 import 'package:beats/models/Username.dart';
+import 'package:beats/models/const.dart';
 import 'package:beats/reproductorMusica.dart';
-
+import 'package:conditional_builder/conditional_builder.dart';
 import 'package:flute_music_player/flute_music_player.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_media_notification/flutter_media_notification.dart';
@@ -29,8 +30,9 @@ class _PLayListScreenState extends State<PLayListScreen> {
   MisCancionesModel misCanciones;
   SongsModel model;
   String name;
-  String name2;
   TextEditingController editingController;
+  TextEditingController txt = TextEditingController();
+  bool error = false;
   List<Song> songs;
   Username username;
   //final String email;
@@ -55,14 +57,14 @@ class _PLayListScreenState extends State<PLayListScreen> {
     {
       name = playlistRepo.playlist[playlistRepo.selected];
       playlistRepo.selected = null;
-      initData2();
+      initDataPlaylists();
     }
     if(misCanciones.selected != null) {
       name =
       misCanciones.playlist[misCanciones.selected];
       log("name: $name");
       misCanciones.selected = null;
-      initData3();
+      initDataMisCanciones();
     }
 
 
@@ -125,52 +127,280 @@ class _PLayListScreenState extends State<PLayListScreen> {
           body: (songs != null)
               ? (songs.length != 0)
                   ? Stack(children: <Widget>[
-                      ListView.builder(
-                        itemCount: songs.length,
-                        itemBuilder: (context, pos) {
-                          return Padding(
-                            padding:
-                                const EdgeInsets.only(top: 0.0, left: 10.0),
-                            child: ListTile(
-                              trailing: IconButton(
-                                icon: Icon(
-                                  Icons.delete_outline,
-                                  color: Colors.grey,
-                                ),
-                                onPressed: () async {
-                                  model.player.stop();
-                                  initData2();
-                                },
-                              ),
-                              onTap: () {
-                                //isPlayed = true;
-                                model.player.stop();
-                                model.playlist = true;
-                                model.playlistSongs = songs;
-                                model.currentSong = songs[pos];
-                                //Navigator.of(context).push(new MaterialPageRoute(
-                                //    builder: (context) => new ExampleApp(url: model.currentSong.uri)));
-                                model.play();
 
-                              },
-                              leading: CircleAvatar(child: getImage(pos)),
-                              title: Text(
-                                songs[pos].title,
-                                maxLines: 1,
-                                style: Theme.of(context).textTheme.display3,
-                              ),
-                              subtitle: Padding(
-                                padding: const EdgeInsets.all(8.0),
-                                child: Text(
-                                  songs[pos].artist,
-                                  maxLines: 1,
-                                  style: Theme.of(context).textTheme.display2,
-                                ),
-                              ),
-                            ),
-                          );
-                        },
+                      ConditionalBuilder(
+                          condition: misCanciones.selected != null, //vista de misCanciones
+                          builder: (context) => ListView.builder(
+                              itemCount: songs.length,
+                              itemBuilder: (context, pos) {
+                                return Padding(
+                                  padding:
+                                  const EdgeInsets.only(top: 0.0, left: 10.0),
+                                  child: ListTile(
+                                    trailing: PopupMenuButton<String>(
+                                      icon: Icon(
+                                        Icons.more_vert,
+                                        color: Colors.grey,
+                                      ),
+                                      onSelected: (String choice) async {
+                                        log("data: $choice");
+                                        if (choice == Constants.ed) {
+                                          showDialog(
+                                            context: context,
+                                            builder: (context) {
+                                              return Padding(
+                                                padding:
+                                                const EdgeInsets.all(8.0),
+                                                child: AlertDialog(
+                                                  backgroundColor:
+                                                  Theme.of(context)
+                                                      .backgroundColor,
+                                                  shape:
+                                                  RoundedRectangleBorder(
+                                                    side: BorderSide(),
+                                                    borderRadius:
+                                                    BorderRadius.all(
+                                                        Radius.circular(
+                                                            30.0)),
+                                                  ),
+                                                  contentPadding:
+                                                  EdgeInsets.only(
+                                                      top: 10.0),
+                                                  content: Container(
+                                                    width: 200.0,
+                                                    child: Column(
+                                                      mainAxisAlignment:
+                                                      MainAxisAlignment
+                                                          .start,
+                                                      crossAxisAlignment:
+                                                      CrossAxisAlignment
+                                                          .stretch,
+                                                      mainAxisSize:
+                                                      MainAxisSize.min,
+                                                      children: <Widget>[
+                                                        Row(
+                                                          mainAxisAlignment:
+                                                          MainAxisAlignment
+                                                              .spaceEvenly,
+                                                          mainAxisSize:
+                                                          MainAxisSize
+                                                              .min,
+                                                          children: <Widget>[
+                                                            Text(
+                                                              "Editar",
+                                                              style: TextStyle(
+                                                                  fontSize:
+                                                                  24.0,
+                                                                  fontFamily:
+                                                                  'Sans'),
+                                                            ),
+                                                          ],
+                                                        ),
+                                                        SizedBox(
+                                                          height: 5.0,
+                                                        ),
+                                                        Divider(
+                                                          color: Colors.grey,
+                                                          height: 4.0,
+                                                        ),
+                                                        Padding(
+                                                          padding:
+                                                          EdgeInsets.only(
+                                                              left: 30.0,
+                                                              right: 30.0,
+                                                              top: 30.0,
+                                                              bottom:
+                                                              30.0),
+                                                          child:
+                                                          TextFormField(
+                                                            controller: txt,
+                                                            decoration: InputDecoration(
+                                                                disabledBorder: OutlineInputBorder(
+                                                                    borderSide: BorderSide(
+                                                                        color: Colors
+                                                                            .deepOrange)),
+                                                                enabledBorder: OutlineInputBorder(
+                                                                    borderSide: BorderSide(
+                                                                        color: Colors
+                                                                            .deepOrange)),
+                                                                errorText: error
+                                                                    ? "El nombre no puede ser nulo"
+                                                                    : null,
+                                                                errorStyle: Theme.of(
+                                                                    context)
+                                                                    .textTheme
+                                                                    .display2,
+                                                                labelText:
+                                                                "Ponle un nombre",
+                                                                labelStyle: Theme.of(
+                                                                    context)
+                                                                    .textTheme
+                                                                    .display2,
+                                                                border: OutlineInputBorder(
+                                                                    borderRadius:
+                                                                    BorderRadius.circular(
+                                                                        4))),
+                                                          ),
+                                                        ),
+                                                        InkWell(
+                                                          onTap: () async {
+                                                            await PlaylistHelper(
+                                                                playlistRepo
+                                                                    .playlist[
+                                                                pos])
+                                                                .rename(
+                                                                txt.text);
+                                                            setState(() {
+                                                              playlistRepo.playlist[
+                                                              pos] =
+                                                                  txt.text;
+                                                              //PlaylistHelper(playlistRepo.playlist[pos]).rename(txt.text);
+                                                              playlistRepo
+                                                                  .push();
+                                                              Navigator.pop(
+                                                                  context);
+                                                            });
+                                                          },
+                                                          child: Container(
+                                                            padding: EdgeInsets
+                                                                .only(
+                                                                top: 10.0,
+                                                                bottom:
+                                                                20.0),
+                                                            decoration:
+                                                            BoxDecoration(
+                                                              color:
+                                                              Colors.blue,
+                                                              borderRadius: BorderRadius.only(
+                                                                  bottomLeft:
+                                                                  Radius.circular(
+                                                                      32.0),
+                                                                  bottomRight:
+                                                                  Radius.circular(
+                                                                      32.0)),
+                                                            ),
+                                                            child: Text(
+                                                              "Aplicar",
+                                                              style: TextStyle(
+                                                                  fontFamily:
+                                                                  'Sans',
+                                                                  color: Colors
+                                                                      .white),
+                                                              textAlign:
+                                                              TextAlign
+                                                                  .center,
+                                                            ),
+                                                          ),
+                                                        ),
+                                                      ],
+                                                    ),
+                                                  ),
+                                                ),
+                                              );
+                                            },
+                                          );
+                                        }else if(choice == Constants.de){
+                                           borrarCancionDeMisCanciones(username.email, model.songs[pos]);
+                                           initDataMisCanciones();   //reiniciamos
+                                        }
+                                      },
+                                      itemBuilder: (BuildContext context) {
+                                        return Constants.opciones.map((String choice) {
+                                          return PopupMenuItem<String>(
+                                            value: choice,
+                                            child: Padding(
+                                              padding: const EdgeInsets.all(8.0),
+                                              child: Text(
+                                                choice,
+                                                style: Theme.of(context).textTheme.display2,
+                                              ),
+                                            ),
+                                          );
+                                        }).toList();
+                                      },
+                                    ),
+                                    onTap: () {
+                                      //isPlayed = true;
+                                      model.player.stop();
+                                      model.playlist = true;
+                                      model.playlistSongs = songs;
+                                      model.currentSong = songs[pos];
+                                      //Navigator.of(context).push(new MaterialPageRoute(
+                                      //    builder: (context) => new ExampleApp(url: model.currentSong.uri)));
+                                      model.play();
+
+                                    },
+                                    leading: CircleAvatar(child: getImage(pos)),
+                                    title: Text(
+                                      songs[pos].title,
+                                      maxLines: 1,
+                                      style: Theme.of(context).textTheme.display3,
+                                    ),
+                                    subtitle: Padding(
+                                      padding: const EdgeInsets.all(8.0),
+                                      child: Text(
+                                        songs[pos].artist,
+                                        maxLines: 1,
+                                        style: Theme.of(context).textTheme.display2,
+                                      ),
+                                    ),
+                                  ),
+                                );
+                              }
+                          ),
                       ),
+
+                      ConditionalBuilder(
+                        condition: misCanciones.selected == null, //vista de una playlist de canciones
+                        builder: (context) => ListView.builder(
+                            itemCount: songs.length,
+                            itemBuilder: (context, pos) {
+                              return Padding(
+                                padding:
+                                const EdgeInsets.only(top: 0.0, left: 10.0),
+                                child: ListTile(
+                                  trailing: IconButton(
+                                    icon: Icon(
+                                      Icons.delete_outline,
+                                      color: Colors.grey,
+                                    ),
+                                    onPressed: () async {
+                                      borrarCancionDePlaylist(username.email, name, model.songs[pos]);
+                                      model.player.stop();
+                                      initDataPlaylists();
+                                    },
+                                  ),
+                                  onTap: () {
+                                    //isPlayed = true;
+                                    model.player.stop();
+                                    model.playlist = true;
+                                    model.playlistSongs = songs;
+                                    model.currentSong = songs[pos];
+                                    //Navigator.of(context).push(new MaterialPageRoute(
+                                    //    builder: (context) => new ExampleApp(url: model.currentSong.uri)));
+                                    model.play();
+
+                                  },
+                                  leading: CircleAvatar(child: getImage(pos)),
+                                  title: Text(
+                                    songs[pos].title,
+                                    maxLines: 1,
+                                    style: Theme.of(context).textTheme.display3,
+                                  ),
+                                  subtitle: Padding(
+                                    padding: const EdgeInsets.all(8.0),
+                                    child: Text(
+                                      songs[pos].artist,
+                                      maxLines: 1,
+                                      style: Theme.of(context).textTheme.display2,
+                                    ),
+                                  ),
+                                ),
+                              );
+                            }
+                            )
+                      ),
+
                       Align(
                         alignment: Alignment.bottomRight,
                         child: showStatus(),
@@ -197,7 +427,7 @@ class _PLayListScreenState extends State<PLayListScreen> {
   //  setState(() {});
   //}
 
-  void initData2() async {
+  void initDataPlaylists() async {
     Canciones l = await obtenerCanciones(username.email, name);
     var listaNombres = l.getNombresAudio().split('|');
     var listaUrls = l.getUrlsAudio().split('|');
@@ -212,7 +442,7 @@ class _PLayListScreenState extends State<PLayListScreen> {
     setState(() {});
   }
 
-  void initData3() async{
+  void initDataMisCanciones() async{
     var listaNombres = username.getCanciones().split('|');
     var listaUrls = username.getCancionesUrl().split('|');
     log('initData3: $listaUrls');
@@ -221,10 +451,10 @@ class _PLayListScreenState extends State<PLayListScreen> {
     for(int i = 0; i<listaNombres.length; i++){
       listaCanciones.add(new Song(1,"", listaNombres[i], "",0,0,listaUrls[i],null));
     }
+
     songs = listaCanciones;
     model.fetchSongsManual(songs);
     setState(() {});
-
   }
 
 
@@ -313,6 +543,20 @@ class _PLayListScreenState extends State<PLayListScreen> {
       );
     } else {}
   }
+
+  void borrarCancionDeMisCanciones(String email, Song song) async {
+
+    await borrarCanciones(email, "misCanciones", song.title);
+
+
+  }
+
+  void borrarCancionDePlaylist(String email, String namePlaylist, Song song) async {
+
+    await borrarCanciones(email, namePlaylist, song.title);
+
+
+  }
 }
 
 class Canciones {
@@ -350,6 +594,31 @@ Future<Canciones> obtenerCanciones(String email, String nombrePlaylist) async {
   };
   final http.Response response = await http.post(
     'http://34.69.44.48:8080/Espotify/obtener_audios_android',
+    headers: <String, String>{
+      'Content-Type': 'application/json; charset=UTF-8',
+    },
+    body: jsonEncode(data),
+
+  );
+  if (response.statusCode == 200) {
+    // If the server did return a 201 CREATED response,
+    // then parse the JSON.
+    return Canciones.fromJson(json.decode(response.body));
+  } else {
+    // If the server did not return a 201 CREATED response,
+    // then throw an exception.
+    throw Exception('Fallo al enviar petición');
+  }
+}
+
+Future<Canciones> borrarCanciones(String email, String nombrePlaylist, String nombreCancion) async {
+  Map data = {
+    'email': email,
+    'nombrePlaylist': nombrePlaylist,
+    'nombreCancion': nombreCancion,
+  };
+  final http.Response response = await http.post(
+    'http://34.69.44.48:8080/Espotify/obtener_audios_android',  //todo url borrar canciones
     headers: <String, String>{
       'Content-Type': 'application/json; charset=UTF-8',
     },

@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:beats/models/MisCancionesModel.dart';
+import 'package:beats/models/PodcastsModel.dart';
 import 'package:beats/models/Username.dart';
 import 'package:beats/models/PlaylistRepo.dart';
 import 'package:beats/models/BookmarkModel.dart';
@@ -59,6 +60,9 @@ void main(List<String> args) {
     ),
     ChangeNotifierProvider<SongsModel>(
       create: (context) => SongsModel(prov, rec),
+    ),
+    ChangeNotifierProvider<PodcastsModel>(
+      create: (context) => PodcastsModel(prov, rec),
     ),
     ChangeNotifierProvider<LocalSongsModel>(
       create: (context) => LocalSongsModel(),

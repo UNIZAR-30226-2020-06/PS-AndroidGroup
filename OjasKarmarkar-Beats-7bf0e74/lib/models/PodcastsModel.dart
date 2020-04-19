@@ -13,9 +13,9 @@ import 'package:flutter/foundation.dart';
 
 enum PlayerState { PLAYING, PAUSED, STOPPED }
 
-class SongsModel extends ChangeNotifier {
+class PodcastsModel extends ChangeNotifier {
   // Thousands of stuff packed into this ChangeNotifier
-  List<Song> songs = new List<Song>();
+  List<Song> podcasts = new List<Song>();
   var duplicate = <Song>[]; // Duplicate of songs variable for Search function
   Song currentSong;
   bool playlist = false;
@@ -29,34 +29,34 @@ class SongsModel extends ChangeNotifier {
   Random rnd = new Random();
   Recents recents;
 
-  SongsModel(prov, rec) {
+  PodcastsModel(prov, rec) {
     fetchSongs();
     prog = prov;
     recents = rec;
   }
 
   fetchSongs() async {
-    ListaCancionesDefault c = await obtenerListaCanciones();
+    ListaCancionesDefault c = await obtenerListaPodcasts();
     List<String> listaNombres = c.getNombresAudio().split('|');
     List<String> listaUrls = c.getUrlsAudio().split('|');
 
     for(int i = 0; i<listaNombres.length; i++){
-      songs.add(new Song(1,"", listaNombres[i], "",0,0,listaUrls[i],null));
-      String yy = songs[i].title;
+      podcasts.add(new Song(1,"", listaNombres[i], "",0,0,listaUrls[i],null));
+      String yy = podcasts[i].title;
       debugPrint('data: $yy');
     }
     for(int j=0; j<listaNombres.length;j++){
-      String yoy = songs[j].title;
+      String yoy = podcasts[j].title;
       debugPrint('finalote: $yoy');
     }
 
-    if (songs.length == 0) songs = null;
+    if (podcasts.length == 0) podcasts = null;
     player = new MusicFinder();
     initValues();
     player.setPositionHandler((p) {
       prog.setPosition(p.inSeconds);
     });
-    songs?.forEach((item) {
+    podcasts?.forEach((item) {
       duplicate.add(item);
     });
 
@@ -68,19 +68,19 @@ class SongsModel extends ChangeNotifier {
     String so = canciones[1].title;
     debugPrint('manual: $s');
     debugPrint('manual: $so');
-    songs = canciones;
-    s = songs[0].title;
-    so = songs[1].title;
+    podcasts = canciones;
+    s = podcasts[0].title;
+    so = podcasts[1].title;
     debugPrint('manual: $s');
     debugPrint('manual: $so');
-    if (songs.length == 0) songs = null;
+    if (podcasts.length == 0) podcasts = null;
     player = new MusicFinder();
     initValues();
     player.setPositionHandler((p) {
       prog.setPosition(p.inSeconds);
     });
-    s = songs[0].title;
-    so = songs[1].title;
+    s = podcasts[0].title;
+    so = podcasts[1].title;
     debugPrint('manual: $s');
     debugPrint('manual: $so');
   }
@@ -92,7 +92,7 @@ class SongsModel extends ChangeNotifier {
 
   playURI(var uri1) {
     player.stop();
-    for (var song1 in songs) {
+    for (var song1 in podcasts) {
       if (song1.uri == uri1) {
         currentSong = song1;
         play();
@@ -134,7 +134,7 @@ class SongsModel extends ChangeNotifier {
   }
 
   List<Song> getSongs(){
-    return songs;
+    return podcasts;
   }
 
   stop() {
@@ -158,10 +158,10 @@ class SongsModel extends ChangeNotifier {
         currentSong = playlistSongs[playlistSongs.indexOf(currentSong) + 1];
       }
     } else {
-      if (currentSong == songs[songs.length - 1]) {
-        currentSong = songs[0];
+      if (currentSong == podcasts[podcasts.length - 1]) {
+        currentSong = podcasts[0];
       } else {
-        currentSong = songs[songs.indexOf(currentSong) + 1];
+        currentSong = podcasts[podcasts.indexOf(currentSong) + 1];
       }
     }
 
@@ -176,10 +176,10 @@ class SongsModel extends ChangeNotifier {
         currentSong = playlistSongs[playlistSongs.indexOf(currentSong) - 1];
       }
     } else {
-      if (currentSong == songs[0]) {
-        currentSong = songs[songs.length - 1];
+      if (currentSong == podcasts[0]) {
+        currentSong = podcasts[podcasts.length - 1];
       } else {
-        currentSong = songs[songs.indexOf(currentSong) - 1];
+        currentSong = podcasts[podcasts.indexOf(currentSong) - 1];
       }
     }
 
@@ -200,7 +200,7 @@ class SongsModel extends ChangeNotifier {
     if (playlist) {
       currentSong = playlistSongs[playlistSongs.indexOf(currentSong)];
     } else {
-      currentSong = songs[songs.indexOf(currentSong)];
+      currentSong = podcasts[podcasts.indexOf(currentSong)];
     }
     updateUI();
   }
@@ -210,8 +210,8 @@ class SongsModel extends ChangeNotifier {
       int max = playlistSongs.length;
       currentSong = playlistSongs[rnd.nextInt(max)];
     } else {
-      int max = songs.length;
-      currentSong = songs[rnd.nextInt(max)];
+      int max = podcasts.length;
+      currentSong = podcasts[rnd.nextInt(max)];
     }
     updateUI();
   }
@@ -253,11 +253,11 @@ class ListaCancionesDefault {
   }
 }
 
-Future<ListaCancionesDefault> obtenerListaCanciones() async {
+Future<ListaCancionesDefault> obtenerListaPodcasts() async {
   Map data = {
   };
   final http.Response response = await http.post(
-    'http://34.69.44.48:8080/Espotify/obtener_randomaudios_android',    //TODO cambiar URL a la de los podcasts
+    'http://34.69.44.48:8080/Espotify/obtener_randomaudios_android',    //todo cambiar url
     headers: <String, String>{
       'Content-Type': 'application/json; charset=UTF-8',
     },

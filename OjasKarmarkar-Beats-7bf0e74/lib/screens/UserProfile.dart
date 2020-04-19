@@ -635,11 +635,11 @@ class _UserProfileState extends State<UserProfile>
   }
 
   getImage(model, pos) {
-    if (model.songs[pos].albumArt != null) {
+    if (model.podcasts[pos].albumArt != null) {
       return ClipRRect(
           borderRadius: BorderRadius.circular(20),
           child:
-          Image.file(File.fromUri(Uri.parse(model.songs[pos].albumArt))));
+          Image.file(File.fromUri(Uri.parse(model.podcasts[pos].albumArt))));
     } else {
       return Container(
           child: IconButton(

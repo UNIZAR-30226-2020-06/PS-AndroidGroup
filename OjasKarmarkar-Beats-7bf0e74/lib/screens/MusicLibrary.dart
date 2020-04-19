@@ -18,7 +18,7 @@ import 'package:http/http.dart' as http;
 
 double height, width;
 
-class Library extends StatelessWidget {
+class MusicLibrary extends StatelessWidget {
   TextEditingController editingController;
 
   SongsModel model;

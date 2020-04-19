@@ -492,7 +492,7 @@ class _ProfilePageState extends State<ProfilePage>
                                                           ),
                                                           InkWell(
                                                             onTap: () {
-                                                              validate(context, playlistRepo);
+                                                              validate(context, playlistRepo,"create");
 
                                                             },
                                                             child: Container(
@@ -594,6 +594,9 @@ class _ProfilePageState extends State<ProfilePage>
                                                             color: Colors.white,
                                                           ),
                                                           onPressed: () async {
+                                                            validate(context,playlistRepo,"delete"); //si servidor no contesta
+                                                            //exceptión, en caso de que responda
+                                                            //mantenemos el funcionamiento anterior
                                                             PlaylistHelper temp =
                                                             await PlaylistHelper(
                                                                 playlistRepo.playlist[pos]);
@@ -1069,16 +1072,20 @@ class _ProfilePageState extends State<ProfilePage>
           );
         });
   }
-  void validate(context, repo) {
+  void validate(context, repo, String nombre) {
     setState(() {
       txt.text.toString().isEmpty ? error = true : error = false;
     });
     if (txt.text.toString().isNotEmpty) {
-      crearPlaylist2(emailController.text, txt.text, context, playlistRepo);
 
+      if(nombre == "create") {
+        esperoCrearPlaylist(emailController.text, txt.text, context, playlistRepo);
+      }else { //nombre == "delete"
+        esperoBorrarPlaylist(emailController.text, playlistRepo.playlist[playlistRepo.selected]);
       }
+    }
   }
-  void crearPlaylist2(String email, String nombrePlaylist,
+  void esperoCrearPlaylist(String email, String nombrePlaylist,
       BuildContext context, PlaylistRepo playlistRepo)async{
     Respuesta r = await crearPlaylist(email, nombrePlaylist);
     if(r.getUserId()=="ok"){
@@ -1088,7 +1095,12 @@ class _ProfilePageState extends State<ProfilePage>
     Navigator.of(context).pop();
 
   }
-
+  void esperoBorrarPlaylist(String email, String nombrePlaylist) async
+  {
+     await borrarPlaylist(email, nombrePlaylist);
+     //si ocurre algún error, lo notificará borrarPlaylist, en caso contrario,
+    //mantenemos el mismo funcionamiento que se llevaba acabo
+  }
 
   getLoading(SongsModel model) {
     if (model.songs.length == 0) {
@@ -1142,11 +1154,11 @@ class _ProfilePageState extends State<ProfilePage>
   }
 
   getImage(model, pos) {
-    if (model.songs[pos].albumArt != null) {
+    if (model.podcasts[pos].albumArt != null) {
       return ClipRRect(
           borderRadius: BorderRadius.circular(20),
           child:
-          Image.file(File.fromUri(Uri.parse(model.songs[pos].albumArt))));
+          Image.file(File.fromUri(Uri.parse(model.podcasts[pos].albumArt))));
     } else {
       return Container(
           child: IconButton(
@@ -1277,7 +1289,29 @@ Future<Respuesta> crearPlaylist(String email, String nombrePlaylist) async {
   }
 }
 
+Future<Respuesta> borrarPlaylist(String email, String nombrePlaylist) async {
+  Map data = {
+    'email': email,
+    'nombrePlaylist': nombrePlaylist,
+  };
+  final http.Response response = await http.post(
+    'http://34.69.44.48:8080/Espotify/crear_lista_android',   //todo cambiar URL a la que toca
+    headers: <String, String>{
+      'Content-Type': 'application/json; charset=UTF-8',
+    },
+    body: jsonEncode(data),
 
+  );
+  if (response.statusCode == 200) {
+    // If the server did return a 201 CREATED response,
+    // then parse the JSON.
+    return Respuesta.fromJson(json.decode(response.body));
+  } else {
+    // If the server did not return a 201 CREATED response,
+    // then throw an exception.
+    throw Exception('Fallo al enviar petición');
+  }
+}
 
 class Respuesta {
   final String creado;
