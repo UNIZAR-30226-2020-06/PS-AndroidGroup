@@ -257,7 +257,7 @@ Future<ListaCancionesDefault> obtenerListaPodcasts() async {
   Map data = {
   };
   final http.Response response = await http.post(
-    'http://34.69.44.48:8080/Espotify/obtener_randomaudios_android',    //todo cambiar url
+    'http://34.69.44.48:8080/Espotify/obtener_randomaudios_android',    //TODO cambiar URL a la de los podcasts
     headers: <String, String>{
       'Content-Type': 'application/json; charset=UTF-8',
     },

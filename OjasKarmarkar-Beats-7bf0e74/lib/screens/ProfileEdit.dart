@@ -49,8 +49,6 @@ class _ProfilePageState extends State<ProfilePage>
   @override
   void initState() {
     super.initState();
-
-
   }
 
 
@@ -492,7 +490,7 @@ class _ProfilePageState extends State<ProfilePage>
                                                           ),
                                                           InkWell(
                                                             onTap: () {
-                                                              validate(context, playlistRepo,"create");
+                                                              validate(context, playlistRepo, "", "create");
 
                                                             },
                                                             child: Container(
@@ -594,15 +592,15 @@ class _ProfilePageState extends State<ProfilePage>
                                                             color: Colors.white,
                                                           ),
                                                           onPressed: () async {
-                                                            validate(context,playlistRepo,"delete"); //si servidor no contesta
+                                                            validate(context,playlistRepo, playlistRepo.playlist[pos], "delete"); //si servidor no contesta
                                                             //exceptión, en caso de que responda
                                                             //mantenemos el funcionamiento anterior
-                                                            PlaylistHelper temp =
-                                                            await PlaylistHelper(
-                                                                playlistRepo.playlist[pos]);
-                                                            temp.deletePlaylist();
-                                                            playlistRepo.delete(
-                                                                playlistRepo.playlist[pos]);
+                                                            //PlaylistHelper temp =
+                                                            //await PlaylistHelper(
+                                                            //    playlistRepo.playlist[pos]);
+                                                            //temp.deletePlaylist();
+                                                            //playlistRepo.delete(
+                                                            //    playlistRepo.playlist[pos]);
                                                             //playlistRepo.init();
                                                           },
                                                         ),
@@ -1072,17 +1070,15 @@ class _ProfilePageState extends State<ProfilePage>
           );
         });
   }
-  void validate(context, repo, String nombre) {
+  void validate(context, repo, String nombre, String accion) {
     setState(() {
       txt.text.toString().isEmpty ? error = true : error = false;
     });
-    if (txt.text.toString().isNotEmpty) {
-
-      if(nombre == "create") {
+    if (txt.text.toString().isNotEmpty && accion == "create") {
         esperoCrearPlaylist(emailController.text, txt.text, context, playlistRepo);
       }else { //nombre == "delete"
-        esperoBorrarPlaylist(emailController.text, playlistRepo.playlist[playlistRepo.selected]);
-      }
+      esperoBorrarPlaylist(
+          emailController.text, nombre);
     }
   }
   void esperoCrearPlaylist(String email, String nombrePlaylist,
@@ -1295,7 +1291,7 @@ Future<Respuesta> borrarPlaylist(String email, String nombrePlaylist) async {
     'nombrePlaylist': nombrePlaylist,
   };
   final http.Response response = await http.post(
-    'http://34.69.44.48:8080/Espotify/crear_lista_android',   //todo cambiar URL a la que toca
+    'http://34.69.44.48:8080/Espotify/eliminar_lista_android',
     headers: <String, String>{
       'Content-Type': 'application/json; charset=UTF-8',
     },

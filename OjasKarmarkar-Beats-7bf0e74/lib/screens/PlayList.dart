@@ -144,7 +144,7 @@ class _PLayListScreenState extends State<PLayListScreen> {
                                       ),
                                       onSelected: (String choice) async {
                                         log("data: $choice");
-                                        if (choice == Constants.ed) {
+                                        if (choice == Constants.ed) {   //editar canciones
                                           showDialog(
                                             context: context,
                                             builder: (context) {
@@ -245,20 +245,21 @@ class _PLayListScreenState extends State<PLayListScreen> {
                                                         InkWell(
                                                           onTap: () async {
                                                             await PlaylistHelper(
-                                                                playlistRepo
+                                                                misCanciones
                                                                     .playlist[
                                                                 pos])
                                                                 .rename(
                                                                 txt.text);
                                                             setState(() {
-                                                              playlistRepo.playlist[
+                                                              misCanciones.playlist[
                                                               pos] =
                                                                   txt.text;
                                                               //PlaylistHelper(playlistRepo.playlist[pos]).rename(txt.text);
-                                                              playlistRepo
+                                                              misCanciones
                                                                   .push();
                                                               Navigator.pop(
                                                                   context);
+                                                              editarUnaCancionMia(username.email, txt.text);  //editar en la BD
                                                             });
                                                           },
                                                           child: Container(
@@ -299,7 +300,7 @@ class _PLayListScreenState extends State<PLayListScreen> {
                                               );
                                             },
                                           );
-                                        }else if(choice == Constants.de){
+                                        }else if(choice == Constants.de){ //borrar canciones
                                            borrarCancionDeMisCanciones(username.email, model.songs[pos]);
                                            initDataMisCanciones();   //reiniciamos
                                         }
@@ -544,6 +545,10 @@ class _PLayListScreenState extends State<PLayListScreen> {
     } else {}
   }
 
+  void editarUnaCancionMia(String email, String title) async {
+    await editarCanciones(email, title);
+  }
+
   void borrarCancionDeMisCanciones(String email, Song song) async {
 
     await borrarCanciones(email, "misCanciones", song.title);
@@ -552,9 +557,9 @@ class _PLayListScreenState extends State<PLayListScreen> {
   }
 
   void borrarCancionDePlaylist(String email, String namePlaylist, Song song) async {
-
+    log("hecho $song");
     await borrarCanciones(email, namePlaylist, song.title);
-
+    log("hecho2");
 
   }
 }
@@ -611,14 +616,15 @@ Future<Canciones> obtenerCanciones(String email, String nombrePlaylist) async {
   }
 }
 
-Future<Canciones> borrarCanciones(String email, String nombrePlaylist, String nombreCancion) async {
+
+
+Future<Canciones> editarCanciones(String email, String nombreCancion) async {
   Map data = {
     'email': email,
-    'nombrePlaylist': nombrePlaylist,
     'nombreCancion': nombreCancion,
   };
   final http.Response response = await http.post(
-    'http://34.69.44.48:8080/Espotify/obtener_audios_android',  //todo url borrar canciones
+    'http://34.69.44.48:8080/Espotify/cancion_modificar_android',
     headers: <String, String>{
       'Content-Type': 'application/json; charset=UTF-8',
     },
@@ -634,4 +640,33 @@ Future<Canciones> borrarCanciones(String email, String nombrePlaylist, String no
     // then throw an exception.
     throw Exception('Fallo al enviar petición');
   }
+
+
+}
+
+Future<Canciones> borrarCanciones(String email, String nombrePlaylist, String nombreCancion) async {
+  Map data = {
+    'email': email,
+    'nombrePlaylist': nombrePlaylist,
+    'nombreCancion': nombreCancion,
+  };
+  final http.Response response = await http.post(
+    'http://34.69.44.48:8080/Espotify/eliminar_cancionlista_android',
+    headers: <String, String>{
+      'Content-Type': 'application/json; charset=UTF-8',
+    },
+    body: jsonEncode(data),
+
+  );
+  if (response.statusCode == 200) {
+    // If the server did return a 201 CREATED response,
+    // then parse the JSON.
+    return Canciones.fromJson(json.decode(response.body));
+  } else {
+    // If the server did not return a 201 CREATED response,
+    // then throw an exception.
+    throw Exception('Fallo al enviar petición');
+  }
+
+
 }
