@@ -37,6 +37,7 @@ class _ProfilePageState extends State<ProfilePage>
   TextEditingController securePasswordController = new TextEditingController();
   TextEditingController descriptionController = new TextEditingController();
   TextEditingController playlistController = new TextEditingController();
+  TextEditingController controlador = new TextEditingController();
   List<String> playlists;
   PlaylistRepo playlistRepo = new PlaylistRepo();
   MisCancionesModel misCanciones = new MisCancionesModel();
@@ -212,7 +213,6 @@ class _ProfilePageState extends State<ProfilePage>
 
                                    Flexible(
                                     child: TextField(
-
                                       controller: usernameController,
                                       style: TextStyle(fontSize: 16),
                                       decoration: const InputDecoration(
@@ -331,6 +331,7 @@ class _ProfilePageState extends State<ProfilePage>
                                 children: <Widget>[
                                   new Flexible(
                                     child: new TextField(
+                                      controller:passwordController,
                                       obscureText: true,
                                       style: TextStyle(fontSize: 16),
                                       decoration: const InputDecoration(
@@ -369,6 +370,7 @@ class _ProfilePageState extends State<ProfilePage>
                                 children: <Widget>[
                                   new Flexible(
                                     child: new TextField(
+                                      controller: securePasswordController,
                                       style: TextStyle(fontSize: 16),
                                       obscureText: true,
                                       decoration: const InputDecoration(
@@ -1095,6 +1097,9 @@ class _ProfilePageState extends State<ProfilePage>
        List<String> misCancionesTitle = new List();
        misCancionesTitle.add("Mis canciones");
        misCanciones.generateInitialPlayList(misCancionesTitle);
+       String debug = p.canciones;
+       //todo delete debug cuando pcanciones != null
+       log("debug: $debug");
        setState(() {
          username.setCanciones(p.canciones);
          username.setCancionesUrl(p.urls);
@@ -1121,10 +1126,19 @@ class _ProfilePageState extends State<ProfilePage>
                     textColor: Colors.white,
                     color: Colors.green,
                     onPressed: () {
-                      setState(() {
-                        _status = true;
-                        FocusScope.of(context).requestFocus(new FocusNode());
-                      });
+                      if(passwordController.text==securePasswordController.text) {
+                        setState(() {
+                          enviarDatosALaBD(usernameController.text,
+                              descriptionController.text
+                              , emailController.text, passwordController.text); //conectar los datos escritos con la BD
+                          _status = true;
+                          FocusScope.of(context).requestFocus(new FocusNode());
+                        });
+                      }else{controlador.text="las contraseñas no son iguales,\n"
+                          " vuelva a escribirlas";    //todo en caso de contras diferentes,
+                                                      //todo mantener la vista bien (ahora no va bien)
+                      FocusScope.of(context).requestFocus(new FocusNode());
+                      }
                     },
                     shape: new RoundedRectangleBorder(
                         borderRadius: new BorderRadius.circular(20.0)),
@@ -1152,6 +1166,7 @@ class _ProfilePageState extends State<ProfilePage>
             ),
             flex: 2,
           ),
+          SizedBox(height: 40,child: Text(controlador.text))  //todo hacerlo bien (como en el login)
         ],
       ),
     );
@@ -1360,6 +1375,17 @@ class _ProfilePageState extends State<ProfilePage>
     }
   }
 
+  void enviarDatosALaBD(String nombre, String descripcion, String email, String contra) {
+
+      esperarActualizarUser(nombre, descripcion, email, contra);
+
+  }
+
+  void esperarActualizarUser(String nombre, String descripcion, String email, String contra) async {
+
+    await actualizarUser(nombre,descripcion,email, contra);
+
+  }
 }
 
 class Perfil {
@@ -1479,6 +1505,33 @@ Future<Respuesta> borrarPlaylist(String email, String nombrePlaylist) async {
     throw Exception('Fallo al enviar petición');
   }
 }
+
+Future<Respuesta> actualizarUser(String nombre, String descripcion, String email, String contra) async {
+  Map data = {
+    'nombre': nombre,
+    'descripcion': descripcion,
+    'email': email,
+    'nueva_contrasenya': contra,
+  };
+  final http.Response response = await http.post(
+    'http://34.69.44.48:8080/Espotify/eliminar_lista_android',    //TODO cambiar al servlet actualizarDatosUser
+    headers: <String, String>{
+      'Content-Type': 'application/json; charset=UTF-8',
+    },
+    body: jsonEncode(data),
+
+  );
+  if (response.statusCode == 200) {
+    // If the server did return a 201 CREATED response,
+    // then parse the JSON.
+    return Respuesta.fromJson(json.decode(response.body));
+  } else {
+    // If the server did not return a 201 CREATED response,
+    // then throw an exception.
+    throw Exception('Fallo al enviar petición');
+  }
+}
+
 
 class Respuesta {
   final String creado;
