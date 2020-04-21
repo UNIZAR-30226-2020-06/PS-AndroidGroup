@@ -614,8 +614,8 @@ class _PlayBackPageState extends State<PlayBackPage> {
                               },
                               icon: Icon(
                                 bookmark.alreadyExists(model.currentSong)
-                                    ? Icons.favorite
-                                    : Icons.favorite_border,
+                                    ? Icons.star
+                                    : Icons.star_border,
                                 color: bookmark.alreadyExists(model.currentSong)
                                     ? Colors.orange
                                     : Colors.grey,
