@@ -1248,6 +1248,8 @@ class _ProfilePageState extends State<ProfilePage>
   void esperoCrearPlaylist(String email, String nombrePlaylist,
       BuildContext context, PlaylistRepo playlistRepo)async{
     Respuesta r = await crearPlaylist(email, nombrePlaylist);
+
+
     if(r.getUserId()=="ok"){
       playlistRepo.add(nombrePlaylist);
     }
@@ -1259,6 +1261,9 @@ class _ProfilePageState extends State<ProfilePage>
   void esperoBorrarPlaylist(String email, BuildContext context, String nombrePlaylist) async
   {
      await borrarPlaylist(email, nombrePlaylist);
+
+     playlistRepo.delete(nombrePlaylist);
+
      Navigator.of(context).pop();
      //si ocurre algún error, lo notificará borrarPlaylist, en caso contrario,
     //mantenemos el mismo funcionamiento que se llevaba acabo
