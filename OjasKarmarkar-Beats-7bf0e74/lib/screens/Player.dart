@@ -213,7 +213,7 @@ class _PlayBackPageState extends State<PlayBackPage> {
                               onPressed: () {
                                 model.player.stop();
                                 model.next();
-
+                                //todo debería de funcionar
                                 model.play();
                               },
                               icon: Icon(
@@ -277,8 +277,8 @@ class _PlayBackPageState extends State<PlayBackPage> {
                                   },
                                   icon: Icon(
                                     bookmark.alreadyExists(model.currentSong)
-                                        ? Icons.favorite
-                                        : Icons.favorite_border,
+                                        ? Icons.star
+                                        : Icons.star_border,
                                     color: bookmark
                                             .alreadyExists(model.currentSong)
                                         ? Colors.orange

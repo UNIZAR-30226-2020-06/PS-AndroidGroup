@@ -1511,7 +1511,7 @@ Future<Respuesta> actualizarUser(String nombre, String descripcion, String email
     'nueva_contrasenya': contra,
   };
   final http.Response response = await http.post(
-    'http://34.69.44.48:8080/Espotify/eliminar_lista_android',    //TODO cambiar al servlet actualizarDatosUser
+    'http://34.69.44.48:8080/Espotify/modificar_usuario_android',
     headers: <String, String>{
       'Content-Type': 'application/json; charset=UTF-8',
     },
