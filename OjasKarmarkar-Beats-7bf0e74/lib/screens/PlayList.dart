@@ -417,7 +417,7 @@ class _PLayListScreenState extends State<PLayListScreen> {
                     )
               : Center(
                   child: Text(
-                    "Loading...",
+                    "Vacío...",
                     style: Theme.of(context).textTheme.display2,
                   ),
                 )),

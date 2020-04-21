@@ -219,7 +219,7 @@ class _ProfilePageState extends State<ProfilePage>
                                         hintText: "Ejemplo123",
                                         hintStyle: TextStyle(fontSize: 15.0)
                                       ),
-                                      enabled: _status,
+                                      enabled: !_status,
                                       autofocus: !_status,
 
                                     ),
@@ -260,7 +260,7 @@ class _ProfilePageState extends State<ProfilePage>
                                       decoration: const InputDecoration(
                                           hintText: "Eduardo el próximo sucesor de Queen",
                                           hintStyle: TextStyle(fontSize: 15.0)),
-                                      enabled: _status,
+                                      enabled: !_status,
                                     ),
                                   ),
                                 ],
@@ -298,7 +298,7 @@ class _ProfilePageState extends State<ProfilePage>
                                       decoration: const InputDecoration(
                                           hintText: "ejemplo123@gmail.com",
                                           hintStyle: TextStyle(fontSize: 15.0)),
-                                      enabled: _status,
+                                      enabled: !_status,
                                     ),
                                   ),
                                 ],
@@ -497,7 +497,10 @@ class _ProfilePageState extends State<ProfilePage>
                                                           ),
                                                           InkWell(
                                                             onTap: () {
-                                                              validate(context, playlistRepo, "", "create");
+                                                              setState(() {
+                                                                validate(context, playlistRepo, "", "create");
+                                                              });
+
 
                                                             },
                                                             child: Container(
@@ -599,7 +602,157 @@ class _ProfilePageState extends State<ProfilePage>
                                                             color: Colors.white,
                                                           ),
                                                           onPressed: () async {
-                                                            validate(context,playlistRepo, playlistRepo.playlist[pos], "delete"); //si servidor no contesta
+                                                            setState(() {
+
+                                                              showDialog(
+                                                                context: context,
+                                                                builder: (context) {
+                                                                  return Padding(
+                                                                    padding:
+                                                                    const EdgeInsets.all(8.0),
+                                                                    child: AlertDialog(
+                                                                      backgroundColor:
+                                                                      Theme.of(context)
+                                                                          .backgroundColor,
+                                                                      shape:
+                                                                      RoundedRectangleBorder(
+                                                                        side: BorderSide(),
+                                                                        borderRadius:
+                                                                        BorderRadius.all(
+                                                                            Radius.circular(
+                                                                                30.0)),
+                                                                      ),
+                                                                      contentPadding:
+                                                                      EdgeInsets.only(
+                                                                          top: 10.0),
+                                                                      content: Container(
+                                                                        width: 200.0,
+                                                                        child: Column(
+                                                                          mainAxisAlignment:
+                                                                          MainAxisAlignment
+                                                                              .start,
+                                                                          crossAxisAlignment:
+                                                                          CrossAxisAlignment
+                                                                              .stretch,
+                                                                          mainAxisSize:
+                                                                          MainAxisSize.min,
+                                                                          children: <Widget>[
+                                                                            Row(
+                                                                              mainAxisAlignment:
+                                                                              MainAxisAlignment
+                                                                                  .spaceEvenly,
+                                                                              mainAxisSize:
+                                                                              MainAxisSize
+                                                                                  .min,
+                                                                              children: <Widget>[
+                                                                                Text(
+                                                                                  "Eliminar Playlist",
+                                                                                  style: TextStyle(
+                                                                                      fontSize:
+                                                                                      24.0,
+                                                                                      fontFamily:
+                                                                                      'Sans'),
+                                                                                ),
+                                                                              ],
+                                                                            ),
+                                                                            SizedBox(
+                                                                              height: 5.0,
+                                                                            ),
+                                                                            Divider(
+                                                                              color: Colors.grey,
+                                                                              height: 4.0,
+                                                                            ),
+                                                                            Padding(
+                                                                              padding:
+                                                                              EdgeInsets.only(
+                                                                                  left: 30.0,
+                                                                                  right: 30.0,
+                                                                                  top: 30.0,
+                                                                                  bottom:
+                                                                                  30.0),
+                                                                              child:Text("¿Estás seguro?"),
+
+                                                                            ),
+                                                                            InkWell(
+                                                                              onTap: () async {
+
+                                                                                setState(() {
+                                                                                  validate(context, playlistRepo, playlistRepo.playlist[pos], "Delete");
+
+                                                                                });
+                                                                              },
+                                                                              child: Container(
+                                                                                padding: EdgeInsets
+                                                                                    .only(
+                                                                                    top: 10.0,
+                                                                                    bottom:
+                                                                                    20.0),
+                                                                                decoration:
+                                                                                BoxDecoration(
+                                                                                  color:
+                                                                                  Colors.red,
+                                                                                ),
+                                                                                child: Text(
+                                                                                  "Eliminar",
+                                                                                  style: TextStyle(
+                                                                                      fontFamily:
+                                                                                      'Sans',
+                                                                                      color: Colors
+                                                                                          .white),
+                                                                                  textAlign:
+                                                                                  TextAlign
+                                                                                      .center,
+                                                                                ),
+                                                                              ),
+                                                                            ),
+                                                                            InkWell(
+                                                                              onTap: () async {
+
+                                                                                setState(() {
+                                                                                  Navigator.pop(
+                                                                                      context);
+                                                                                });
+                                                                              },
+                                                                              child: Container(
+                                                                                padding: EdgeInsets
+                                                                                    .only(
+                                                                                    top: 10.0,
+                                                                                    bottom:
+                                                                                    20.0),
+                                                                                decoration:
+                                                                                BoxDecoration(
+                                                                                  color:
+                                                                                  Colors.orange,
+                                                                                  borderRadius: BorderRadius.only(
+                                                                                      bottomLeft:
+                                                                                      Radius.circular(
+                                                                                          32.0),
+                                                                                      bottomRight:
+                                                                                      Radius.circular(
+                                                                                          32.0)),
+                                                                                ),
+                                                                                child: Text(
+                                                                                  "Cancelar",
+                                                                                  style: TextStyle(
+                                                                                      fontFamily:
+                                                                                      'Sans',
+                                                                                      color: Colors
+                                                                                          .white),
+                                                                                  textAlign:
+                                                                                  TextAlign
+                                                                                      .center,
+                                                                                ),
+                                                                              ),
+                                                                            ),
+                                                                          ],
+                                                                        ),
+                                                                      ),
+                                                                    ),
+                                                                  );
+                                                                },
+                                                              );
+                                                            });
+                                                             //si servidor no contesta
                                                             //exceptión, en caso de que responda
                                                             //mantenemos el funcionamiento anterior
                                                             //PlaylistHelper temp =
@@ -750,7 +903,7 @@ class _ProfilePageState extends State<ProfilePage>
                                                                               decoration:
                                                                               BoxDecoration(
                                                                                 color:
-                                                                                Colors.blue,
+                                                                                Colors.orange,
                                                                                 borderRadius: BorderRadius.only(
                                                                                     bottomLeft:
                                                                                     Radius.circular(
@@ -1079,14 +1232,17 @@ class _ProfilePageState extends State<ProfilePage>
         });
   }
   void validate(context, repo, String nombre, String accion) {
-    setState(() {
+
       txt.text.toString().isEmpty ? error = true : error = false;
-    });
+
     if (txt.text.toString().isNotEmpty && accion == "create") {
-        esperoCrearPlaylist(emailController.text, txt.text, context, playlistRepo);
-      }else { //nombre == "delete"
+
+        esperoCrearPlaylist(
+            emailController.text, txt.text, context, playlistRepo);
+
+      }else { //nombre ==te"
       esperoBorrarPlaylist(
-          emailController.text, nombre);
+          emailController.text, context, nombre);
     }
   }
   void esperoCrearPlaylist(String email, String nombrePlaylist,
@@ -1100,9 +1256,10 @@ class _ProfilePageState extends State<ProfilePage>
 
   }
 
-  void esperoBorrarPlaylist(String email, String nombrePlaylist) async
+  void esperoBorrarPlaylist(String email, BuildContext context, String nombrePlaylist) async
   {
      await borrarPlaylist(email, nombrePlaylist);
+     Navigator.of(context).pop();
      //si ocurre algún error, lo notificará borrarPlaylist, en caso contrario,
     //mantenemos el mismo funcionamiento que se llevaba acabo
   }
