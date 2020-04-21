@@ -66,11 +66,7 @@ class SongsModel extends ChangeNotifier {
   }
 
   fetchSongsManual(List<Song> canciones){
-    String s = canciones[0].title;
-    String so = canciones[1].title;
     songs = canciones;
-    s = songs[0].title;
-    so = songs[1].title;
     if (songs.length == 0) songs = null;
     player = new MusicFinder();
     initValues();

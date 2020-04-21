@@ -41,9 +41,9 @@ class _MusicLibraryState extends State<MusicLibrary> {
   void didChangeDependencies() {
     model = Provider.of<SongsModel>(context);
     b = Provider.of<BookmarkModel>(context);
-    setState(() {
+
       obtenerCancionesRandom(model);
-    });
+
 
 
     height = MediaQuery.of(context).size.height;
@@ -144,16 +144,23 @@ class _MusicLibraryState extends State<MusicLibrary> {
   }
 
   obtenerCancionesRandom(SongsModel model) async {
-    songs = new List<Song>();
+
     ListaCancionesDefault c = await obtenerListaCanciones();
     List<String> listaNombres = c.getNombresAudio().split('|');
     List<String> listaUrls = c.getUrlsAudio().split('|');
 
-    for(int i = 0; i<listaNombres.length; i++){
-      songs.add(new Song(1,"", listaNombres[i], "",0,0,listaUrls[i],null));
-    }
 
-    model.fetchSongsManual(songs);
+    setState(() {
+      songs = new List<Song>();
+      for(int i = 0; i<listaNombres.length; i++){
+        songs.add(new Song(1,"", listaNombres[i], "",0,0,listaUrls[i],null));
+      }
+      for(String s in listaNombres){
+        log('initData2: $s');
+      }
+      model.fetchSongsManual(songs);
+    });
+
   }
 
   getLoading(SongsModel model) {
@@ -269,7 +276,8 @@ class _MusicLibraryState extends State<MusicLibrary> {
                 ),
                 onTap: () async {
                   model.player.stop();
-                  model.playlist = false;
+                  model.playlist = true;
+                  model.playlistSongs = songs;
                   model.currentSong = model.songs[pos];
                   
 

@@ -482,7 +482,7 @@ class _ProfilePageState extends State<ProfilePage>
                                                                           color: Colors
                                                                               .orange)),
                                                                   errorText: error
-                                                                      ? "El nombre no puede ser nulo"
+                                                                      ? "El nombre no \n puede ser nulo"
                                                                       : null,
                                                                   errorStyle: Theme.of(context)
                                                                       .textTheme
@@ -500,7 +500,10 @@ class _ProfilePageState extends State<ProfilePage>
                                                           InkWell(
                                                             onTap: () {
                                                               setState(() {
-                                                                validate(context, playlistRepo, "", "create");
+                                                                if(txt.text != ""){
+                                                                  validate(context, playlistRepo, txt.text, "create");
+                                                                }
+
                                                               });
 
 
@@ -859,7 +862,7 @@ class _ProfilePageState extends State<ProfilePage>
                                                                                           color: Colors
                                                                                               .deepOrange)),
                                                                                   errorText: error
-                                                                                      ? "El nombre no puede ser nulo"
+                                                                                      ? "El nombre no \n puede ser nulo"
                                                                                       : null,
                                                                                   errorStyle: Theme.of(
                                                                                       context)
@@ -886,6 +889,7 @@ class _ProfilePageState extends State<ProfilePage>
                                                                                   .rename(
                                                                                   txt.text);
                                                                               setState(() {
+                                                                                if(txt.text != ""){
                                                                                 playlistRepo.playlist[
                                                                                 pos] =
                                                                                     txt.text;
@@ -893,7 +897,7 @@ class _ProfilePageState extends State<ProfilePage>
                                                                                 playlistRepo
                                                                                     .push();
                                                                                 Navigator.pop(
-                                                                                    context);
+                                                                                    context);}
                                                                               });
                                                                             },
                                                                             child: Container(
