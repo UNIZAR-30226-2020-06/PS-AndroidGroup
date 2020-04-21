@@ -30,7 +30,7 @@ class Bookmarks extends StatelessWidget {
                   : (bm.bookmarks.length == 0 || bm.bookmarks.length == null)
                       ? Center(
                           child: Text(
-                          "No Favourites",
+                          "No hay favoritos",
                           style: Theme.of(context).textTheme.display1,
                         ))
                       : Container(
@@ -48,7 +48,7 @@ class Bookmarks extends StatelessWidget {
                                     color: Colors.redAccent,
                                   ),
                                 ),
-                                Text("Liked Songs",
+                                Text("Favoritos",
                                     style: TextStyle(
                                         color: Colors.white, fontSize: 30.0)),
                               ],
@@ -113,8 +113,12 @@ class Bookmarks extends StatelessWidget {
                   },
                 ),
               ),
-              //showStatus(model , context)
+              Align(
+                alignment: Alignment.bottomLeft,
+                child: showStatus(model, context),
+              )
             ],
+
           ),
         ),
         onWillPop: () {},

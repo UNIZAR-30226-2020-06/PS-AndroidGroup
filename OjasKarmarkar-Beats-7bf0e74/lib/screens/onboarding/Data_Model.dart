@@ -4,14 +4,14 @@ import 'Model.dart';
 List<OnBoardPageModel> onboardData = [
   OnBoardPageModel(
       "assets/img1.png",
-      "Music Is Dream!",
+      "¡Bienvenido a Espotify!",
       1,
-      "Want To Relax?\n We are here to help!",   
+      "La mejor música\n en la palma de tu mano",
       ),
   OnBoardPageModel(
       "assets/img2.png",
-      "Meditate With Music",
+      "Podcasts y música",
       2,
-      "Enjoy The Material Design!\nListen And Chill!",  
+      "¡Sin límites!\n¡A tope con la Cope!",
       )
 ];

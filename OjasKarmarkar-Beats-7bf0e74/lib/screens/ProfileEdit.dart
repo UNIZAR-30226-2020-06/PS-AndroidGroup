@@ -49,13 +49,11 @@ class _ProfilePageState extends State<ProfilePage>
   @override
   void initState() {
     super.initState();
+
   }
 
-
-
-
   @override
-  Widget build(BuildContext context) {
+  void didChangeDependencies() {
     model = Provider.of<SongsModel>(context);
     username = Provider.of<Username>(context);
     playlistRepo = Provider.of<PlaylistRepo>(context);
@@ -63,7 +61,15 @@ class _ProfilePageState extends State<ProfilePage>
 
     recibirDatos(username.email, usernameController,
         descriptionController, emailController);
-    anyadePlaylists(username.email, playlistRepo, misCanciones);
+    setState(() {
+      anyadePlaylists(username.email, playlistRepo, misCanciones);
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+
+
     return new Scaffold(
         body: new Container(
           color: Colors.white,
@@ -373,6 +379,7 @@ class _ProfilePageState extends State<ProfilePage>
                                   ),
                                 ],
                               )),
+                          !_status ? _getActionButtons() : new Container(),
                           Padding(
                               padding: EdgeInsets.only(
                                   left: 25.0, right: 25.0, top: 25.0),
@@ -394,7 +401,7 @@ class _ProfilePageState extends State<ProfilePage>
                                 ],
                               )),
 
-                          !_status ? _getActionButtons() : new Container(),
+
                           Padding(
                               padding: EdgeInsets.only(top: height * 0.04),
                               child: SizedBox(
@@ -932,17 +939,18 @@ class _ProfilePageState extends State<ProfilePage>
        var playlistss = p.playlists.split('|');
        log('data: $playlistss');
        playlistRepo.generateInitialPlayList(playlistss);
+       List<String> misCancionesTitle = new List();
+       misCancionesTitle.add("Mis canciones");
+       misCanciones.generateInitialPlayList(misCancionesTitle);
+       setState(() {
+         username.setCanciones(p.canciones);
+         username.setCancionesUrl(p.urls);
+       });
 
-       username.setCanciones(p.canciones);
-       username.setCancionesUrl(p.urls);
+
      }
+
    }
-  @override
-  void dispose() {
-    // Clean up the controller when the Widget is disposed
-    myFocusNode.dispose();
-    super.dispose();
-  }
 
   Widget _getActionButtons() {
     return Padding(
@@ -1091,6 +1099,7 @@ class _ProfilePageState extends State<ProfilePage>
     Navigator.of(context).pop();
 
   }
+
   void esperoBorrarPlaylist(String email, String nombrePlaylist) async
   {
      await borrarPlaylist(email, nombrePlaylist);

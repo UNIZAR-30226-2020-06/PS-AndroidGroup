@@ -1,4 +1,5 @@
 import 'package:beats/screens/MainScreen.dart';
+import 'package:beats/screens/login.dart';
 import 'package:dots_indicator/dots_indicator.dart';
 import 'Data_Model.dart';
 import 'OnBoard_page.dart';
@@ -22,8 +23,8 @@ class _OnBoardingState extends State<OnBoarding> {
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
       floatingActionButton: MaterialButton(
           child: _currentPageNotifier.value != 1
-              ? Text("NEXT" , style: TextStyle(color: Colors.blueAccent , fontWeight: FontWeight.bold , fontSize: 18),)
-              : Text("FINISH" , style: TextStyle(color: Colors.blueAccent , fontWeight: FontWeight.bold , fontSize: 18)),
+              ? Text("SIGUENTE" , style: TextStyle(color: Colors.orange , fontWeight: FontWeight.bold , fontSize: 18),)
+              : Text("TERMINAR" , style: TextStyle(color: Colors.orange , fontWeight: FontWeight.bold , fontSize: 18)),
           onPressed: () {
             if (_currentPageNotifier.value != 1) {
               setState(() {
@@ -32,7 +33,7 @@ class _OnBoardingState extends State<OnBoarding> {
               });
             } else {
               Navigator.of(context).pushReplacement(
-                  new MaterialPageRoute(builder: (context) => MainScreen()));
+                  new MaterialPageRoute(builder: (context) => LoginPage()));
             }
           }),
       body: Stack(

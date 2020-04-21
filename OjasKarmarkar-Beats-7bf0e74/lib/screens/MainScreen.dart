@@ -22,7 +22,7 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver{
 
 
   var index = 1;
-  var screens = [PodcastLibrary(), MusicLibrary(), UploadSong(), Bookmarks(), SettingsScreen(), ProfilePage()];
+  var screens = [PodcastLibrary(), MusicLibrary(), UploadSong(), Bookmarks(), ProfilePage()];
 
   @override
   Widget build(BuildContext context) {
@@ -50,10 +50,6 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver{
                     icon: Icons.favorite_border,
                     text: "Favoritos",
                     selectedColor: Colors.red),
-                ExpandingBottomBarItem(
-                    icon: Icons.settings,
-                    text: "Ajustes",
-                    selectedColor: Colors.blueAccent),
                 ExpandingBottomBarItem(
                     icon: Icons.supervised_user_circle,
                     text: "Perfil",

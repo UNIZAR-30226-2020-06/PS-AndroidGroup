@@ -18,7 +18,12 @@ import 'package:http/http.dart' as http;
 
 double height, width;
 
-class MusicLibrary extends StatelessWidget {
+class MusicLibrary extends StatefulWidget {
+  @override
+  _MusicLibraryState createState() => _MusicLibraryState();
+}
+
+class _MusicLibraryState extends State<MusicLibrary> {
   TextEditingController editingController;
 
   SongsModel model;
@@ -30,19 +35,32 @@ class MusicLibrary extends StatelessWidget {
   TextEditingController txt = TextEditingController();
 
   bool error = false;
+  List<Song> songs;
 
   @override
-  Widget build(BuildContext context) {
+  void didChangeDependencies() {
     model = Provider.of<SongsModel>(context);
+    b = Provider.of<BookmarkModel>(context);
+    setState(() {
+      obtenerCancionesRandom(model);
+    });
+
+
+    height = MediaQuery.of(context).size.height;
+    width = MediaQuery.of(context).size.width;
+    themeChanger = Provider.of<ThemeChanger>(context);
+
     for(int i=0; i<model.getSongs().length;i++){
       String s = model.getSongs().elementAt(i).title;
       log('cancion: $s');
     }
 
-    b = Provider.of<BookmarkModel>(context);
-    height = MediaQuery.of(context).size.height;
-    width = MediaQuery.of(context).size.width;
-    themeChanger = Provider.of<ThemeChanger>(context);
+    super.didChangeDependencies();
+  }
+  @override
+  Widget build(BuildContext context) {
+
+
     return WillPopScope(
       child: Scaffold(
           resizeToAvoidBottomInset: false,
@@ -123,6 +141,19 @@ class MusicLibrary extends StatelessWidget {
                   ))),
       onWillPop: () {},
     );
+  }
+
+  obtenerCancionesRandom(SongsModel model) async {
+    songs = new List<Song>();
+    ListaCancionesDefault c = await obtenerListaCanciones();
+    List<String> listaNombres = c.getNombresAudio().split('|');
+    List<String> listaUrls = c.getUrlsAudio().split('|');
+
+    for(int i = 0; i<listaNombres.length; i++){
+      songs.add(new Song(1,"", listaNombres[i], "",0,0,listaUrls[i],null));
+    }
+
+    model.fetchSongsManual(songs);
   }
 
   getLoading(SongsModel model) {
@@ -207,12 +238,12 @@ class MusicLibrary extends StatelessWidget {
                               ],
                             );
                           });
-                    } // else if (choice == Constants.bm) {
-                    // if (!b.alreadyExists(model.songs[pos])) {
-                    //   b.add(model.songs[pos]);
-                    // } else {
-                    //    b.remove(model.songs[pos]);
-                    // }
+                    } else if (choice == Constants.bm) {
+                     if (!b.alreadyExists(model.songs[pos])) {
+                       b.add(model.songs[pos]);
+                     } else {
+                       b.remove(model.songs[pos]);
+                     }}
                     //} else if (choice == Constants.de) {
 
                     //   model.fetchSongs();
@@ -496,4 +527,6 @@ class Search extends SearchDelegate<Song> {
       },
     );
   }
+
 }
+

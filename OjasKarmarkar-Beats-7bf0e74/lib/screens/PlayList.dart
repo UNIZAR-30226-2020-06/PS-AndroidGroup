@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';
 
+import 'package:beats/Animations/transitions.dart';
 import 'package:beats/models/MisCancionesModel.dart';
 import 'package:beats/models/PlaylistRepo.dart';
 import 'package:beats/models/SongsModel.dart';
@@ -18,6 +19,7 @@ import '../custom_icons.dart';
 import 'MusicLibrary.dart';
 import 'package:http/http.dart' as http;
 
+import 'Player.dart';
 import 'ProfileEdit.dart';
 
 class PLayListScreen extends StatefulWidget {
@@ -474,14 +476,18 @@ class _PLayListScreenState extends State<PLayListScreen> {
     if (model.currentSong != null) {
       return Container(
         decoration: BoxDecoration(
-          color: Colors.black,
+          color: Colors.orange[400],
           border: Border.all(color: Colors.orangeAccent),
           borderRadius: BorderRadius.only(
               topLeft: Radius.circular(40.0),
               topRight: Radius.circular(10.0),
               bottomRight: Radius.elliptical(10, 4)),
         ),
-        child: Padding(
+        child: GestureDetector(
+            onTap: () {
+            Navigator.push(context, Scale(page: PlayBackPage()));
+            },
+          child:Padding(
           padding: const EdgeInsets.all(4.0),
           child: ListTile(
             leading: CircleAvatar(
@@ -538,10 +544,10 @@ class _PLayListScreenState extends State<PLayListScreen> {
                   )),
             ),
           ),
-        ),
+        ),),
         height: height * 0.1,
         width: width * 0.62,
-      );
+        );
     } else {}
   }
 
