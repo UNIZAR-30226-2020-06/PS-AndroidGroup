@@ -1097,9 +1097,6 @@ class _ProfilePageState extends State<ProfilePage>
        List<String> misCancionesTitle = new List();
        misCancionesTitle.add("Mis canciones");
        misCanciones.generateInitialPlayList(misCancionesTitle);
-       String debug = p.canciones;
-       //todo delete debug cuando pcanciones != null
-       log("debug: $debug");
        setState(() {
          username.setCanciones(p.canciones);
          username.setCancionesUrl(p.urls);
