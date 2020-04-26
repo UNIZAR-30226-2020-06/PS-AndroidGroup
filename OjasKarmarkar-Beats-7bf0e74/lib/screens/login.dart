@@ -127,8 +127,6 @@ class _LoginPageState extends State<LoginPage> {
                           ),
                         ),
                         SizedBox(height: 40,),
-                        Text("¿Olvidaste la contraseña?", style: TextStyle(color: Colors.blue),),
-                        SizedBox(height: 40,),
                       GestureDetector(
                         onTap: () {
                           setState(() {
