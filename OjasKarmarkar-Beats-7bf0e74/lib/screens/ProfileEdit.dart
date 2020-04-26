@@ -27,7 +27,7 @@ class ProfilePage extends StatefulWidget {
 
 class _ProfilePageState extends State<ProfilePage>
     with SingleTickerProviderStateMixin {
-  bool _status = true;
+  bool editNoPresionado = true;
   final FocusNode myFocusNode = FocusNode();
   TextEditingController txt = TextEditingController();
   bool error = false;
@@ -59,17 +59,16 @@ class _ProfilePageState extends State<ProfilePage>
     username = Provider.of<Username>(context);
     playlistRepo = Provider.of<PlaylistRepo>(context);
     misCanciones = Provider.of<MisCancionesModel>(context);
-
     recibirDatos(username.email, usernameController,
         descriptionController, emailController);
     setState(() {
       anyadePlaylists(username.email, playlistRepo, misCanciones);
     });
+    super.didChangeDependencies();
   }
 
   @override
   Widget build(BuildContext context) {
-
 
     return new Scaffold(
         body: new Container(
@@ -153,7 +152,6 @@ class _ProfilePageState extends State<ProfilePage>
                         crossAxisAlignment: CrossAxisAlignment.start,
                         mainAxisAlignment: MainAxisAlignment.start,
                         children: <Widget>[
-
                           Padding(
                               padding: EdgeInsets.only(
                                   left: 25.0, right: 25.0, top: 25.0),
@@ -177,7 +175,7 @@ class _ProfilePageState extends State<ProfilePage>
                                     mainAxisAlignment: MainAxisAlignment.end,
                                     mainAxisSize: MainAxisSize.min,
                                     children: <Widget>[
-                                      _status ? _getEditIcon() : new Container(),
+                                      editNoPresionado ? _getEditIcon() : new Container(),
                                     ],
                                   )
                                 ],
@@ -219,8 +217,8 @@ class _ProfilePageState extends State<ProfilePage>
                                         hintText: "Ejemplo123",
                                         hintStyle: TextStyle(fontSize: 15.0)
                                       ),
-                                      enabled: !_status,
-                                      autofocus: !_status,
+                                      enabled: !editNoPresionado,
+                                      autofocus: !editNoPresionado,
 
                                     ),
                                   ),
@@ -260,7 +258,7 @@ class _ProfilePageState extends State<ProfilePage>
                                       decoration: const InputDecoration(
                                           hintText: "Eduardo el próximo sucesor de Queen",
                                           hintStyle: TextStyle(fontSize: 15.0)),
-                                      enabled: !_status,
+                                      enabled: !editNoPresionado,
                                     ),
                                   ),
                                 ],
@@ -298,90 +296,100 @@ class _ProfilePageState extends State<ProfilePage>
                                       decoration: const InputDecoration(
                                           hintText: "ejemplo123@gmail.com",
                                           hintStyle: TextStyle(fontSize: 15.0)),
-                                      enabled: !_status,
+                                      enabled: !editNoPresionado,
                                     ),
                                   ),
                                 ],
                               )),
+                          //if(!editNoPresionado){
+                         Padding(
+                                padding: EdgeInsets.only(
+                                    left: 25.0, right: 25.0, top: 25.0),
+                                child: new Row(
+                                  mainAxisSize: MainAxisSize.max,
+                                  children: <Widget>[
+                                    new Column(
+                                      mainAxisAlignment: MainAxisAlignment
+                                          .start,
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: <Widget>[
+                                        new Text(
+                                          'Contraseña',
+                                          style: TextStyle(
+                                              fontSize: 16.0,
+                                              fontWeight: FontWeight.bold),
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                )),
                           Padding(
-                              padding: EdgeInsets.only(
-                                  left: 25.0, right: 25.0, top: 25.0),
-                              child: new Row(
-                                mainAxisSize: MainAxisSize.max,
-                                children: <Widget>[
-                                  new Column(
-                                    mainAxisAlignment: MainAxisAlignment.start,
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: <Widget>[
-                                      new Text(
-                                        'Contraseña',
-                                        style: TextStyle(
-                                            fontSize: 16.0,
-                                            fontWeight: FontWeight.bold),
+                                padding: EdgeInsets.only(
+                                    left: 25.0, right: 25.0, top: 2.0),
+                                child: new Row(
+                                  mainAxisSize: MainAxisSize.max,
+                                  children: <Widget>[
+                                    new Flexible(
+                                      child: new TextField(
+                                        controller: passwordController,
+                                        obscureText: true,
+                                        style: TextStyle(fontSize: 16),
+                                        decoration: const InputDecoration(
+                                            hintText: "contraseña123!Ejemplo",
+                                            hintStyle: TextStyle(
+                                                fontSize: 15.0)),
+                                        enabled: !editNoPresionado,
                                       ),
-                                    ],
-                                  ),
-                                ],
-                              )),
-                          Padding(
-                              padding: EdgeInsets.only(
-                                  left: 25.0, right: 25.0, top: 2.0),
-                              child: new Row(
-                                mainAxisSize: MainAxisSize.max,
-                                children: <Widget>[
-                                  new Flexible(
-                                    child: new TextField(
-                                      controller:passwordController,
-                                      obscureText: true,
-                                      style: TextStyle(fontSize: 16),
-                                      decoration: const InputDecoration(
-                                          hintText: "contraseña123!Ejemplo",
-                                          hintStyle: TextStyle(fontSize: 15.0)),
-                                      enabled: !_status,
                                     ),
-                                  ),
-                                ],
-                              )),
+                                  ],
+                                )),
+                          //if(!editNoPresionado)
+                            Padding(
+                                padding: EdgeInsets.only(
+                                    left: 25.0, right: 25.0, top: 25.0),
+                                child: new Row(
+                                  mainAxisSize: MainAxisSize.max,
+                                  children: <Widget>[
+                                    new Column(
+                                      mainAxisAlignment: MainAxisAlignment
+                                          .start,
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: <Widget>[
+                                        new Text(
+                                          'Repetir contraseña',
+                                          style: TextStyle(
+                                              fontSize: 16.0,
+                                              fontWeight: FontWeight.bold),
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                )),
+                          //if(!editNoPresionado)
                           Padding(
-                              padding: EdgeInsets.only(
-                                  left: 25.0, right: 25.0, top: 25.0),
-                              child: new Row(
-                                mainAxisSize: MainAxisSize.max,
-                                children: <Widget>[
-                                  new Column(
-                                    mainAxisAlignment: MainAxisAlignment.start,
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: <Widget>[
-                                      new Text(
-                                        'Repetir contraseña',
-                                        style: TextStyle(
-                                            fontSize: 16.0,
-                                            fontWeight: FontWeight.bold),
+                                padding: EdgeInsets.only(
+                                    left: 25.0, right: 25.0, top: 2.0),
+                                child: new Row(
+                                  mainAxisSize: MainAxisSize.max,
+                                  children: <Widget>[
+                                    new Flexible(
+                                      child: new TextField(
+                                        controller: securePasswordController,
+                                        style: TextStyle(fontSize: 16),
+                                        obscureText: true,
+                                        decoration: const InputDecoration(
+                                            hintText: "contraseña123!Ejemplo",
+                                            hintStyle: TextStyle(
+                                                fontSize: 15.0)),
+                                        enabled: !editNoPresionado,
                                       ),
-                                    ],
-                                  ),
-                                ],
-                              )),
-                          Padding(
-                              padding: EdgeInsets.only(
-                                  left: 25.0, right: 25.0, top: 2.0),
-                              child: new Row(
-                                mainAxisSize: MainAxisSize.max,
-                                children: <Widget>[
-                                  new Flexible(
-                                    child: new TextField(
-                                      controller: securePasswordController,
-                                      style: TextStyle(fontSize: 16),
-                                      obscureText: true,
-                                      decoration: const InputDecoration(
-                                          hintText: "contraseña123!Ejemplo",
-                                          hintStyle: TextStyle(fontSize: 15.0)),
-                                      enabled: !_status,
                                     ),
-                                  ),
-                                ],
-                              )),
-                          !_status ? _getActionButtons() : new Container(),
+                                  ],
+                                )),
+                            !editNoPresionado
+                                ? _getActionButtons()
+                                : new Container(),
+                        //  }else
                           Padding(
                               padding: EdgeInsets.only(
                                   left: 25.0, right: 25.0, top: 25.0),
@@ -1093,7 +1101,6 @@ class _ProfilePageState extends State<ProfilePage>
 
    anyadePlaylists(String email, PlaylistRepo playlistRepo, MisCancionesModel misCanciones) async {
      Perfil p = await obtenerPerfil(email);
-     String s = p.playlists;
      if (p.nombreUsuario != null) {
        var playlistss = p.playlists.split('|');
        log('data: $playlistss');
@@ -1114,7 +1121,7 @@ class _ProfilePageState extends State<ProfilePage>
   Widget _getActionButtons() {
     return Padding(
       padding: EdgeInsets.only(left: 25.0, right: 25.0, top: 45.0),
-      child: new Row(
+      child:new Row(
         mainAxisSize: MainAxisSize.max,
         mainAxisAlignment: MainAxisAlignment.start,
         children: <Widget>[
@@ -1132,7 +1139,7 @@ class _ProfilePageState extends State<ProfilePage>
                           enviarDatosALaBD(usernameController.text,
                               descriptionController.text
                               , emailController.text, passwordController.text); //conectar los datos escritos con la BD
-                          _status = true;
+                          editNoPresionado = true;
                           FocusScope.of(context).requestFocus(new FocusNode());
                         });
                       }else{controlador.text="las contraseñas no son iguales,\n"
@@ -1157,7 +1164,7 @@ class _ProfilePageState extends State<ProfilePage>
                     color: Colors.red,
                     onPressed: () {
                       setState(() {
-                        _status = true;
+                        editNoPresionado = true;
                         FocusScope.of(context).requestFocus(new FocusNode());
                       });
                     },
@@ -1187,7 +1194,7 @@ class _ProfilePageState extends State<ProfilePage>
       ),
       onTap: () {
         setState(() {
-          _status = false;
+          editNoPresionado = false;
         });
       },
     );
@@ -1421,6 +1428,20 @@ class Perfil {
   }
 }
 
+
+void recibirDatos(String email, TextEditingController usernameController,
+    TextEditingController descriptionController,
+    TextEditingController emailController) async{
+  Perfil p = await obtenerPerfil(email);
+  if(p.nombreUsuario != null){
+    usernameController.text = p.nombreUsuario;
+    descriptionController.text = p.descripcion;
+    emailController.text = p.email;
+
+  }
+
+}
+
 Future<Perfil> obtenerPerfil(String email) async {
   Map data = {
     'email': email,
@@ -1444,19 +1465,6 @@ Future<Perfil> obtenerPerfil(String email) async {
     // then throw an exception.
     throw Exception('Fallo al enviar petición');
   }
-}
-
-void recibirDatos(String email, TextEditingController usernameController,
-    TextEditingController descriptionController,
-    TextEditingController emailController) async{
-  Perfil p = await obtenerPerfil(email);
-  if(p.nombreUsuario != null){
-    usernameController.text = p.nombreUsuario;
-    descriptionController.text = p.descripcion;
-    emailController.text = p.email;
-
-  }
-
 }
 
 Future<Respuesta> crearPlaylist(String email, String nombrePlaylist) async {

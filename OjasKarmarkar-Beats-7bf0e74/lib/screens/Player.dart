@@ -213,7 +213,6 @@ class _PlayBackPageState extends State<PlayBackPage> {
                               onPressed: () {
                                 model.player.stop();
                                 model.next();
-                                //todo debería de funcionar
                                 model.play();
                               },
                               icon: Icon(
@@ -284,6 +283,7 @@ class _PlayBackPageState extends State<PlayBackPage> {
                                         ? Colors.orange
                                         : Colors.grey,
                                     size: 35.0,
+
                                   ),
                                 ),
                               ),

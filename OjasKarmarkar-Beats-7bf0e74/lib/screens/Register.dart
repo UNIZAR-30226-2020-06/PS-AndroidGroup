@@ -23,6 +23,12 @@ class _RegisterPageState extends State<RegisterPage> {
   Future<Registro> _futureRespuesta;
   TextEditingController controllerNickname;
 
+  @override
+  void initState() {
+    super.initState();
+   // datosRegistro = fetchAlbum();
+    //+log(datosRegistro.toString());
+  }
 
   String id;
   String nickName;
@@ -38,15 +44,7 @@ class _RegisterPageState extends State<RegisterPage> {
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
   final securePasswordController = TextEditingController();
-  TextEditingController controlador = TextEditingController();
 
-  @override
-  void initState() {
-    super.initState();
-    controlador.text = "";
-    // datosRegistro = fetchAlbum();
-    //+log(datosRegistro.toString());
-  }
 
 
 
@@ -227,14 +225,13 @@ class _RegisterPageState extends State<RegisterPage> {
                             future: _futureRespuesta,
                             builder: (context, snapshot) {
                               if (snapshot.hasData) {
-                                return Text(snapshot.data.respuesta);
-                              } else if (snapshot.hasError) {
-                                return Text("${snapshot.error}");
+                                return Text("error en el nuevo usuario");
                               }
 
                               return Text("");
                             },
-                          ),),
+                          ),)
+
                         ],
                       )
 
@@ -300,7 +297,8 @@ String descripcion, String correo) async {
   Registro l = await registrarUsuario(nombreUsuario, contrasenya, repiteContrasenya,
       descripcion, correo);
   if(l.respuesta!= "error"){
-
+    Navigator.push(context, MaterialPageRoute(builder: (context) => LoginPage()));
   }
+
   return l;
 }
