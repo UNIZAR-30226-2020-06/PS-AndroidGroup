@@ -555,6 +555,8 @@ class _PlayBackPageState extends State<PlayBackPage> {
                                           themeChanger.accentColor,
                                           Color(0xFF995000),
                                           Color(0xFF996000),
+                                          Color(0xFF995000),
+                                          Color(0xFF996000),
                                         ],
                                       ),
                                       borderRadius: BorderRadius.all(
