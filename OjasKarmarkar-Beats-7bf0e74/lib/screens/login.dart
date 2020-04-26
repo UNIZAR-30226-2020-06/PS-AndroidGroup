@@ -217,7 +217,7 @@ void esperaLogin(BuildContext context, String email,String contrasenya,
     username.email = email;
     Navigator.push(context, MaterialPageRoute(builder: (context) => MainScreen()));
   }else{
-    controlador.text = "Login sin éxito";
+    controlador.text = "Contraseña o usuario incorrectos";
   }
 
 }
