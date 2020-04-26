@@ -22,7 +22,7 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver{
 
 
   var index = 1;
-  var screens = [PodcastLibrary(), MusicLibrary(), Bookmarks(), ProfilePage()];
+  var screens = [PodcastLibrary(), MusicLibrary(), Bookmarks(), ProfilePage()]; //tenía añadido upload song
 
   @override
   Widget build(BuildContext context) {
