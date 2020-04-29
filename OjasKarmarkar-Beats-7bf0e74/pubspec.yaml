@@ -51,6 +51,7 @@ flutter_icons:
 dev_dependencies:
   flutter_uploader: ^1.2.0
   audioplayers: ^0.15.1
+  image_picker:
   flutter_test:
     sdk: flutter
 

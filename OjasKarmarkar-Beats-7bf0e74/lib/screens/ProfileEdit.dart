@@ -16,6 +16,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:provider/provider.dart';
 import 'MusicLibrary.dart';
 import 'package:http/http.dart' as http;
+import 'package:image_picker/image_picker.dart';
 
 import 'login.dart';
 
@@ -28,6 +29,7 @@ class ProfilePage extends StatefulWidget {
 class _ProfilePageState extends State<ProfilePage>
     with SingleTickerProviderStateMixin {
   bool editNoPresionado = true;
+  bool editPasswordNoPresionado = true;
   final FocusNode myFocusNode = FocusNode();
   TextEditingController txt = TextEditingController();
   bool error = false;
@@ -47,6 +49,25 @@ class _ProfilePageState extends State<ProfilePage>
   SongsModel model;
   Username username;
 
+  File _profileImage;
+
+  Future getProfileImageFromCamera() async {
+
+    var image = await ImagePicker.pickImage(source: ImageSource.camera);
+
+    setState(() {
+      _profileImage = image;
+    });
+  }
+  Future getProfileImageFromGallery() async {
+
+    var image = await ImagePicker.pickImage(source: ImageSource.gallery);
+
+    setState(() {
+      _profileImage = image;
+    });
+  }
+
   @override
   void initState() {
     super.initState();
@@ -60,7 +81,7 @@ class _ProfilePageState extends State<ProfilePage>
     playlistRepo = Provider.of<PlaylistRepo>(context);
     misCanciones = Provider.of<MisCancionesModel>(context);
     recibirDatos(username.email, usernameController,
-        descriptionController, emailController);
+        descriptionController, emailController, passwordController);
     setState(() {
       anyadePlaylists(username.email, playlistRepo, misCanciones);
     });
@@ -117,8 +138,10 @@ class _ProfilePageState extends State<ProfilePage>
                                     decoration: new BoxDecoration(
                                       shape: BoxShape.circle,
                                       image: new DecorationImage(
-                                        image: new ExactAssetImage(
-                                            'assets/prof.png'),
+                                        image: _profileImage == null
+                                            ? new ExactAssetImage(
+                                            'assets/prof.png')
+                                            : FileImage(_profileImage),
                                         fit: BoxFit.cover,
                                       ),
                                     )),
@@ -129,14 +152,15 @@ class _ProfilePageState extends State<ProfilePage>
                                 child: new Row(
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: <Widget>[
-                                    new CircleAvatar(
+                                    new GestureDetector(onTap: seleccionarImagen,child:new CircleAvatar(
                                       backgroundColor: Colors.red,
                                       radius: 25.0,
                                       child: new Icon(
                                         Icons.camera_alt,
                                         color: Colors.white,
                                       ),
-                                    )
+                                    )),
+
                                   ],
                                 )),
                           ]),
@@ -302,6 +326,37 @@ class _ProfilePageState extends State<ProfilePage>
                                 ],
                               )),
                           //if(!editNoPresionado){
+                          !editNoPresionado
+                              ? _getActionButtons()
+                              : new Container(),
+                          Padding(
+                              padding: EdgeInsets.only(
+                                  left: 25.0, right: 25.0, top: 25.0),
+                              child: new Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                mainAxisSize: MainAxisSize.max,
+                                children: <Widget>[
+                                  new Column(
+                                    mainAxisAlignment: MainAxisAlignment.start,
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: <Widget>[
+                                      new Text(
+                                        'Cambiar contraseña',
+                                        style: TextStyle(
+                                            fontSize: 18.0,
+                                            fontWeight: FontWeight.bold),
+                                      ),
+                                    ],
+                                  ),
+                                  new Column(
+                                    mainAxisAlignment: MainAxisAlignment.end,
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: <Widget>[
+                                      editPasswordNoPresionado ? _getEditPasswordIcon() : new Container(),
+                                    ],
+                                  )
+                                ],
+                              )),
                          Padding(
                                 padding: EdgeInsets.only(
                                     left: 25.0, right: 25.0, top: 25.0),
@@ -338,57 +393,12 @@ class _ProfilePageState extends State<ProfilePage>
                                             hintText: "contraseña123!Ejemplo",
                                             hintStyle: TextStyle(
                                                 fontSize: 15.0)),
-                                        enabled: !editNoPresionado,
+                                        enabled: false,
                                       ),
                                     ),
                                   ],
                                 )),
                           //if(!editNoPresionado)
-                            Padding(
-                                padding: EdgeInsets.only(
-                                    left: 25.0, right: 25.0, top: 25.0),
-                                child: new Row(
-                                  mainAxisSize: MainAxisSize.max,
-                                  children: <Widget>[
-                                    new Column(
-                                      mainAxisAlignment: MainAxisAlignment
-                                          .start,
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: <Widget>[
-                                        new Text(
-                                          'Repetir contraseña',
-                                          style: TextStyle(
-                                              fontSize: 16.0,
-                                              fontWeight: FontWeight.bold),
-                                        ),
-                                      ],
-                                    ),
-                                  ],
-                                )),
-                          //if(!editNoPresionado)
-                          Padding(
-                                padding: EdgeInsets.only(
-                                    left: 25.0, right: 25.0, top: 2.0),
-                                child: new Row(
-                                  mainAxisSize: MainAxisSize.max,
-                                  children: <Widget>[
-                                    new Flexible(
-                                      child: new TextField(
-                                        controller: securePasswordController,
-                                        style: TextStyle(fontSize: 16),
-                                        obscureText: true,
-                                        decoration: const InputDecoration(
-                                            hintText: "contraseña123!Ejemplo",
-                                            hintStyle: TextStyle(
-                                                fontSize: 15.0)),
-                                        enabled: !editNoPresionado,
-                                      ),
-                                    ),
-                                  ],
-                                )),
-                            !editNoPresionado
-                                ? _getActionButtons()
-                                : new Container(),
                         //  }else
                           Padding(
                               padding: EdgeInsets.only(
@@ -1118,6 +1128,215 @@ class _ProfilePageState extends State<ProfilePage>
 
    }
 
+   void _modifyPassword(){
+     showDialog(
+         context: context,
+         builder: (context) {
+       return Padding(
+         padding: const EdgeInsets.all(8.0),
+         child: AlertDialog(
+           backgroundColor:
+           Theme.of(context).backgroundColor,
+           shape: RoundedRectangleBorder(
+             side: BorderSide(),
+             borderRadius: BorderRadius.all(
+                 Radius.circular(30.0)),
+           ),
+           contentPadding: EdgeInsets.only(top: 10.0),
+           content: Container(
+             width: 50.0,
+             child: Column(
+               mainAxisAlignment:
+               MainAxisAlignment.start,
+               crossAxisAlignment:
+               CrossAxisAlignment.stretch,
+               mainAxisSize: MainAxisSize.min,
+               children: <Widget>[
+                 Row(
+                   mainAxisAlignment:
+                   MainAxisAlignment.spaceEvenly,
+                   mainAxisSize: MainAxisSize.min,
+                   children: <Widget>[
+                     Text(
+                       "Cambiar contraseña",
+                       style: TextStyle(
+                           fontSize: 24.0,
+                           fontFamily: 'Sans'),
+                     ),
+                   ],
+                 ),
+                 SizedBox(
+                   height: 5.0,
+                 ),
+                 Divider(
+                   color: Colors.grey,
+                   height: 4.0,
+                 ),
+                 Padding(
+                   padding: EdgeInsets.only(
+                       left: 30.0,
+                       right: 30.0,
+                       top: 30.0,
+                       bottom: 30.0),
+                   child: new Column(children: <Widget>[
+                     Padding(
+                         padding: EdgeInsets.only(
+                             left: 25.0, right: 25.0, top: 25.0),
+                         child: new Row(
+                           mainAxisSize: MainAxisSize.max,
+                           children: <Widget>[
+                             new Column(
+                               mainAxisAlignment: MainAxisAlignment
+                                   .start,
+                               mainAxisSize: MainAxisSize.min,
+                               children: <Widget>[
+                                 new Text(
+                                   'Contraseña',
+                                   style: TextStyle(
+                                       fontSize: 16.0,
+                                       fontWeight: FontWeight.bold),
+                                 ),
+                               ],
+                             ),
+                           ],
+                         )),
+                     Padding(
+                         padding: EdgeInsets.only(
+                             left: 25.0, right: 25.0, top: 2.0),
+                         child: new Row(
+                           mainAxisSize: MainAxisSize.max,
+                           children: <Widget>[
+                             new Flexible(
+                               child: new TextField(
+                                 controller: passwordController,
+                                 obscureText: false,
+                                 style: TextStyle(fontSize: 16),
+                                 decoration: const InputDecoration(
+                                     hintText: "contraseña123!Ejemplo",
+                                     hintStyle: TextStyle(
+                                         fontSize: 15.0)),
+                                 enabled: true,
+                               ),
+                             ),
+                           ],
+                         )),
+                     //if(!editNoPresionado)
+                     Padding(
+                         padding: EdgeInsets.only(
+                             left: 25.0, right: 25.0, top: 25.0),
+                         child: new Row(
+                           mainAxisSize: MainAxisSize.max,
+                           children: <Widget>[
+                             new Column(
+                               mainAxisAlignment: MainAxisAlignment
+                                   .start,
+                               mainAxisSize: MainAxisSize.min,
+                               children: <Widget>[
+                                 new Text(
+                                   'Repetir contraseña',
+                                   style: TextStyle(
+                                       fontSize: 16.0,
+                                       fontWeight: FontWeight.bold),
+                                 ),
+                               ],
+                             ),
+                           ],
+                         )),
+                     //if(!editNoPresionado)
+                     Padding(
+                         padding: EdgeInsets.only(
+                             left: 25.0, right: 25.0, top: 2.0),
+                         child: new Row(
+                           mainAxisSize: MainAxisSize.max,
+                           children: <Widget>[
+                             new Flexible(
+                               child: new TextField(
+                                 controller: securePasswordController,
+                                 style: TextStyle(fontSize: 16),
+                                 obscureText: false,
+                                 decoration: const InputDecoration(
+                                     hintText: "contraseña123!Ejemplo",
+                                     hintStyle: TextStyle(
+                                         fontSize: 15.0)),
+                                 enabled: true,
+                               ),
+                             ),
+                           ],
+                         )),
+                   ],),
+                 ),
+                 InkWell(
+                   onTap: () {
+                     if(passwordController.text != ""){
+                       if(securePasswordController.text != ""){
+                         if(passwordController.text == securePasswordController.text){
+                           enviarDatosALaBD(usernameController.text,
+                               descriptionController.text
+                               , emailController.text, passwordController.text); //conectar los datos escritos con la BD
+                           editPasswordNoPresionado = true;
+                           Navigator.pop(context);
+                         }else{
+                           mostrarError("Las contraseñas no coinciden");
+                         }
+                       }else{
+                         mostrarError("Repite la contraseña");
+                       }
+                     }else{
+                       mostrarError("La contraseña no puede estar vacía");
+                     }
+                   },
+                   child: Container(
+                     padding: EdgeInsets.only(
+                         top: 10.0, bottom: 20.0),
+                     decoration: BoxDecoration(
+                       color: Colors.orange,
+                     ),
+                     child: Text(
+                       "Aceptar",
+                       style: TextStyle(
+                           fontFamily: 'Sans',
+                           color: Colors.white),
+                       textAlign: TextAlign.center,
+                     ),
+                   ),
+                 ),
+
+                 InkWell(
+                   onTap: () {
+                     setState(() {
+                       editPasswordNoPresionado = true;
+                       Navigator.pop(context);
+                     });
+                   },
+                   child: Container(
+                     padding: EdgeInsets.only(
+                         top: 10.0, bottom: 20.0),
+                     decoration: BoxDecoration(
+                       color: Colors.orangeAccent,
+                       borderRadius: BorderRadius.only(
+                           bottomLeft:
+                           Radius.circular(32.0),
+                           bottomRight:
+                           Radius.circular(32.0)),
+                     ),
+                     child: Text(
+                       "Cancelar",
+                       style: TextStyle(
+                           fontFamily: 'Sans',
+                           color: Colors.white),
+                       textAlign: TextAlign.center,
+                     ),
+                   ),
+                 ),
+               ],
+             ),
+           ),
+         ),
+       );
+         });
+
+   }
+
   Widget _getActionButtons() {
     return Padding(
       padding: EdgeInsets.only(left: 25.0, right: 25.0, top: 45.0),
@@ -1136,11 +1355,32 @@ class _ProfilePageState extends State<ProfilePage>
                     onPressed: () {
                       if(passwordController.text==securePasswordController.text) {
                         setState(() {
-                          enviarDatosALaBD(usernameController.text,
-                              descriptionController.text
-                              , emailController.text, passwordController.text); //conectar los datos escritos con la BD
-                          editNoPresionado = true;
-                          FocusScope.of(context).requestFocus(new FocusNode());
+                          if(usernameController.text != ""){
+                            if(emailController.text != ""){
+                              if(passwordController.text != ""){
+                                if(securePasswordController.text != ""){
+                                  if(passwordController.text == securePasswordController.text){
+                                    enviarDatosALaBD(usernameController.text,
+                                        descriptionController.text
+                                        , emailController.text, passwordController.text); //conectar los datos escritos con la BD
+                                    editNoPresionado = true;
+                                    FocusScope.of(context).requestFocus(new FocusNode());
+                                  }else{
+                                    mostrarError("Las contraseñas no coinciden");
+                                  }
+                                }else{
+                                  mostrarError("Repite la contraseña");
+                                }
+                              }else{
+                                mostrarError("La contraseña no puede estar vacía");
+                              }
+                            }else{
+                              mostrarError("El email no puede estar vacío");
+                            }
+                          }else{
+                            mostrarError("El nombre de usuario no puede estar vacío");
+                          }
+
                         });
                       }else{controlador.text="las contraseñas no son iguales,\n"
                           " vuelva a escribirlas";    //todo en caso de contras diferentes,
@@ -1180,6 +1420,185 @@ class _ProfilePageState extends State<ProfilePage>
     );
   }
 
+  void mostrarError(String textoError){
+    showDialog(
+      context: context,
+      builder: (context) {
+        return Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: AlertDialog(
+            backgroundColor:
+            Theme.of(context).backgroundColor,
+            shape: RoundedRectangleBorder(
+              side: BorderSide(),
+              borderRadius: BorderRadius.all(
+                  Radius.circular(30.0)),
+            ),
+            contentPadding: EdgeInsets.only(top: 10.0),
+            content: Container(
+              width: 50.0,
+              child: Column(
+                mainAxisAlignment:
+                MainAxisAlignment.start,
+                crossAxisAlignment:
+                CrossAxisAlignment.stretch,
+                mainAxisSize: MainAxisSize.min,
+                children: <Widget>[
+                  Row(
+                    mainAxisAlignment:
+                    MainAxisAlignment.spaceEvenly,
+                    mainAxisSize: MainAxisSize.min,
+                    children: <Widget>[
+                      Text(
+                        "Error",
+                        style: TextStyle(
+                            fontSize: 24.0,
+                            fontFamily: 'Sans'),
+                      ),
+                    ],
+                  ),
+                  SizedBox(
+                    height: 5.0,
+                  ),
+                  Divider(
+                    color: Colors.grey,
+                    height: 4.0,
+                  ),
+                  Padding(
+                      padding: EdgeInsets.only(
+                          left: 30.0,
+                          right: 30.0,
+                          top: 30.0,
+                          bottom: 30.0),
+                      child: Text(textoError)
+                  ),
+                  InkWell(
+                    onTap: () {
+                      Navigator.pop(context);
+                    },
+                    child: Container(
+                      padding: EdgeInsets.only(
+                          top: 10.0, bottom: 20.0),
+                      decoration: BoxDecoration(
+                        color: Colors.orange,
+                        borderRadius: BorderRadius.only(
+                            bottomLeft:
+                            Radius.circular(32.0),
+                            bottomRight:
+                            Radius.circular(32.0)),
+                      ),
+                      child: Text(
+                        "Aceptar",
+                        style: TextStyle(
+                            fontFamily: 'Sans',
+                            color: Colors.white),
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  void seleccionarImagen(){
+    showDialog(
+        context: context,
+        builder: (context) {
+          return Padding(
+            padding: const EdgeInsets.all(4.0),
+            child: AlertDialog(
+              backgroundColor:
+              Theme.of(context).backgroundColor,
+              shape: RoundedRectangleBorder(
+                side: BorderSide(),
+                borderRadius: BorderRadius.all(
+                    Radius.circular(30.0)),
+              ),
+              contentPadding: EdgeInsets.only(top: 10.0),
+              content: Container(
+                width: 70.0,
+                child: Column(
+                  mainAxisAlignment:
+                  MainAxisAlignment.start,
+                  crossAxisAlignment:
+                  CrossAxisAlignment.stretch,
+                  mainAxisSize: MainAxisSize.min,
+                  children: <Widget>[
+                    Row(
+                      mainAxisAlignment:
+                      MainAxisAlignment.spaceEvenly,
+                      mainAxisSize: MainAxisSize.min,
+                      children: <Widget>[
+                        Text(
+                          "Subir foto desde",
+                          style: TextStyle(
+                              fontSize: 24.0,
+                              fontFamily: 'Sans'),
+                        ),
+                      ],
+                    ),
+                    Divider(
+                      color: Colors.grey,
+                      height: 4.0,
+                    ),
+                    InkWell(
+                      onTap: () {
+                        getProfileImageFromCamera();
+                        Navigator.pop(context);
+                      },
+                      child: Container(
+                        padding: EdgeInsets.only(
+                            top: 10.0, bottom: 20.0),
+                        decoration: BoxDecoration(
+                          color: Colors.orange,
+                        ),
+                        child: Text(
+                          "Cámara",
+                          style: TextStyle(
+                              fontFamily: 'Sans',
+                              color: Colors.white),
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                    ),
+
+                    InkWell(
+                      onTap: () {
+                        getProfileImageFromGallery();
+                        Navigator.pop(context);
+                      },
+                      child: Container(
+                        padding: EdgeInsets.only(
+                            top: 10.0, bottom: 20.0),
+                        decoration: BoxDecoration(
+                          color: Colors.pink,
+                          borderRadius: BorderRadius.only(
+                              bottomLeft:
+                              Radius.circular(32.0),
+                              bottomRight:
+                              Radius.circular(32.0)),
+                        ),
+                        child: Text(
+                          "Galería",
+                          style: TextStyle(
+                              fontFamily: 'Sans',
+                              color: Colors.white),
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          );
+        });
+  }
 
   Widget _getEditIcon() {
     return new GestureDetector(
@@ -1195,6 +1614,26 @@ class _ProfilePageState extends State<ProfilePage>
       onTap: () {
         setState(() {
           editNoPresionado = false;
+        });
+      },
+    );
+  }
+
+  Widget _getEditPasswordIcon() {
+    return new GestureDetector(
+      child: new CircleAvatar(
+        backgroundColor: Colors.red,
+        radius: 14.0,
+        child: new Icon(
+          Icons.edit,
+          color: Colors.white,
+          size: 16.0,
+        ),
+      ),
+      onTap: () {
+        setState(() {
+          editPasswordNoPresionado = false;
+          _modifyPassword();
         });
       },
     );
@@ -1431,12 +1870,13 @@ class Perfil {
 
 void recibirDatos(String email, TextEditingController usernameController,
     TextEditingController descriptionController,
-    TextEditingController emailController) async{
+    TextEditingController emailController, TextEditingController passwordController) async{
   Perfil p = await obtenerPerfil(email);
   if(p.nombreUsuario != null){
     usernameController.text = p.nombreUsuario;
     descriptionController.text = p.descripcion;
     emailController.text = p.email;
+    passwordController.text = p.contrasenya;
 
   }
 

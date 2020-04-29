@@ -73,7 +73,8 @@ class _RegisterPageState extends State<RegisterPage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
-                  Text("Registro", style: TextStyle(color: Colors.white, fontSize: 40)),
+                  Align(alignment: Alignment.topCenter,
+                    child: Text("Registro", style: TextStyle(color: Colors.white, fontSize: 40)),),
                   SizedBox(height: 10,),
                   Align(
                       alignment: Alignment.topCenter,
@@ -197,8 +198,28 @@ class _RegisterPageState extends State<RegisterPage> {
                           SizedBox(height: 40,),
                           InkWell(
                               onTap: (){ setState(() {
-                                _futureRespuesta = esperaRegistro(context, usernameController.text, passwordController.text,
-                                securePasswordController.text, descriptionController.text, emailController.text);
+                              if(usernameController.text != ""){
+                                if(emailController.text != ""){
+                                  if(passwordController.text != ""){
+                                    if(securePasswordController.text != ""){
+                                      if(passwordController.text == securePasswordController.text){
+                                        _futureRespuesta = esperaRegistro(context, usernameController.text, passwordController.text,
+                                            securePasswordController.text, descriptionController.text, emailController.text);
+                                      }else{
+                                        mostrarError("Las contraseñas no coinciden");
+                                      }
+                                    }else{
+                                      mostrarError("Repite la contraseña");
+                                    }
+                                  }else{
+                                    mostrarError("La contraseña no puede estar vacía");
+                                  }
+                                }else{
+                                  mostrarError("El email no puede estar vacío");
+                                }
+                              }else{
+                                mostrarError("El nombre de usuario no puede estar vacío");
+                              }
                               });
                                   //Navigator.pop(context);
                               },
@@ -244,7 +265,93 @@ class _RegisterPageState extends State<RegisterPage> {
       ),
     );
   }
+  void mostrarError(String textoError){
+    showDialog(
+      context: context,
+      builder: (context) {
+        return Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: AlertDialog(
+            backgroundColor:
+            Theme.of(context).backgroundColor,
+            shape: RoundedRectangleBorder(
+              side: BorderSide(),
+              borderRadius: BorderRadius.all(
+                  Radius.circular(30.0)),
+            ),
+            contentPadding: EdgeInsets.only(top: 10.0),
+            content: Container(
+              width: 50.0,
+              child: Column(
+                mainAxisAlignment:
+                MainAxisAlignment.start,
+                crossAxisAlignment:
+                CrossAxisAlignment.stretch,
+                mainAxisSize: MainAxisSize.min,
+                children: <Widget>[
+                  Row(
+                    mainAxisAlignment:
+                    MainAxisAlignment.spaceEvenly,
+                    mainAxisSize: MainAxisSize.min,
+                    children: <Widget>[
+                      Text(
+                        "Error",
+                        style: TextStyle(
+                            fontSize: 24.0,
+                            fontFamily: 'Sans'),
+                      ),
+                    ],
+                  ),
+                  SizedBox(
+                    height: 5.0,
+                  ),
+                  Divider(
+                    color: Colors.grey,
+                    height: 4.0,
+                  ),
+                  Padding(
+                      padding: EdgeInsets.only(
+                          left: 30.0,
+                          right: 30.0,
+                          top: 30.0,
+                          bottom: 30.0),
+                      child: Text(textoError)
+                  ),
+                  InkWell(
+                    onTap: () {
+                      Navigator.pop(context);
+                    },
+                    child: Container(
+                      padding: EdgeInsets.only(
+                          top: 10.0, bottom: 20.0),
+                      decoration: BoxDecoration(
+                        color: Colors.orange,
+                        borderRadius: BorderRadius.only(
+                            bottomLeft:
+                            Radius.circular(32.0),
+                            bottomRight:
+                            Radius.circular(32.0)),
+                      ),
+                      child: Text(
+                        "Aceptar",
+                        style: TextStyle(
+                            fontFamily: 'Sans',
+                            color: Colors.white),
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
 }
+
+
 
 class Registro {
   final String respuesta;
