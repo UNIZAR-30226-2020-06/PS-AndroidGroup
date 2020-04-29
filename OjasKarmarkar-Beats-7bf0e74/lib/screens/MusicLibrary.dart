@@ -16,6 +16,8 @@ import 'package:provider/provider.dart';
 import 'Player.dart';
 import 'package:http/http.dart' as http;
 
+import 'ProfileEdit.dart';
+
 double height, width;
 
 class MusicLibrary extends StatefulWidget {
@@ -227,6 +229,7 @@ class _MusicLibraryState extends State<MusicLibrary> {
                                                           repo.playlist[index])
                                                       .add(model.songs[pos]);
                                                   Navigator.pop(context);
+                                                  anyadirCancionAPlaylist(model.songs[pos], repo.playlist[index]);
                                                 },
                                                 title: Text(
                                                   repo.playlist[index],
@@ -245,12 +248,7 @@ class _MusicLibraryState extends State<MusicLibrary> {
                               ],
                             );
                           });
-                    } else if (choice == Constants.bm) {
-                     if (!b.alreadyExists(model.songs[pos])) {
-                       b.add(model.songs[pos]);
-                     } else {
-                       b.remove(model.songs[pos]);
-                     }}
+                    }
                     //} else if (choice == Constants.de) {
 
                     //   model.fetchSongs();
@@ -441,6 +439,54 @@ class _MusicLibraryState extends State<MusicLibrary> {
         ),
       );
     } else {}
+  }
+
+  void anyadirCancionAPlaylist(Song song, String playlist) async {
+    String s = song.title;
+    log("data $s, $playlist");
+    await anyadirCancionAPlaylistBD(song.title, playlist);
+    log("done añadir a playlist");
+  }
+}
+
+/*class Respuesta {
+  final String creado;
+
+  Respuesta({this.creado});
+
+  factory Respuesta.fromJson(Map<String, dynamic> json) {
+    return Respuesta(
+      creado: json['creado'],
+
+    );
+
+  }
+  String getUserId(){
+    return creado;
+  }
+}*/
+
+Future<Respuesta> anyadirCancionAPlaylistBD(String cancion, String nombrePlaylist) async {
+  Map data = {
+    'nombreCancion': cancion,
+    'nombrePlaylist': nombrePlaylist,
+  };
+  final http.Response response = await http.post(
+    'http://34.69.44.48:8080/Espotify/obtener_audios_android',  //todo cambiar url a la de añadir cancion a playlist
+    headers: <String, String>{
+      'Content-Type': 'application/json; charset=UTF-8',
+    },
+    body: jsonEncode(data),
+
+  );
+  if (response.statusCode == 200) {
+    // If the server did return a 201 CREATED response,
+    // then parse the JSON.
+    return Respuesta.fromJson(json.decode(response.body));
+  } else {
+    // If the server did not return a 201 CREATED response,
+    // then throw an exception.
+    throw Exception('Fallo al enviar petición');
   }
 }
 

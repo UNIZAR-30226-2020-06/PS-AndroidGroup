@@ -1,6 +1,5 @@
 class Constants{
   static const String pl = 'Añadir a Playlist';
-  static const String bm = 'Añadir a Favoritos';
   static const String us = 'Subir canción';
   static const String ed = 'Editar canción';
   static const String de = 'Borrar canción';
@@ -9,7 +8,6 @@ class Constants{
 
   static const List<String> choices = <String>[
     pl,
-    bm,
     //de,
     //re
   ];

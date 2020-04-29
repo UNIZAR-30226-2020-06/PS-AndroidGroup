@@ -564,6 +564,8 @@ class _PLayListScreenState extends State<PLayListScreen> {
 
   void borrarCancionDePlaylist(String email, String namePlaylist, Song song) async {
     log("hecho $song");
+    String s=song.title;
+    log("data $email, $namePlaylist, $s");
     await borrarCanciones(email, namePlaylist, song.title);
     log("hecho2");
 

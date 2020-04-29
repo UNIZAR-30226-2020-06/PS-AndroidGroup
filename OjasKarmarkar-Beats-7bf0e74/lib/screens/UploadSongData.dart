@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:beats/icono_personalizado.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
@@ -282,7 +284,28 @@ class UploadSongDataState extends StatelessWidget   {
       ),
     );
   }
-  upload(String filename, String savedDir) async{
+  upload(String titulo, String savedDir) async{
+
+    //ahora mismo savedDir contiene toda la dirección hasta la canción
+    //tenemos que mantener toda la uri exceto el último elemento, que debemos
+    //pasarselo a FileItem como filename y los restante como savedDir
+    List<String> uriparts = savedDir.split("/");
+    String filename = uriparts.removeLast();  //aquí ya tenemos el contenido.mp3
+    String aux;
+    savedDir = "/";
+
+    for(int i=1; i<uriparts.length;i++)
+    {
+      aux = uriparts.elementAt(i);
+      savedDir = savedDir + aux;
+      if(i+1 != uriparts.length) {
+        savedDir = savedDir + "/";
+      }
+    }
+
+    int a = uriparts.length;
+    log("debug $savedDir, $filename, $a");  //podemos ver ahora como el attaching file es == a la uri
+
     final taskId = await uploader.enqueue(
         url: "https://34.69.44.48:8080/Espotify/cancion_subir_android", //required: url to upload to
         files: [FileItem(filename: filename, savedDir: savedDir, fieldname:"file")], // required: list of files that you want to upload
