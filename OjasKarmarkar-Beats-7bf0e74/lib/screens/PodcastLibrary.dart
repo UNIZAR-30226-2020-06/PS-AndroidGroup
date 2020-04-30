@@ -102,17 +102,7 @@ class PodcastLibrary extends StatelessWidget {
                     NestedScrollView.sliverOverlapAbsorberHandleFor(
                         context))
               ],
-              body: Stack(
-                children: <Widget>[
-                  Column(
-                    children: <Widget>[getLoading(model)],
-                  ),
-                  Align(
-                    alignment: Alignment.bottomLeft,
-                    child: showStatus(model, context),
-                  )
-                ],
-              ))),
+              body: getLoading(model))),
       onWillPop: () {},
     );
   }
@@ -124,144 +114,67 @@ class PodcastLibrary extends StatelessWidget {
             child: CircularProgressIndicator(),
           ));
     } else {
-      return Expanded(
-        child: ListView.builder(
-          itemCount: model.podcasts.length,
-          itemBuilder: (context, pos) {
-            return Consumer<PlaylistRepo>(builder: (context, repo, _) {
-              return ListTile(
-                trailing: PopupMenuButton<String>(
-                  icon: Icon(
-                    Icons.more_vert,
-                    color: Colors.grey,
-                  ),
-                  onSelected: (String choice) async {
-                    print("debug " + choice);
-                    if (choice == Constants.pl) {
-                      showDialog(
-                          context: context,
-                          builder: (context) {
-                            return SimpleDialog(
-                              shape: RoundedRectangleBorder(
-                                side: BorderSide(),
-                                borderRadius:
-                                BorderRadius.all(Radius.circular(30.0)),
-                              ),
-                              backgroundColor:
-                              Theme.of(context).backgroundColor,
-                              children: <Widget>[
-                                Row(
-                                  mainAxisAlignment:
-                                  MainAxisAlignment.spaceEvenly,
-                                  children: <Widget>[
-                                    Padding(
-                                      padding: const EdgeInsets.all(8.0),
-                                      child: Text(
-                                        "Añadir a Playlist",
-                                        style: Theme.of(context)
-                                            .textTheme
-                                            .display1,
-                                      ),
-                                    ),
+      return Padding(
+          padding: EdgeInsets.only(top: height * 0.04),
+          child: SizedBox(
+            height: height * 0.6,
+            child: Consumer<PlaylistRepo>(
+              builder: (context, playlistRepo, _) => ListView.builder(
+                itemCount: playlistRepo.playlist.length,
+                itemBuilder: (context, pos) {
+                  var padd = (pos == 0) ? width * 0.08 : 5.0;
+                    return Card(
+                      margin: EdgeInsets.only(left: padd, right: 5.0),
+                      elevation: 20,
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(20)),
+                      child: GestureDetector(
+                        onTap: () {
+                        },
+                        child: ClipRRect(
+                            borderRadius: BorderRadius.circular(20),
+                            child: Container(
+                              width: width * 0.4,
+                              height: height *0.1,
+                              decoration: BoxDecoration(
+                                // Box decoration takes a gradient
+                                gradient: LinearGradient(
+                                  // Where the linear gradient begins and ends
+                                  begin: Alignment.topRight,
+                                  end: Alignment.bottomLeft,
+                                  // Add one stop for each color. Stops should increase from 0 to 1
+                                  stops: [0.1, 0.5, 0.7, 0.9],
+                                  colors: pos % 2 == 0
+                                      ? [
+                                    Colors.yellowAccent,
+                                    Colors.yellow,
+                                    Colors.yellowAccent,
+                                    Colors.yellow,
+                                  ]
+                                      : [
+                                    Colors.greenAccent,
+                                    Colors.lightGreenAccent,
+                                    Colors.greenAccent,
+                                    Colors.lightGreenAccent,
                                   ],
                                 ),
-                                Container(
-                                  width: double.maxFinite,
-                                  child: (repo.playlist.length != 0)
-                                      ? ListView.builder(
-                                    shrinkWrap: true,
-                                    itemCount: repo.playlist.length,
-                                    itemBuilder: (context, index) {
-                                      return Padding(
-                                        padding:
-                                        EdgeInsets.only(left: 10.0),
-                                        child: ListTile(
-                                          onTap: () {
-                                            PlaylistHelper(
-                                                repo.playlist[index])
-                                                .add(model.podcasts[pos]);
-                                            Navigator.pop(context);
-                                          },
-                                          title: Text(
-                                            repo.playlist[index],
-                                            style: Theme.of(context)
-                                                .textTheme
-                                                .display2,
-                                          ),
-                                        ),
-                                      );
-                                    },
-                                  )
-                                      : Center(
-                                    child: Text("No existen Playlists"),
-                                  ),
-                                )
-                              ],
-                            );
-                          });
-                    } // else if (choice == Constants.bm) {
-                    // if (!b.alreadyExists(model.podcasts[pos])) {
-                    //   b.add(model.podcasts[pos]);
-                    // } else {
-                    //    b.remove(model.podcasts[pos]);
-                    // }
-                    //} else if (choice == Constants.de) {
+                              ),
+                              child: Stack(children: <Widget>[
 
-                    //   model.fetchSongs();
-                    // }else if(choice == Constants.re){
-                    //   Directory x = await getExternalStorageDirectory();
-                    //   await File("${x.path}../../").rename(x.path);
-                    //}
-                  },
-                  itemBuilder: (BuildContext context) {
-                    return Constants.choices.map((String choice) {
-                      return PopupMenuItem<String>(
-                        value: choice,
-                        child: Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: Text(
-                            choice,
-                            style: Theme.of(context).textTheme.display2,
-                          ),
-                        ),
-                      );
-                    }).toList();
-                  },
-                ),
-                onTap: () async {
-                  model.player.stop();
-                  model.playlist = false;
-                  model.currentSong = model.podcasts[pos];
+                                Center(
+                                    child: Text(playlistRepo.playlist[pos],
+                                        style:
+                                        TextStyle(color: Colors.white)))
+                              ]),
+                            )),
+                      ),
+                    );
 
-
-                  //Reset the list. So we can change to next song.
-                  model.play();
                 },
-                leading: CircleAvatar(child: getImage(model, pos)),
-                title: Text(
-                  model.podcasts[pos].title,
-                  maxLines: 1,
-                  style: TextStyle(
-                      fontSize: 15,
-                      fontWeight: FontWeight.w700,
-                      fontFamily: 'Sans'),
-                ),
-                subtitle: Padding(
-                  padding: const EdgeInsets.only(top: 10.0),
-                  child: Text(
-                    model.podcasts[pos].artist,
-                    maxLines: 1,
-                    style: TextStyle(
-                        color: Theme.of(context).textTheme.display1.color,
-                        fontSize: 12,
-                        fontFamily: 'Sans'),
-                  ),
-                ),
-              );
-            });
-          },
-        ),
-      );
+                scrollDirection: Axis.vertical,
+              ),
+            ),
+          ));
     }
   }
 
