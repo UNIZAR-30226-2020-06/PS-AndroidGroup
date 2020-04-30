@@ -44,7 +44,7 @@ class Bookmarks extends StatelessWidget {
                                 Padding(
                                   padding: const EdgeInsets.all(8.0),
                                   child: Icon(
-                                    Icons.favorite_border,
+                                    Icons.star,
                                     color: Colors.redAccent,
                                   ),
                                 ),
