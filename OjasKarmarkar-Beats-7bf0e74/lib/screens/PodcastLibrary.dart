@@ -153,8 +153,8 @@ class PodcastLibrary extends StatelessWidget {
                                   ]
                                       : [
                                     Colors.lightBlueAccent,
-                                    Colors.blue,
-                                    Colors.blue,
+                                    Colors.indigoAccent,
+                                    Colors.indigoAccent,
                                     Colors.lightBlueAccent,
                                   ],
                                 ),
