@@ -37,11 +37,11 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver{
                 ExpandingBottomBarItem(
                     icon: Icons.mic,
                     text: "Podcasts",
-                    selectedColor: Colors.pinkAccent),
+                    selectedColor: Colors.deepPurpleAccent),
                 ExpandingBottomBarItem(
                     icon: Icons.music_note,
                     text: "Canciones",
-                    selectedColor: Colors.deepPurpleAccent),
+                    selectedColor: Colors.pinkAccent),
                // ExpandingBottomBarItem(
                //     icon: Icons.backup,
                //     text: "Agregar",
