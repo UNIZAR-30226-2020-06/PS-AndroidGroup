@@ -47,7 +47,7 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver{
                //     text: "Agregar",
                //     selectedColor: Colors.orange),
                 ExpandingBottomBarItem(
-                    icon: Icons.favorite_border,
+                    icon: Icons.star_border,
                     text: "Favoritos",
                     selectedColor: Colors.red),
                 ExpandingBottomBarItem(
