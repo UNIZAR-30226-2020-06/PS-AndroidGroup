@@ -132,7 +132,7 @@ class _ProfilePageState extends State<ProfilePage>
                               crossAxisAlignment: CrossAxisAlignment.center,
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: <Widget>[
-                                new Container(
+                                new GestureDetector(onTap: ampliarImagen,child: new Container(
                                     width: 140.0,
                                     height: 140.0,
                                     decoration: new BoxDecoration(
@@ -144,7 +144,7 @@ class _ProfilePageState extends State<ProfilePage>
                                             : FileImage(_profileImage),
                                         fit: BoxFit.cover,
                                       ),
-                                    )),
+                                    )),),
                               ],
                             ),
                             Padding(
@@ -1128,6 +1128,39 @@ class _ProfilePageState extends State<ProfilePage>
 
    }
 
+   void desampliarImagen(){
+      Navigator.pop(context);
+   }
+
+  void ampliarImagen(){
+    showDialog(
+      context: context,
+      builder: (context) {
+        return Padding(
+          padding: const EdgeInsets.all(2.0),
+          child: AlertDialog(
+            backgroundColor:
+            Theme.of(context).backgroundColor,
+            content: new GestureDetector(onTap: desampliarImagen,child: new Container(
+                width: 400.0,
+                height: 450.0,
+                decoration: new BoxDecoration(
+                  shape: BoxShape.rectangle,
+                  image: new DecorationImage(
+                    image: _profileImage == null
+                        ? new ExactAssetImage(
+                        'assets/prof.png')
+                        : FileImage(_profileImage),
+                    fit: BoxFit.cover,
+                  ),
+                )),),
+
+          ),
+        );
+      },
+    );
+  }
+
    void _modifyPassword(){
      showDialog(
          context: context,
@@ -1405,6 +1438,8 @@ class _ProfilePageState extends State<ProfilePage>
                     onPressed: () {
                       setState(() {
                         editNoPresionado = true;
+                        recibirDatos(username.email, usernameController,
+                            descriptionController, emailController, passwordController);
                         FocusScope.of(context).requestFocus(new FocusNode());
                       });
                     },

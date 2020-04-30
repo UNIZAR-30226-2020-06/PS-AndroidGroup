@@ -1,4 +1,5 @@
 import 'dart:developer';
+import 'dart:io';
 
 import 'package:beats/icono_personalizado.dart';
 import 'package:flutter/material.dart';
@@ -20,7 +21,8 @@ class UploadSongDataState extends StatelessWidget   {
   TextEditingController titleController = new TextEditingController();
   TextEditingController descriptionController = new TextEditingController();
 
-
+  List<String> _locations = ['Rock', 'R&B', 'Pop', 'Metal']; // Option 2
+  String _selectedLocation;
 
   UploadSongDataState({Key key, @required this.archivo}) : super(key: key);
 
@@ -36,52 +38,6 @@ class UploadSongDataState extends StatelessWidget   {
                 children: <Widget>[
 
                   new Container(
-                    height: 230.0,
-                    color: Colors.white,
-                    child: new Column(
-                      children: <Widget>[
-
-                        Padding(
-                          padding: EdgeInsets.only(top: 50.0),
-                          child: new Stack(fit: StackFit.loose, children: <Widget>[
-                            new Row(
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: <Widget>[
-                                new Container(
-                                    width: 140.0,
-                                    height: 140.0,
-                                    decoration: new BoxDecoration(
-                                      shape: BoxShape.circle,
-                                      image: new DecorationImage(
-                                        image: new ExactAssetImage(
-                                            'assets/prof.png'),
-                                        fit: BoxFit.cover,
-                                      ),
-                                    )),
-                              ],
-                            ),
-                            Padding(
-                                padding: EdgeInsets.only(top: 90.0, right: 100.0),
-                                child: new Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: <Widget>[
-                                    new CircleAvatar(
-                                      backgroundColor: Colors.red,
-                                      radius: 25.0,
-                                      child: new Icon(
-                                        Icons.camera_alt,
-                                        color: Colors.white,
-                                      ),
-                                    )
-                                  ],
-                                )),
-                          ]),
-                        )
-                      ],
-                    ),
-                  ),
-                  new Container(
                     color: Color(0xffFFFFFF),
                     child: Padding(
                       padding: EdgeInsets.only(bottom: 25.0),
@@ -91,7 +47,7 @@ class UploadSongDataState extends StatelessWidget   {
                         children: <Widget>[
                           Padding(
                               padding: EdgeInsets.only(
-                                  left: 25.0, right: 25.0, top: 25.0),
+                                  left: 25.0, right: 25.0, top: 200.0),
                               child: new Row(
                                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                 mainAxisSize: MainAxisSize.max,
@@ -121,7 +77,7 @@ class UploadSongDataState extends StatelessWidget   {
                                     mainAxisSize: MainAxisSize.min,
                                     children: <Widget>[
                                       new Text(
-                                        'Título*',
+                                        'Título',
                                         style: TextStyle(
                                             fontSize: 16.0,
                                             fontWeight: FontWeight.bold),
@@ -162,7 +118,7 @@ class UploadSongDataState extends StatelessWidget   {
                                     mainAxisSize: MainAxisSize.min,
                                     children: <Widget>[
                                       new Text(
-                                        'Descripción',
+                                        'Género',
                                         style: TextStyle(
                                             fontSize: 16.0,
                                             fontWeight: FontWeight.bold),
@@ -172,59 +128,27 @@ class UploadSongDataState extends StatelessWidget   {
                                 ],
                               )),
                           Padding(
-                              padding: EdgeInsets.only(
-                                  left: 25.0, right: 25.0, top: 2.0),
-                              child: new Row(
-                                mainAxisSize: MainAxisSize.max,
-                                children: <Widget>[
-                                  new Flexible(
-                                    child: new TextField(
-                                      style: TextStyle(fontSize: 16),
-                                      decoration: const InputDecoration(
-                                          hintText: "Eduarding la vida loca",
-                                          hintStyle: TextStyle(fontSize: 15.0)),
-                                      enabled: !_status,
-                                    ),
-                                  ),
-                                ],
-                              )),
-                          Padding(
-                              padding: EdgeInsets.only(
-                                  left: 25.0, right: 25.0, top: 25.0),
-                              child: new Row(
-                                mainAxisSize: MainAxisSize.max,
-                                children: <Widget>[
-                                  new Column(
-                                    mainAxisAlignment: MainAxisAlignment.start,
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: <Widget>[
-                                      new Text(
-                                        'Álbum',
-                                        style: TextStyle(
-                                            fontSize: 16.0,
-                                            fontWeight: FontWeight.bold),
-                                      ),
-                                    ],
-                                  ),
-                                ],
-                              )),
-                          Padding(
-                              padding: EdgeInsets.only(
-                                  left: 25.0, right: 25.0, top: 2.0),
-                              child: new Row(
-                                mainAxisSize: MainAxisSize.max,
-                                children: <Widget>[
-                                  new Flexible(
-                                    child: new TextField(
-                                      style: TextStyle(fontSize: 16),
-                                      decoration: const InputDecoration(
-                                          hintText: "Grandes éxitos de Eduardo",
-                                          hintStyle: TextStyle(fontSize: 15.0)),
-                                      enabled: !_status,
-                                    ),
-                                  ),
-                                ],
-                              )),
+                            padding: EdgeInsets.only(
+                              left: 25.0, right: 25.0, top: 2.0),
+                            child: DropdownButton(
+                              hint: Text('Elige un género',style: TextStyle(
+                                  fontSize: 16.0,
+                                  fontWeight: FontWeight.bold)), // Not necessary for Option 1
+                              value: _selectedLocation,
+                              onChanged: (newValue) {
+                                //setState(() {
+                                //_selectedLocation = newValue;
+                                //});
+                              },
+                              items: _locations.map((location) {
+                                return DropdownMenuItem(
+                                  child: new Text(location),
+                                  value: location,
+                                );
+                              }).toList(),
+                            ),
+                          ),
+
 
                           !_status ? _getActionButtons(context) : new Container(),
                         ],
@@ -311,7 +235,7 @@ class UploadSongDataState extends StatelessWidget   {
         files: [FileItem(filename: filename, savedDir: savedDir, fieldname:"file")], // required: list of files that you want to upload
         method: UploadMethod.POST, // HTTP method  (POST or PUT or PATCH)
         headers: {"tambien": "tambien", "tmb": "tmb"},
-        data: {"name": "cualquier cosa"}, // any data you want to send in upload request
+        data: {"name": titulo}, // any data you want to send in upload request
         showNotification: false, // send local notification (android only) for upload status
         tag: "upload 1"); // unique tag for upload task
   }
