@@ -122,9 +122,8 @@ class PodcastLibrary extends StatelessWidget {
               builder: (context, playlistRepo, _) => ListView.builder(
                 itemCount: playlistRepo.playlist.length,
                 itemBuilder: (context, pos) {
-                  var padd = (pos == 0) ? width * 0.08 : 5.0;
                     return Card(
-                      margin: EdgeInsets.only(left: padd, right: 5.0),
+                      margin: EdgeInsets.only(left: 0.4, right: 5.0),
                       elevation: 20,
                       shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(20)),
