@@ -32,6 +32,7 @@ class _ProfilePageState extends State<ProfilePage>
   bool editPasswordNoPresionado = true;
   final FocusNode myFocusNode = FocusNode();
   TextEditingController txt = TextEditingController();
+  TextEditingController txtDescripcion = TextEditingController();
   bool error = false;
   TextEditingController usernameController = new TextEditingController();
   TextEditingController emailController = new TextEditingController();
@@ -50,16 +51,39 @@ class _ProfilePageState extends State<ProfilePage>
   Username username;
 
   File _profileImage;
+  File _playlistImage;
 
-  Future getProfileImageFromCamera() async {
+  Future getImageFromDevice(String opcionOrigen, String opcionDestino) async {
+    if(opcionOrigen == "cámara"){
+      if(opcionDestino == "perfil"){
+        var image = await ImagePicker.pickImage(source: ImageSource.camera);
+        setState(() {
+          _profileImage = image;
+        });
+      }else{
+        var image = await ImagePicker.pickImage(source: ImageSource.camera);
 
-    var image = await ImagePicker.pickImage(source: ImageSource.camera);
+        setState(() {
+          _playlistImage = image;
+        });
+      }
+    }else{
+      if(opcionDestino == "perfil"){
+        var image = await ImagePicker.pickImage(source: ImageSource.gallery);
+        setState(() {
+          _profileImage = image;
+        });
+      }else{
+        var image = await ImagePicker.pickImage(source: ImageSource.gallery);
 
-    setState(() {
-      _profileImage = image;
-    });
+        setState(() {
+          _playlistImage = image;
+        });
+      }
+    }
+
   }
-  Future getProfileImageFromGallery() async {
+  Future getProfileImageFromGallery(String opcion) async {
 
     var image = await ImagePicker.pickImage(source: ImageSource.gallery);
 
@@ -205,126 +229,12 @@ class _ProfilePageState extends State<ProfilePage>
                                 ],
                               )),
 
-
-                          Padding(
-                              padding: EdgeInsets.only(
-                                  left: 25.0, right: 25.0, top: 25.0),
-                              child: new Row(
-                                mainAxisSize: MainAxisSize.max,
-                                children: <Widget>[
-                                  new Column(
-                                    mainAxisAlignment: MainAxisAlignment.start,
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: <Widget>[
-                                      new Text(
-                                        'Nombre de usuario',
-                                        style: TextStyle(
-                                            fontSize: 16.0,
-                                            fontWeight: FontWeight.bold),
-                                      ),
-                                    ],
-                                  ),
-                                ],
-                              )),
-                          Padding(
-                              padding: EdgeInsets.only(
-                                  left: 25.0, right: 25.0, top: 2.0),
-                              child:  Row(
-                                mainAxisSize: MainAxisSize.max,
-                                children: <Widget>[
-
-                                   Flexible(
-                                    child: TextField(
-                                      controller: usernameController,
-                                      style: TextStyle(fontSize: 16),
-                                      decoration: const InputDecoration(
-                                        hintText: "Ejemplo123",
-                                        hintStyle: TextStyle(fontSize: 15.0)
-                                      ),
-                                      enabled: !editNoPresionado,
-                                      autofocus: !editNoPresionado,
-
-                                    ),
-                                  ),
-                                ],
-                              )),
-                          Padding(
-                              padding: EdgeInsets.only(
-                                  left: 25.0, right: 25.0, top: 25.0),
-                              child: new Row(
-                                mainAxisSize: MainAxisSize.max,
-                                children: <Widget>[
-                                  new Column(
-                                    mainAxisAlignment: MainAxisAlignment.start,
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: <Widget>[
-                                      new Text(
-                                        'Descripción personal',
-                                        style: TextStyle(
-                                            fontSize: 16.0,
-                                            fontWeight: FontWeight.bold),
-                                      ),
-                                    ],
-                                  ),
-                                ],
-                              )),
-                          Padding(
-                              padding: EdgeInsets.only(
-                                  left: 25.0, right: 25.0, top: 2.0),
-                              child: new Row(
-                                mainAxisSize: MainAxisSize.max,
-                                children: <Widget>[
-                                  new Flexible(
-                                    child: new TextField(
-
-                                      controller: descriptionController,
-                                      style: TextStyle(fontSize: 16),
-                                      decoration: const InputDecoration(
-                                          hintText: "Eduardo el próximo sucesor de Queen",
-                                          hintStyle: TextStyle(fontSize: 15.0)),
-                                      enabled: !editNoPresionado,
-                                    ),
-                                  ),
-                                ],
-                              )),
-                          Padding(
-                              padding: EdgeInsets.only(
-                                  left: 25.0, right: 25.0, top: 25.0),
-                              child: new Row(
-                                mainAxisSize: MainAxisSize.max,
-                                children: <Widget>[
-                                  new Column(
-                                    mainAxisAlignment: MainAxisAlignment.start,
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: <Widget>[
-                                      new Text(
-                                        'Email',
-                                        style: TextStyle(
-                                            fontSize: 16.0,
-                                            fontWeight: FontWeight.bold),
-                                      ),
-                                    ],
-                                  ),
-                                ],
-                              )),
-                          Padding(
-                              padding: EdgeInsets.only(
-                                  left: 25.0, right: 25.0, top: 2.0),
-                              child: new Row(
-                                mainAxisSize: MainAxisSize.max,
-                                children: <Widget>[
-                                  new Flexible(
-                                    child: new TextField(
-                                      controller: emailController,
-                                      style: TextStyle(fontSize: 16),
-                                      decoration: const InputDecoration(
-                                          hintText: "ejemplo123@gmail.com",
-                                          hintStyle: TextStyle(fontSize: 15.0)),
-                                      enabled: !editNoPresionado,
-                                    ),
-                                  ),
-                                ],
-                              )),
+                          mostrarApartado("Nombre de usuario"),
+                          mostrarTextfield("Ejemplo123", usernameController),
+                          mostrarApartado("Descripción personal"),
+                          mostrarTextfield("Eduardo el próximo sucesor de Queen", descriptionController),
+                          mostrarApartado("Email"),
+                          mostrarTextfield("ejemplo123@gmail.com", emailController),
                           //if(!editNoPresionado){
                           !editNoPresionado
                               ? _getActionButtons()
@@ -357,27 +267,7 @@ class _ProfilePageState extends State<ProfilePage>
                                   )
                                 ],
                               )),
-                         Padding(
-                                padding: EdgeInsets.only(
-                                    left: 25.0, right: 25.0, top: 25.0),
-                                child: new Row(
-                                  mainAxisSize: MainAxisSize.max,
-                                  children: <Widget>[
-                                    new Column(
-                                      mainAxisAlignment: MainAxisAlignment
-                                          .start,
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: <Widget>[
-                                        new Text(
-                                          'Contraseña',
-                                          style: TextStyle(
-                                              fontSize: 16.0,
-                                              fontWeight: FontWeight.bold),
-                                        ),
-                                      ],
-                                    ),
-                                  ],
-                                )),
+                         mostrarApartado("Contraseña"),
                           Padding(
                                 padding: EdgeInsets.only(
                                     left: 25.0, right: 25.0, top: 2.0),
@@ -400,28 +290,7 @@ class _ProfilePageState extends State<ProfilePage>
                                 )),
                           //if(!editNoPresionado)
                         //  }else
-                          Padding(
-                              padding: EdgeInsets.only(
-                                  left: 25.0, right: 25.0, top: 25.0),
-                              child: new Row(
-                                mainAxisSize: MainAxisSize.max,
-                                children: <Widget>[
-                                  new Column(
-                                    mainAxisAlignment: MainAxisAlignment.start,
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: <Widget>[
-                                      new Text(
-                                        'Mis playlists',
-                                        style: TextStyle(
-                                            fontSize: 16.0,
-                                            fontWeight: FontWeight.bold),
-                                      ),
-                                    ],
-                                  ),
-                                ],
-                              )),
-
-
+                          mostrarApartado("Mis playlists"),
                           Padding(
                               padding: EdgeInsets.only(top: height * 0.04),
                               child: SizedBox(
@@ -482,38 +351,83 @@ class _ProfilePageState extends State<ProfilePage>
                                                           ),
                                                           Padding(
                                                             padding: EdgeInsets.only(
-                                                                left: 30.0,
-                                                                right: 30.0,
-                                                                top: 30.0,
-                                                                bottom: 30.0),
-                                                            child: TextFormField(
-                                                              controller: txt,
-                                                              decoration: InputDecoration(
-                                                                  disabledBorder:
-                                                                  OutlineInputBorder(
-                                                                      borderSide: BorderSide(
-                                                                          color: Colors
-                                                                              .orange)),
-                                                                  enabledBorder:
-                                                                  OutlineInputBorder(
-                                                                      borderSide: BorderSide(
-                                                                          color: Colors
-                                                                              .orange)),
-                                                                  errorText: error
-                                                                      ? "El nombre no \n puede ser nulo"
-                                                                      : null,
-                                                                  errorStyle: Theme.of(context)
-                                                                      .textTheme
-                                                                      .display2,
-                                                                  labelText: "Introduce un nombre",
-                                                                  labelStyle: Theme.of(context)
-                                                                      .textTheme
-                                                                      .display2,
-                                                                  border: OutlineInputBorder(
-                                                                      borderRadius:
-                                                                      BorderRadius.circular(
-                                                                          4))),
-                                                            ),
+                                                                left: 27.0,
+                                                                right: 27.0,
+                                                                top: 27.0,
+                                                                bottom: 27.0),
+                                                            child: Column(children: <Widget>[
+                                                              TextFormField(
+                                                                controller: txt,
+                                                                decoration: InputDecoration(
+                                                                    disabledBorder: OutlineInputBorder(
+                                                                        borderSide: BorderSide(
+                                                                            color: Colors
+                                                                                .deepOrange)),
+                                                                    enabledBorder: OutlineInputBorder(
+                                                                        borderSide: BorderSide(
+                                                                            color: Colors
+                                                                                .deepOrange)),
+                                                                    errorText: error
+                                                                        ? "El nombre no \n puede ser nulo"
+                                                                        : null,
+                                                                    errorStyle: Theme.of(
+                                                                        context)
+                                                                        .textTheme
+                                                                        .display2,
+                                                                    labelText:
+                                                                    "Ponle un nombre",
+                                                                    labelStyle: Theme.of(
+                                                                        context)
+                                                                        .textTheme
+                                                                        .display2,
+                                                                    border: OutlineInputBorder(
+                                                                        borderRadius:
+                                                                        BorderRadius.circular(
+                                                                            4))),
+                                                              ),
+                                                              TextFormField(
+                                                                controller: txtDescripcion,
+                                                                decoration: InputDecoration(
+                                                                    disabledBorder: OutlineInputBorder(
+                                                                        borderSide: BorderSide(
+                                                                            color: Colors
+                                                                                .deepOrange)),
+                                                                    enabledBorder: OutlineInputBorder(
+                                                                        borderSide: BorderSide(
+                                                                            color: Colors
+                                                                                .deepOrange)),
+                                                                    errorText: error
+                                                                        ? "La descripción no \n puede ser nula"
+                                                                        : null,
+                                                                    errorStyle: Theme.of(
+                                                                        context)
+                                                                        .textTheme
+                                                                        .display2,
+                                                                    labelText:
+                                                                    "Ponle una descripción",
+                                                                    labelStyle: Theme.of(
+                                                                        context)
+                                                                        .textTheme
+                                                                        .display2,
+                                                                    border: OutlineInputBorder(
+                                                                        borderRadius:
+                                                                        BorderRadius.circular(
+                                                                            4))),
+                                                              ),
+                                                              new GestureDetector(onTap: seleccionarImagenPlaylist,child:new Container(
+                                                                  width: 40.0,
+                                                                  height: 40.0,
+                                                                  decoration: new BoxDecoration(
+                                                                    shape: BoxShape.circle,
+                                                                    image: new DecorationImage(
+                                                                      image: _profileImage == null
+                                                                          ? new ExactAssetImage(
+                                                                          'assets/prof.png')
+                                                                          : FileImage(_playlistImage),
+                                                                      fit: BoxFit.cover,
+                                                                    ),
+                                                                  ))),
+                                                            ],)
                                                           ),
                                                           InkWell(
                                                             onTap: () {
@@ -862,41 +776,80 @@ class _ProfilePageState extends State<ProfilePage>
                                                                           Padding(
                                                                             padding:
                                                                             EdgeInsets.only(
-                                                                                left: 30.0,
-                                                                                right: 30.0,
-                                                                                top: 30.0,
+                                                                                left: 27.0,
+                                                                                right: 27.0,
+                                                                                top: 27.0,
                                                                                 bottom:
-                                                                                30.0),
-                                                                            child:
-                                                                            TextFormField(
-                                                                              controller: txt,
-                                                                              decoration: InputDecoration(
-                                                                                  disabledBorder: OutlineInputBorder(
-                                                                                      borderSide: BorderSide(
-                                                                                          color: Colors
-                                                                                              .deepOrange)),
-                                                                                  enabledBorder: OutlineInputBorder(
-                                                                                      borderSide: BorderSide(
-                                                                                          color: Colors
-                                                                                              .deepOrange)),
-                                                                                  errorText: error
-                                                                                      ? "El nombre no \n puede ser nulo"
-                                                                                      : null,
-                                                                                  errorStyle: Theme.of(
-                                                                                      context)
-                                                                                      .textTheme
-                                                                                      .display2,
-                                                                                  labelText:
-                                                                                  "Ponle un nombre",
-                                                                                  labelStyle: Theme.of(
-                                                                                      context)
-                                                                                      .textTheme
-                                                                                      .display2,
-                                                                                  border: OutlineInputBorder(
-                                                                                      borderRadius:
-                                                                                      BorderRadius.circular(
-                                                                                          4))),
-                                                                            ),
+                                                                                27.0),
+                                                                            child: Column(children: <Widget>[
+                                                                              TextFormField(
+                                                                                controller: txt,
+                                                                                decoration: InputDecoration(
+                                                                                    disabledBorder: OutlineInputBorder(
+                                                                                        borderSide: BorderSide(
+                                                                                            color: Colors
+                                                                                                .deepOrange)),
+                                                                                    enabledBorder: OutlineInputBorder(
+                                                                                        borderSide: BorderSide(
+                                                                                            color: Colors
+                                                                                                .deepOrange)),
+                                                                                    errorText: error
+                                                                                        ? "El nombre no \n puede ser nulo"
+                                                                                        : null,
+                                                                                    errorStyle: Theme.of(
+                                                                                        context)
+                                                                                        .textTheme
+                                                                                        .display2,
+                                                                                    labelText:
+                                                                                    "Ponle un nombre",
+                                                                                    labelStyle: Theme.of(
+                                                                                        context)
+                                                                                        .textTheme
+                                                                                        .display2,
+                                                                                    border: OutlineInputBorder(
+                                                                                        borderRadius:
+                                                                                        BorderRadius.circular(
+                                                                                            4))),
+                                                                              ),
+                                                                              TextFormField(
+                                                                                controller: txtDescripcion,
+                                                                                decoration: InputDecoration(
+                                                                                    disabledBorder: OutlineInputBorder(
+                                                                                        borderSide: BorderSide(
+                                                                                            color: Colors
+                                                                                                .deepOrange)),
+                                                                                    enabledBorder: OutlineInputBorder(
+                                                                                        borderSide: BorderSide(
+                                                                                            color: Colors
+                                                                                                .deepOrange)),
+                                                                                    errorText: error
+                                                                                        ? "La descripción no \n puede ser nula"
+                                                                                        : null,
+                                                                                    errorStyle: Theme.of(
+                                                                                        context)
+                                                                                        .textTheme
+                                                                                        .display2,
+                                                                                    labelText:
+                                                                                    "Ponle una descripción",
+                                                                                    labelStyle: Theme.of(
+                                                                                        context)
+                                                                                        .textTheme
+                                                                                        .display2,
+                                                                                    border: OutlineInputBorder(
+                                                                                        borderRadius:
+                                                                                        BorderRadius.circular(
+                                                                                            4))),
+                                                                              ),
+                                                                              new GestureDetector(onTap: seleccionarImagenPlaylist,child:new CircleAvatar(
+                                                                                backgroundColor: Colors.red,
+                                                                                radius: 25.0,
+                                                                                child: new Icon(
+                                                                                  Icons.camera_alt,
+                                                                                  color: Colors.white,
+                                                                                ),
+                                                                              )),
+                                                                            ],)
+
                                                                           ),
                                                                           InkWell(
                                                                             onTap: () async {
@@ -1386,40 +1339,23 @@ class _ProfilePageState extends State<ProfilePage>
                     textColor: Colors.white,
                     color: Colors.green,
                     onPressed: () {
-                      if(passwordController.text==securePasswordController.text) {
                         setState(() {
                           if(usernameController.text != ""){
                             if(emailController.text != ""){
-                              if(passwordController.text != ""){
-                                if(securePasswordController.text != ""){
-                                  if(passwordController.text == securePasswordController.text){
                                     enviarDatosALaBD(usernameController.text,
                                         descriptionController.text
                                         , emailController.text, passwordController.text); //conectar los datos escritos con la BD
                                     editNoPresionado = true;
                                     FocusScope.of(context).requestFocus(new FocusNode());
-                                  }else{
-                                    mostrarError("Las contraseñas no coinciden");
-                                  }
-                                }else{
-                                  mostrarError("Repite la contraseña");
-                                }
-                              }else{
-                                mostrarError("La contraseña no puede estar vacía");
-                              }
                             }else{
                               mostrarError("El email no puede estar vacío");
                             }
                           }else{
                             mostrarError("El nombre de usuario no puede estar vacío");
                           }
-
                         });
-                      }else{controlador.text="las contraseñas no son iguales,\n"
-                          " vuelva a escribirlas";    //todo en caso de contras diferentes,
-                                                      //todo mantener la vista bien (ahora no va bien)
                       FocusScope.of(context).requestFocus(new FocusNode());
-                      }
+
                     },
                     shape: new RoundedRectangleBorder(
                         borderRadius: new BorderRadius.circular(20.0)),
@@ -1453,6 +1389,54 @@ class _ProfilePageState extends State<ProfilePage>
         ],
       ),
     );
+  }
+
+  Widget mostrarApartado(String titulo){
+    return Padding(
+        padding: EdgeInsets.only(
+            left: 25.0, right: 25.0, top: 25.0),
+        child: new Row(
+          mainAxisSize: MainAxisSize.max,
+          children: <Widget>[
+            new Column(
+              mainAxisAlignment: MainAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: <Widget>[
+                new Text(
+                  titulo,
+                  style: TextStyle(
+                      fontSize: 16.0,
+                      fontWeight: FontWeight.bold),
+                ),
+              ],
+            ),
+          ],
+        ));
+  }
+
+  Widget mostrarTextfield(String hint, TextEditingController controller){
+    return Padding(
+        padding: EdgeInsets.only(
+            left: 25.0, right: 25.0, top: 2.0),
+        child:  Row(
+          mainAxisSize: MainAxisSize.max,
+          children: <Widget>[
+
+            Flexible(
+              child: TextField(
+                controller: controller,
+                style: TextStyle(fontSize: 16),
+                decoration:  InputDecoration(
+                    hintText: hint,
+                    hintStyle: TextStyle(fontSize: 15.0)
+                ),
+                enabled: !editNoPresionado,
+                autofocus: !editNoPresionado,
+
+              ),
+            ),
+          ],
+        ));
   }
 
   void mostrarError(String textoError){
@@ -1539,6 +1523,100 @@ class _ProfilePageState extends State<ProfilePage>
       },
     );
   }
+  void seleccionarImagenPlaylist(){
+    showDialog(
+        context: context,
+        builder: (context) {
+          return Padding(
+            padding: const EdgeInsets.all(4.0),
+            child: AlertDialog(
+              backgroundColor:
+              Theme.of(context).backgroundColor,
+              shape: RoundedRectangleBorder(
+                side: BorderSide(),
+                borderRadius: BorderRadius.all(
+                    Radius.circular(30.0)),
+              ),
+              contentPadding: EdgeInsets.only(top: 10.0),
+              content: Container(
+                width: 70.0,
+                child: Column(
+                  mainAxisAlignment:
+                  MainAxisAlignment.start,
+                  crossAxisAlignment:
+                  CrossAxisAlignment.stretch,
+                  mainAxisSize: MainAxisSize.min,
+                  children: <Widget>[
+                    Row(
+                      mainAxisAlignment:
+                      MainAxisAlignment.spaceEvenly,
+                      mainAxisSize: MainAxisSize.min,
+                      children: <Widget>[
+                        Text(
+                          "Subir foto desde",
+                          style: TextStyle(
+                              fontSize: 24.0,
+                              fontFamily: 'Sans'),
+                        ),
+                      ],
+                    ),
+                    Divider(
+                      color: Colors.grey,
+                      height: 4.0,
+                    ),
+                    InkWell(
+                      onTap: () {
+                        getImageFromDevice("cámara", "playlist");
+                        Navigator.pop(context);
+                      },
+                      child: Container(
+                        padding: EdgeInsets.only(
+                            top: 10.0, bottom: 20.0),
+                        decoration: BoxDecoration(
+                          color: Colors.orange,
+                        ),
+                        child: Text(
+                          "Cámara",
+                          style: TextStyle(
+                              fontFamily: 'Sans',
+                              color: Colors.white),
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                    ),
+
+                    InkWell(
+                      onTap: () {
+                        getImageFromDevice("galería", "playlist");
+                        Navigator.pop(context);
+                      },
+                      child: Container(
+                        padding: EdgeInsets.only(
+                            top: 10.0, bottom: 20.0),
+                        decoration: BoxDecoration(
+                          color: Colors.pink,
+                          borderRadius: BorderRadius.only(
+                              bottomLeft:
+                              Radius.circular(32.0),
+                              bottomRight:
+                              Radius.circular(32.0)),
+                        ),
+                        child: Text(
+                          "Galería",
+                          style: TextStyle(
+                              fontFamily: 'Sans',
+                              color: Colors.white),
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          );
+        });
+  }
 
   void seleccionarImagen(){
     showDialog(
@@ -1583,7 +1661,7 @@ class _ProfilePageState extends State<ProfilePage>
                     ),
                     InkWell(
                       onTap: () {
-                        getProfileImageFromCamera();
+                        getImageFromDevice("cámara", "perfil");
                         Navigator.pop(context);
                       },
                       child: Container(
@@ -1604,7 +1682,7 @@ class _ProfilePageState extends State<ProfilePage>
 
                     InkWell(
                       onTap: () {
-                        getProfileImageFromGallery();
+                        getImageFromDevice("galería", "perfil");
                         Navigator.pop(context);
                       },
                       child: Container(
@@ -1735,7 +1813,7 @@ class _ProfilePageState extends State<ProfilePage>
     if (txt.text.toString().isNotEmpty && accion == "create") {
 
         esperoCrearPlaylist(
-            emailController.text, txt.text, context, playlistRepo);
+            emailController.text, txt.text, txtDescripcion.text, context, playlistRepo);
 
       }else { //nombre ==te"
       esperoBorrarPlaylist(
@@ -1743,9 +1821,8 @@ class _ProfilePageState extends State<ProfilePage>
     }
   }
   void esperoCrearPlaylist(String email, String nombrePlaylist,
-      BuildContext context, PlaylistRepo playlistRepo)async{
-    Respuesta r = await crearPlaylist(email, nombrePlaylist);
-
+      String descripcionPlaylist, BuildContext context, PlaylistRepo playlistRepo)async{
+    Respuesta r = await crearPlaylist(email, nombrePlaylist, descripcionPlaylist);
 
     if(r.getUserId()=="ok"){
       playlistRepo.add(nombrePlaylist);
@@ -1942,10 +2019,12 @@ Future<Perfil> obtenerPerfil(String email) async {
   }
 }
 
-Future<Respuesta> crearPlaylist(String email, String nombrePlaylist) async {
+Future<Respuesta> crearPlaylist(String email, String nombrePlaylist,
+    String descripcionPlaylist) async {
   Map data = {
     'email': email,
     'nombrePlaylist': nombrePlaylist,
+    'descripcionPlaylist': descripcionPlaylist,
   };
   final http.Response response = await http.post(
     'http://34.69.44.48:8080/Espotify/crear_lista_android',
@@ -1996,6 +2075,33 @@ Future<Respuesta> actualizarUser(String nombre, String descripcion, String email
     'descripcion': descripcion,
     'email': email,
     'nueva_contrasenya': contra,
+  };
+  final http.Response response = await http.post(
+    'http://34.69.44.48:8080/Espotify/modificar_usuario_android',
+    headers: <String, String>{
+      'Content-Type': 'application/json; charset=UTF-8',
+    },
+    body: jsonEncode(data),
+
+  );
+  if (response.statusCode == 200) {
+    // If the server did return a 201 CREATED response,
+    // then parse the JSON.
+    return Respuesta.fromJson(json.decode(response.body));
+  } else {
+    // If the server did not return a 201 CREATED response,
+    // then throw an exception.
+    throw Exception('Fallo al enviar petición');
+  }
+}
+
+Future<Respuesta> actualizarPlaylist(String email, String nombrePlaylistAntiguo,
+    String descripcionPlaylist,  String nombrePlaylistNuevo) async {
+  Map data = {
+    'nombreAntiguo': nombrePlaylistAntiguo,
+    'descripcion': descripcionPlaylist,
+    'email': email,
+    'nombreNuevo': nombrePlaylistNuevo,
   };
   final http.Response response = await http.post(
     'http://34.69.44.48:8080/Espotify/modificar_usuario_android',
