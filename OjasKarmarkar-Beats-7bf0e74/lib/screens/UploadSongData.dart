@@ -1,14 +1,14 @@
 import 'dart:developer';
 import 'dart:io';
 
-import 'package:beats/icono_personalizado.dart';
+import 'package:beats/screens/ProfileEdit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
-import 'MusicLibrary.dart';
 
-import 'UploadSong.dart';
-import 'login.dart';
 import 'package:flutter_uploader/flutter_uploader.dart';
+
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 
 
@@ -21,10 +21,12 @@ class UploadSongDataState extends StatelessWidget   {
   TextEditingController titleController = new TextEditingController();
   TextEditingController descriptionController = new TextEditingController();
 
-  List<String> _locations = ['Rock', 'R&B', 'Pop', 'Metal']; // Option 2
-  String _selectedLocation;
+  List<String> generos; // Option 2
+  String genero;
+  String email;
 
-  UploadSongDataState({Key key, @required this.archivo}) : super(key: key);
+
+  UploadSongDataState({Key key, @required this.archivo, this.email, this.generos}) : super(key: key);
 
 
   @override
@@ -134,13 +136,11 @@ class UploadSongDataState extends StatelessWidget   {
                               hint: Text('Elige un género',style: TextStyle(
                                   fontSize: 16.0,
                                   fontWeight: FontWeight.bold)), // Not necessary for Option 1
-                              value: _selectedLocation,
+                              value: genero,
                               onChanged: (newValue) {
-                                //setState(() {
-                                //_selectedLocation = newValue;
-                                //});
+                                genero = newValue;
                               },
-                              items: _locations.map((location) {
+                              items: generos.map((location) {
                                 return DropdownMenuItem(
                                   child: new Text(location),
                                   value: location,
@@ -178,8 +178,15 @@ class UploadSongDataState extends StatelessWidget   {
                     child: new Text("Guardar"),
                     textColor: Colors.white,
                     color: Colors.green,
-                    onPressed: () {
-                        upload(titleController.text, archivo);
+                    onPressed: () async {
+                      if(titleController.text != ""){
+                        Respuesta r = await uploadSong(email, titleController.text, genero);
+                        if(r.getUserId() == "fail"){
+                          mostrarError("No se ha podido subir la canción.", context);
+                        }else{
+                          mostrarError("Canción subida con éxito.", context);
+                        }
+                      }
                     },
                     shape: new RoundedRectangleBorder(
                         borderRadius: new BorderRadius.circular(20.0)),
@@ -208,37 +215,144 @@ class UploadSongDataState extends StatelessWidget   {
       ),
     );
   }
-  upload(String titulo, String savedDir) async{
 
-    //ahora mismo savedDir contiene toda la dirección hasta la canción
-    //tenemos que mantener toda la uri exceto el último elemento, que debemos
-    //pasarselo a FileItem como filename y los restante como savedDir
-    List<String> uriparts = savedDir.split("/");
-    String filename = uriparts.removeLast();  //aquí ya tenemos el contenido.mp3
-    String aux;
-    savedDir = "/";
+  Future<Respuesta> uploadSong(String email, String nombreCancion, String generoCancion) async {
+    File songFile = new File(archivo);
+    List<int> songBytes = songFile.readAsBytesSync();
+    String base64Song = base64.encode(songBytes);
+    Map data = {
+      'email': email,
+      'nombreCancion': nombreCancion,
+      'generoCancion': generoCancion,
+      'cancion': base64Song,
+    };
+    final http.Response response = await http.post(
+      'http://34.69.44.48:8080/Espotify/subir_audio_android',
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+      body: jsonEncode(data),
 
-    for(int i=1; i<uriparts.length;i++)
-    {
-      aux = uriparts.elementAt(i);
-      savedDir = savedDir + aux;
-      if(i+1 != uriparts.length) {
-        savedDir = savedDir + "/";
-      }
+    );
+    if (response.statusCode == 200) {
+      // If the server did return a 201 CREATED response,
+      // then parse the JSON.
+      return Respuesta.fromJson(json.decode(response.body));
+    } else {
+      // If the server did not return a 201 CREATED response,
+      // then throw an exception.
+      throw Exception('Fallo al enviar petición');
     }
-
-    int a = uriparts.length;
-    log("debug $savedDir, $filename, $a");  //podemos ver ahora como el attaching file es == a la uri
-
-    final taskId = await uploader.enqueue(
-        url: "https://34.69.44.48:8080/Espotify/cancion_subir_android", //required: url to upload to
-        files: [FileItem(filename: filename, savedDir: savedDir, fieldname:"file")], // required: list of files that you want to upload
-        method: UploadMethod.POST, // HTTP method  (POST or PUT or PATCH)
-        headers: {"tambien": "tambien", "tmb": "tmb"},
-        data: {"name": titulo}, // any data you want to send in upload request
-        showNotification: false, // send local notification (android only) for upload status
-        tag: "upload 1"); // unique tag for upload task
   }
+  void mostrarError(String textoError, BuildContext context){
+    showDialog(
+      context: context,
+      builder: (context) {
+        return Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: AlertDialog(
+            backgroundColor:
+            Theme.of(context).backgroundColor,
+            shape: RoundedRectangleBorder(
+              side: BorderSide(),
+              borderRadius: BorderRadius.all(
+                  Radius.circular(30.0)),
+            ),
+            contentPadding: EdgeInsets.only(top: 10.0),
+            content: Container(
+              width: 50.0,
+              child: Column(
+                mainAxisAlignment:
+                MainAxisAlignment.start,
+                crossAxisAlignment:
+                CrossAxisAlignment.stretch,
+                mainAxisSize: MainAxisSize.min,
+                children: <Widget>[
+                  Row(
+                    mainAxisAlignment:
+                    MainAxisAlignment.spaceEvenly,
+                    mainAxisSize: MainAxisSize.min,
+                    children: <Widget>[
+                      Text(
+                        "Error del servidor",
+                        style: TextStyle(
+                            fontSize: 24.0,
+                            fontFamily: 'Sans'),
+                      ),
+                    ],
+                  ),
+                  SizedBox(
+                    height: 5.0,
+                  ),
+                  Divider(
+                    color: Colors.grey,
+                    height: 4.0,
+                  ),
+                  Padding(
+                      padding: EdgeInsets.only(
+                          left: 30.0,
+                          right: 30.0,
+                          top: 30.0,
+                          bottom: 30.0),
+                      child: Text(textoError)
+                  ),
+                  InkWell(
+                    onTap: () {
+                      if(textoError == "No se ha podido subir la canción."){
+                        Navigator.pop(context);
+                      }else{
+                        Navigator.pop(context);
+                        Navigator.pop(context);
+                        Navigator.pop(context);
+                      }
 
+                    },
+                    child: Container(
+                      padding: EdgeInsets.only(
+                          top: 10.0, bottom: 20.0),
+                      decoration: BoxDecoration(
+                        color: Colors.orange,
+                        borderRadius: BorderRadius.only(
+                            bottomLeft:
+                            Radius.circular(32.0),
+                            bottomRight:
+                            Radius.circular(32.0)),
+                      ),
+                      child: Text(
+                        "Aceptar",
+                        style: TextStyle(
+                            fontFamily: 'Sans',
+                            color: Colors.white),
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
 }
+
+class Respuesta {
+  final String creado;
+
+  Respuesta({this.creado});
+
+  factory Respuesta.fromJson(Map<String, dynamic> json) {
+    return Respuesta(
+      creado: json['estado'],
+
+    );
+
+  }
+  String getUserId(){
+    return creado;
+  }
+}
+
+
 

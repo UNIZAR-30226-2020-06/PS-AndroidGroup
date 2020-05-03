@@ -31,8 +31,8 @@ class _ProfilePageState extends State<ProfilePage>
   bool editNoPresionado = true;
   bool editPasswordNoPresionado = true;
   final FocusNode myFocusNode = FocusNode();
-  TextEditingController txt = TextEditingController();
-  TextEditingController txtDescripcion = TextEditingController();
+  TextEditingController txt = new TextEditingController();
+  TextEditingController txtDescripcion = new TextEditingController();
   bool error = false;
   TextEditingController usernameController = new TextEditingController();
   TextEditingController emailController = new TextEditingController();
@@ -59,6 +59,7 @@ class _ProfilePageState extends State<ProfilePage>
         var image = await ImagePicker.pickImage(source: ImageSource.camera);
         setState(() {
           _profileImage = image;
+          uploadProfilePicture(username.email);
         });
       }else{
         var image = await ImagePicker.pickImage(source: ImageSource.camera);
@@ -72,6 +73,7 @@ class _ProfilePageState extends State<ProfilePage>
         var image = await ImagePicker.pickImage(source: ImageSource.gallery);
         setState(() {
           _profileImage = image;
+          uploadProfilePicture(username.email);
         });
       }else{
         var image = await ImagePicker.pickImage(source: ImageSource.gallery);
@@ -831,23 +833,14 @@ class _ProfilePageState extends State<ProfilePage>
 
                                                                           ),
                                                                           InkWell(
-                                                                            onTap: () async {
-                                                                              await PlaylistHelper(
-                                                                                  playlistRepo
-                                                                                      .playlist[
-                                                                                  pos])
-                                                                                  .rename(
-                                                                                  txt.text);
+                                                                            onTap: () {
                                                                               setState(() {
                                                                                 if(txt.text != ""){
-                                                                                playlistRepo.playlist[
-                                                                                pos] =
-                                                                                    txt.text;
-                                                                                //PlaylistHelper(playlistRepo.playlist[pos]).rename(txt.text);
-                                                                                playlistRepo
-                                                                                    .push();
-                                                                                Navigator.pop(
-                                                                                    context);}
+                                                                                  actualizarPlaylist(username.email, playlistRepo.playlist[pos], txtDescripcion.text,txt.text);
+                                                                                  playlistRepo.playlist[pos] = txt.text;
+                                                                                  playlistRepo.descripciones[pos] = txtDescripcion.text;
+                                                                                  Navigator.pop(context);
+                                                                                }
                                                                               });
                                                                             },
                                                                             child: Container(
@@ -893,9 +886,19 @@ class _ProfilePageState extends State<ProfilePage>
                                                       ),
                                                     ),
                                                     Center(
-                                                        child: Text(playlistRepo.playlist[pos],
-                                                            style:
-                                                            TextStyle(color: Colors.white)))
+                                                        child: Padding(padding: EdgeInsets.only(
+                                                          left: 25.0, right: 25.0, top: 66.0),
+                                                           child: Column(children: <Widget>[
+                                                              Text(playlistRepo.playlist[pos],
+                                                                  textAlign: TextAlign.center,
+                                                                  style:
+                                                                  TextStyle(color: Colors.white),
+                                                                  textScaleFactor: 1.3),
+                                                              Text(playlistRepo.descripciones[pos],
+                                                                  style:
+                                                                  TextStyle(color: Colors.white)),
+                                                            ]),),
+                                                        ),
                                                   ]),
                                                 )),
                                           ),
@@ -1045,7 +1048,7 @@ class _ProfilePageState extends State<ProfilePage>
      Perfil p = await obtenerPerfil(email);
      if (p.nombreUsuario != null) {
        var playlistss = p.playlists.split('|');
-       var descripciones = p.playlists.split('|');
+       var descripciones = p.descripciones.split('|');
        log('data: $playlistss');
        playlistRepo.generateInitialPlayList(playlistss, descripciones);
        List<String> misCancionesTitle = new List();
@@ -1369,6 +1372,32 @@ class _ProfilePageState extends State<ProfilePage>
         ],
       ),
     );
+  }
+
+  Future<Respuesta> uploadProfilePicture(String email) async {
+    List<int> imageBytes = _profileImage.readAsBytesSync();
+    String base64Image = base64.encode(imageBytes);
+    Map data = {
+      'email': email,
+      'imagen': base64Image,
+    };
+    final http.Response response = await http.post(
+      'http://34.69.44.48:8080/Espotify/android_testing',
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+      body: jsonEncode(data),
+
+    );
+    if (response.statusCode == 200) {
+      // If the server did return a 201 CREATED response,
+      // then parse the JSON.
+      return Respuesta.fromJson(json.decode(response.body));
+    } else {
+      // If the server did not return a 201 CREATED response,
+      // then throw an exception.
+      throw Exception('Fallo al enviar petición');
+    }
   }
 
   Widget mostrarApartado(String titulo){
@@ -1808,6 +1837,7 @@ class _ProfilePageState extends State<ProfilePage>
       playlistRepo.add(nombrePlaylist, descripcionPlaylist);
     }
     txt.clear();
+    txtDescripcion.clear();
     Navigator.of(context).pop();
 
   }
@@ -1949,7 +1979,7 @@ class Perfil {
       descripcion: json['descripcion'],
       email: json['email'],
       playlists: json['lista'],
-      descripciones: json['descripciones'],
+      descripciones: json['listaDescripcion'],
       canciones: json['audiosTitulo'],
       urls: json['audiosUrl']
 
@@ -2007,7 +2037,7 @@ Future<Respuesta> crearPlaylist(String email, String nombrePlaylist,
   Map data = {
     'email': email,
     'nombrePlaylist': nombrePlaylist,
-    'descripcionPlaylist': descripcionPlaylist,
+    'descripcion': descripcionPlaylist,
   };
   final http.Response response = await http.post(
     'http://34.69.44.48:8080/Espotify/crear_lista_android',
@@ -2081,13 +2111,13 @@ Future<Respuesta> actualizarUser(String nombre, String descripcion, String email
 Future<Respuesta> actualizarPlaylist(String email, String nombrePlaylistAntiguo,
     String descripcionPlaylist,  String nombrePlaylistNuevo) async {
   Map data = {
-    'nombreAntiguo': nombrePlaylistAntiguo,
+    'nombrePlaylistViejo': nombrePlaylistAntiguo,
     'descripcion': descripcionPlaylist,
     'email': email,
-    'nombreNuevo': nombrePlaylistNuevo,
+    'nombrePlaylistNuevo': nombrePlaylistNuevo,
   };
   final http.Response response = await http.post(
-    'http://34.69.44.48:8080/Espotify/modificar_usuario_android',
+    'http://34.69.44.48:8080/Espotify/playlist_modificar_android',
     headers: <String, String>{
       'Content-Type': 'application/json; charset=UTF-8',
     },
@@ -2122,6 +2152,8 @@ class Respuesta {
     return creado;
   }
 }
+
+
 
 
 

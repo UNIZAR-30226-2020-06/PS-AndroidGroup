@@ -4,6 +4,7 @@ import 'package:beats/Animations/transitions.dart';
 import 'package:beats/models/LocalPlaylistRepo.dart';
 import 'package:beats/models/PlayListHelper.dart';
 import 'package:beats/models/ThemeModel.dart';
+import 'package:beats/models/Username.dart';
 import 'package:beats/models/const.dart';
 import 'package:beats/screens/UploadSongData.dart';
 import 'package:flute_music_player/flute_music_player.dart';
@@ -13,10 +14,17 @@ import 'package:beats/models/LocalSongsModel.dart';
 import 'package:provider/provider.dart';
 import 'Player.dart';
 
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+
 double height1, width1;
 
+class UploadSong extends StatefulWidget {
+  @override
+  UploadSongState createState() => UploadSongState();
+}
 
-class UploadSong extends StatelessWidget {
+class UploadSongState extends State<UploadSong> {
   TextEditingController editingController;
 
   LocalSongsModel model;
@@ -27,8 +35,18 @@ class UploadSong extends StatelessWidget {
   TextEditingController txt = TextEditingController();
 
   bool error = false;
+  Username username;
+  List<String> generos = [""];
 
-
+  @override
+  void initState() {
+    super.initState();
+  }
+  @override
+  void didChangeDependencies() {
+    username = Provider.of<Username>(context);
+    super.didChangeDependencies();
+  }
   @override
   Widget build(BuildContext context) {
     model = Provider.of<LocalSongsModel>(context);
@@ -204,11 +222,12 @@ class UploadSong extends StatelessWidget {
                       return PopupMenuItem<String>(
                         value: choice,
                         child: GestureDetector(
-                            onTap: () { String s = model.songs[pos].uri;
+                            onTap: () async { String s = model.songs[pos].uri;
                             log('Uri: $s');
+                            generos = await convertirALista();
                               Navigator.push(context, new MaterialPageRoute(
                                 builder: (context) =>
-                                new UploadSongDataState(archivo: s,))); },
+                                new UploadSongDataState(archivo: s,email: username.email, generos: generos))); },
                             child: Padding(
                               padding: const EdgeInsets.all(8.0),
                               child:  Text(choice,
@@ -379,5 +398,49 @@ class Search extends SearchDelegate<Song> {
         );
       },
     );
+  }
+}
+
+Future<List<String>> convertirALista() async{
+  Respuesta r = await recibeGeneros();
+  var generosLista = r.generos.split('|');
+  return generosLista;
+}
+class Respuesta {
+  final String generos;
+
+  Respuesta({this.generos});
+
+  factory Respuesta.fromJson(Map<String, dynamic> json) {
+    return Respuesta(
+      generos: json['generos'],
+
+    );
+
+  }
+  String getUserId(){
+    return generos;
+  }
+}
+
+Future<Respuesta> recibeGeneros() async {
+  Map data = {
+  };
+  final http.Response response = await http.post(
+    'http://34.69.44.48:8080/Espotify/generos_android',
+    headers: <String, String>{
+      'Content-Type': 'application/json; charset=UTF-8',
+    },
+    body: jsonEncode(data),
+
+  );
+  if (response.statusCode == 200) {
+    // If the server did return a 201 CREATED response,
+    // then parse the JSON.
+    return Respuesta.fromJson(json.decode(response.body));
+  } else {
+    // If the server did not return a 201 CREATED response,
+    // then throw an exception.
+    throw Exception('Fallo al enviar petición');
   }
 }

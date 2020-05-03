@@ -120,7 +120,7 @@ class PodcastLibrary extends StatelessWidget {
     if (model.podcast.length == 0) {
       return Expanded(
           child: Center(
-            child: CircularProgressIndicator(),
+            child: Text("No hay podcasts..."),
           ));
     } else {
       return Padding(
