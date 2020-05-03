@@ -58,14 +58,14 @@ class _PLayListScreenState extends State<PLayListScreen> {
     if(playlistRepo.selected != null)
     {
       name = playlistRepo.playlist[playlistRepo.selected];
-      playlistRepo.selected = null;
+      //playlistRepo.selected = null;
       initDataPlaylists();
     }
     if(misCanciones.selected != null) {
       name =
       misCanciones.playlist[misCanciones.selected];
       log("name: $name");
-      misCanciones.selected = null;
+      //misCanciones.selected = null;
       initDataMisCanciones();
     }
 
@@ -245,23 +245,13 @@ class _PLayListScreenState extends State<PLayListScreen> {
                                                           ),
                                                         ),
                                                         InkWell(
-                                                          onTap: () async {
-                                                            await PlaylistHelper(
-                                                                misCanciones
-                                                                    .playlist[
-                                                                pos])
-                                                                .rename(
-                                                                txt.text);
+                                                          onTap: ()  {
                                                             setState(() {
-                                                              misCanciones.playlist[
-                                                              pos] =
-                                                                  txt.text;
-                                                              //PlaylistHelper(playlistRepo.playlist[pos]).rename(txt.text);
-                                                              misCanciones
-                                                                  .push();
+                                                              editarUnaCancionMia(username.email, misCanciones.playlist[pos],txt.text);  //editar en la BD
+
+                                                              initDataMisCanciones();
                                                               Navigator.pop(
                                                                   context);
-                                                              editarUnaCancionMia(username.email, txt.text);  //editar en la BD
                                                             });
                                                           },
                                                           child: Container(
@@ -551,8 +541,8 @@ class _PLayListScreenState extends State<PLayListScreen> {
     } else {}
   }
 
-  void editarUnaCancionMia(String email, String title) async {
-    await editarCanciones(email, title);
+  void editarUnaCancionMia(String email, String title, String newTitle) async {
+    await editarCanciones(email, title, newTitle);
   }
 
   void borrarCancionDeMisCanciones(String email, Song song) async {
@@ -626,10 +616,11 @@ Future<Canciones> obtenerCanciones(String email, String nombrePlaylist) async {
 
 
 
-Future<Canciones> editarCanciones(String email, String nombreCancion) async {
+Future<Canciones> editarCanciones(String email, String nombreCancion, String nuevoNombre) async {
   Map data = {
     'email': email,
     'nombreCancion': nombreCancion,
+    'nuevoNombre': nuevoNombre,
   };
   final http.Response response = await http.post(
     'http://34.69.44.48:8080/Espotify/cancion_modificar_android',
