@@ -7,6 +7,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 class PlaylistRepo extends ChangeNotifier {
 
   List<String> playlist = [];
+  List<String> descripciones = [];
+  List<String> imagenes = [];
   SharedPreferences prefList;
   int selected;
 
@@ -19,7 +21,7 @@ class PlaylistRepo extends ChangeNotifier {
     playlist.clear();
     prefList = await SharedPreferences.getInstance();
     List<String> list = prefList.getStringList("playlist");
-    updatePlayList(list);
+    updatePlayList(list, descripciones);
 
   }
 
@@ -31,26 +33,38 @@ class PlaylistRepo extends ChangeNotifier {
     return playlist;
   }
 
+  getDescripciones(){
+    return descripciones;
+  }
+
   delete(String name)async{
-    playlist.remove(name);
+    for(int i=0; i<playlist.length; i++){
+      if(playlist[i] == name){
+        descripciones.removeAt(i);
+        playlist.remove(name);
+      }
+    }
     notifyListeners();
     await prefList.setStringList("playlist", playlist);
     notifyListeners();
   }
 
-  updatePlayList(List<String> list) {
+  updatePlayList(List<String> list, List<String> descriptions) {
     if (list != null) {
       playlist.addAll(list);
+      descripciones.addAll(descriptions);
     }
     notifyListeners();
   }
 
-  generateInitialPlayList(List<String> list) async{
+  generateInitialPlayList(List<String> list, List<String> descriptions) async{
     playlist = list;
+    descripciones = descriptions;
   }
 
-  add(String name) async {
+  add(String name, String description) async {
     playlist.add(name);
+    descripciones.add(description);
     await prefList.setStringList("playlist", playlist);
     notifyListeners();
   }

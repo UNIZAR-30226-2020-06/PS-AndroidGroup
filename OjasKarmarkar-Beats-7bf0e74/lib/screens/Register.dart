@@ -246,7 +246,7 @@ class _RegisterPageState extends State<RegisterPage> {
                             future: _futureRespuesta,
                             builder: (context, snapshot) {
                               if (snapshot.hasData) {
-                                return Text("error en el nuevo usuario");
+                                mostrarError("Nombre de usuario o email en uso.");
                               }
 
                               return Text("");

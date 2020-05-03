@@ -267,27 +267,6 @@ class _ProfilePageState extends State<ProfilePage>
                                   )
                                 ],
                               )),
-                         mostrarApartado("Contraseña"),
-                          Padding(
-                                padding: EdgeInsets.only(
-                                    left: 25.0, right: 25.0, top: 2.0),
-                                child: new Row(
-                                  mainAxisSize: MainAxisSize.max,
-                                  children: <Widget>[
-                                    new Flexible(
-                                      child: new TextField(
-                                        controller: passwordController,
-                                        obscureText: true,
-                                        style: TextStyle(fontSize: 16),
-                                        decoration: const InputDecoration(
-                                            hintText: "contraseña123!Ejemplo",
-                                            hintStyle: TextStyle(
-                                                fontSize: 15.0)),
-                                        enabled: false,
-                                      ),
-                                    ),
-                                  ],
-                                )),
                           //if(!editNoPresionado)
                         //  }else
                           mostrarApartado("Mis playlists"),
@@ -1066,8 +1045,9 @@ class _ProfilePageState extends State<ProfilePage>
      Perfil p = await obtenerPerfil(email);
      if (p.nombreUsuario != null) {
        var playlistss = p.playlists.split('|');
+       var descripciones = p.playlists.split('|');
        log('data: $playlistss');
-       playlistRepo.generateInitialPlayList(playlistss);
+       playlistRepo.generateInitialPlayList(playlistss, descripciones);
        List<String> misCancionesTitle = new List();
        misCancionesTitle.add("Mis canciones");
        misCanciones.generateInitialPlayList(misCancionesTitle);
@@ -1825,7 +1805,7 @@ class _ProfilePageState extends State<ProfilePage>
     Respuesta r = await crearPlaylist(email, nombrePlaylist, descripcionPlaylist);
 
     if(r.getUserId()=="ok"){
-      playlistRepo.add(nombrePlaylist);
+      playlistRepo.add(nombrePlaylist, descripcionPlaylist);
     }
     txt.clear();
     Navigator.of(context).pop();
@@ -1955,11 +1935,13 @@ class Perfil {
   final String contrasenya;
   final String repetirContraseya;
   final String playlists;
+  final String descripciones;
   final String canciones;
   final String urls;
 
   Perfil({this.respuesta, this.nombreUsuario, this.descripcion, this.email,
-    this.contrasenya, this.repetirContraseya, this.playlists, this.canciones, this.urls});
+    this.contrasenya, this.repetirContraseya, this.playlists, this.descripciones,
+    this.canciones, this.urls});
 
   factory Perfil.fromJson(Map<String, dynamic> json) {
     return Perfil(
@@ -1967,6 +1949,7 @@ class Perfil {
       descripcion: json['descripcion'],
       email: json['email'],
       playlists: json['lista'],
+      descripciones: json['descripciones'],
       canciones: json['audiosTitulo'],
       urls: json['audiosUrl']
 

@@ -247,8 +247,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                                   await PlaylistHelper(
                                                       playlistRepo.playlist[pos]);
                                               temp.deletePlaylist();
-                                              playlistRepo.delete(
-                                                  playlistRepo.playlist[pos]);
+                                              //playlistRepo.delete(
+                                               //   playlistRepo.playlist[pos]);
                                               //playlistRepo.init();
                                             },
                                           ),
