@@ -274,7 +274,7 @@ class UploadSongDataState extends StatelessWidget   {
                     mainAxisSize: MainAxisSize.min,
                     children: <Widget>[
                       Text(
-                        "Error del servidor",
+                        "Subir canción",
                         style: TextStyle(
                             fontSize: 24.0,
                             fontFamily: 'Sans'),
