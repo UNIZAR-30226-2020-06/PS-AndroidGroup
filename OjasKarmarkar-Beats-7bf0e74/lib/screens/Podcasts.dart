@@ -4,6 +4,7 @@ import 'dart:io';
 
 import 'package:beats/Animations/transitions.dart';
 import 'package:beats/models/PlaylistRepo.dart';
+import 'package:beats/models/PodcastRepo.dart';
 import 'package:beats/models/SongsModel.dart';
 import 'package:beats/models/PlayListHelper.dart';
 import 'package:beats/models/Username.dart';
@@ -23,11 +24,11 @@ import 'ProfileEdit.dart';
 
 class PodcastScreen extends StatefulWidget {
   @override
-  _PLayListScreenState createState() => _PLayListScreenState();
+  PodcastScreenState createState() => PodcastScreenState();
 }
 
-class _PLayListScreenState extends State<PodcastScreen> {
-  PlaylistRepo playlistRepo;
+class PodcastScreenState extends State<PodcastScreen> {
+  PodcastRepo podcastRepo;
   SongsModel model;
   String name;
   TextEditingController editingController;
@@ -44,21 +45,18 @@ class _PLayListScreenState extends State<PodcastScreen> {
   @override
   void didChangeDependencies() {
     username = Provider.of<Username>(context);
-    playlistRepo = Provider.of<PlaylistRepo>(context);
+    podcastRepo = Provider.of<PodcastRepo>(context);
     model = Provider.of<SongsModel>(context);
-    int stringerr = playlistRepo.selected;
+    int stringerr = podcastRepo.selected;
 
 
     log("playlistrepo: $stringerr");
-    if(playlistRepo.selected != null)
+    if(podcastRepo.selected != null)
     {
-      name = playlistRepo.playlist[playlistRepo.selected];
-      playlistRepo.selected = null;
+      name = podcastRepo.podcast[podcastRepo.selected];
+      podcastRepo.selected = null;
       initDataPlaylists();
     }
-
-
-
 
     super.didChangeDependencies();
   }
@@ -135,9 +133,6 @@ class _PLayListScreenState extends State<PodcastScreen> {
                               color: Colors.grey,
                             ),
                             onPressed: () async {
-                              borrarCancionDePlaylist(username.email, name, model.songs[pos]);
-                              model.player.stop();
-                              initDataPlaylists();
                             },
                           ),
                           onTap: () {
@@ -198,7 +193,7 @@ class _PLayListScreenState extends State<PodcastScreen> {
   //}
 
   void initDataPlaylists() async {
-    Canciones l = await obtenerCanciones(username.email, name);
+    Canciones l = await obtenerCapitulos(name);
     var listaNombres = l.getNombresAudio().split('|');
     var listaUrls = l.getUrlsAudio().split('|');
     log('initData2: $listaNombres');
@@ -303,18 +298,6 @@ class _PLayListScreenState extends State<PodcastScreen> {
     } else {}
   }
 
-  void editarUnaCancionMia(String email, String title) async {
-    await editarCanciones(email, title);
-  }
-
-  void borrarCancionDePlaylist(String email, String namePlaylist, Song song) async {
-    log("hecho $song");
-    String s=song.title;
-    log("data $email, $namePlaylist, $s");
-    await borrarCanciones(email, namePlaylist, song.title);
-    log("hecho2");
-
-  }
 }
 
 class Canciones {
@@ -345,13 +328,12 @@ class Canciones {
   }
 }
 
-Future<Canciones> obtenerCanciones(String email, String nombrePlaylist) async {
+Future<Canciones> obtenerCapitulos(String nombrePodcast) async {
   Map data = {
-    'email': email,
-    'nombrePlaylist': nombrePlaylist,
+    'nombrePlaylist': nombrePodcast,
   };
   final http.Response response = await http.post(
-    'http://34.69.44.48:8080/Espotify/obtener_audios_android',
+    'http://34.69.44.48:8080/Espotify/obtener_audios_android',  //TODO OBTENER CAPS DE PODCASTS
     headers: <String, String>{
       'Content-Type': 'application/json; charset=UTF-8',
     },
@@ -367,59 +349,4 @@ Future<Canciones> obtenerCanciones(String email, String nombrePlaylist) async {
     // then throw an exception.
     throw Exception('Fallo al enviar petición');
   }
-}
-
-
-
-Future<Canciones> editarCanciones(String email, String nombreCancion) async {
-  Map data = {
-    'email': email,
-    'nombreCancion': nombreCancion,
-  };
-  final http.Response response = await http.post(
-    'http://34.69.44.48:8080/Espotify/cancion_modificar_android',
-    headers: <String, String>{
-      'Content-Type': 'application/json; charset=UTF-8',
-    },
-    body: jsonEncode(data),
-
-  );
-  if (response.statusCode == 200) {
-    // If the server did return a 201 CREATED response,
-    // then parse the JSON.
-    return Canciones.fromJson(json.decode(response.body));
-  } else {
-    // If the server did not return a 201 CREATED response,
-    // then throw an exception.
-    throw Exception('Fallo al enviar petición');
-  }
-
-
-}
-
-Future<Canciones> borrarCanciones(String email, String nombrePlaylist, String nombreCancion) async {
-  Map data = {
-    'email': email,
-    'nombrePlaylist': nombrePlaylist,
-    'nombreCancion': nombreCancion,
-  };
-  final http.Response response = await http.post(
-    'http://34.69.44.48:8080/Espotify/eliminar_cancionlista_android',
-    headers: <String, String>{
-      'Content-Type': 'application/json; charset=UTF-8',
-    },
-    body: jsonEncode(data),
-
-  );
-  if (response.statusCode == 200) {
-    // If the server did return a 201 CREATED response,
-    // then parse the JSON.
-    return Canciones.fromJson(json.decode(response.body));
-  } else {
-    // If the server did not return a 201 CREATED response,
-    // then throw an exception.
-    throw Exception('Fallo al enviar petición');
-  }
-
-
 }

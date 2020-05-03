@@ -1,24 +1,32 @@
+import 'dart:convert';
+import 'dart:developer';
+
 import 'package:beats/Animations/transitions.dart';
 import 'package:beats/models/PlayListHelper.dart';
 import 'package:beats/models/PlaylistRepo.dart';
+import 'package:beats/models/PodcastRepo.dart';
 import 'package:beats/models/ThemeModel.dart';
 import 'package:beats/models/BookmarkModel.dart';
 import 'package:beats/models/const.dart';
 import 'package:flute_music_player/flute_music_player.dart';
 import 'package:flutter/material.dart';
 import 'dart:io';
-import 'package:beats/models/PodcastsModel.dart';
+import 'package:beats/models/CapPodcastsModel.dart';
 import '../custom_icons.dart';
 import 'package:provider/provider.dart';
 import 'Player.dart';
 import 'package:http/http.dart' as http;
 
+import 'Podcasts.dart';
+import 'ProfileEdit.dart';
+
 double height, width;
 
+// ignore: must_be_immutable
 class PodcastLibrary extends StatelessWidget {
   TextEditingController editingController;
 
-  PodcastsModel model;
+  PodcastRepo model;
 
   BookmarkModel b;
 
@@ -30,16 +38,17 @@ class PodcastLibrary extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    model = Provider.of<PodcastsModel>(context);
     b = Provider.of<BookmarkModel>(context);
     height = MediaQuery.of(context).size.height;
+    model = Provider.of<PodcastRepo>(context);
+    initPodcastsModel();
     width = MediaQuery.of(context).size.width;
     themeChanger = Provider.of<ThemeChanger>(context);
     return WillPopScope(
       child: Scaffold(
           resizeToAvoidBottomInset: false,
           backgroundColor: Theme.of(context).backgroundColor,
-          body: (model.podcasts == null)
+          body: (model.podcast == null)
               ? Center(
             child: Text(
               "No hay podcasts",
@@ -107,8 +116,8 @@ class PodcastLibrary extends StatelessWidget {
     );
   }
 
-  getLoading(PodcastsModel model) {
-    if (model.podcasts.length == 0) {
+  getLoading(PodcastRepo model) {
+    if (model.podcast.length == 0) {
       return Expanded(
           child: Center(
             child: CircularProgressIndicator(),
@@ -129,6 +138,9 @@ class PodcastLibrary extends StatelessWidget {
                           borderRadius: BorderRadius.circular(20)),
                       child: GestureDetector(
                         onTap: () {
+                          playlistRepo.selected = pos;
+                          Navigator.of(context).push(new MaterialPageRoute(
+                              builder: (context) => new PodcastScreen()));
                         },
                         child: ClipRRect(
                             borderRadius: BorderRadius.circular(20),
@@ -307,10 +319,16 @@ class PodcastLibrary extends StatelessWidget {
       );
     } else {}
   }
+
+  void initPodcastsModel() async{
+    model = await model.obtenerPodcasts();
+  }
+
+
 }
 
 class Search extends SearchDelegate<Song> {
-  PodcastsModel model;
+  CapPodcastsModel model;
   @override
   List<Widget> buildActions(BuildContext context) {
     // actions
@@ -348,7 +366,7 @@ class Search extends SearchDelegate<Song> {
 
   @override
   Widget buildSuggestions(BuildContext context) {
-    model = Provider.of<PodcastsModel>(context);
+    model = Provider.of<CapPodcastsModel>(context);
     List<Song> dummy = <Song>[];
     List<Song> recents = <Song>[];
     for (int i = 0; i < model.podcasts.length; i++) {
@@ -401,3 +419,5 @@ class Search extends SearchDelegate<Song> {
     );
   }
 }
+
+

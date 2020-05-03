@@ -595,6 +595,7 @@ Future<Canciones> obtenerCanciones(String email, String nombrePlaylist) async {
     'email': email,
     'nombrePlaylist': nombrePlaylist,
   };
+  log("data $email, $nombrePlaylist");
   final http.Response response = await http.post(
     'http://34.69.44.48:8080/Espotify/obtener_audios_android',
     headers: <String, String>{

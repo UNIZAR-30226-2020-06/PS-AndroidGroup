@@ -13,7 +13,7 @@ import 'package:flutter/foundation.dart';
 
 enum PlayerState { PLAYING, PAUSED, STOPPED }
 
-class PodcastsModel extends ChangeNotifier {
+class CapPodcastsModel extends ChangeNotifier {
   // Thousands of stuff packed into this ChangeNotifier
   List<Song> podcasts = new List<Song>();
   var duplicate = <Song>[]; // Duplicate of songs variable for Search function
@@ -29,7 +29,7 @@ class PodcastsModel extends ChangeNotifier {
   Random rnd = new Random();
   Recents recents;
 
-  PodcastsModel(prov, rec) {
+  CapPodcastsModel(prov, rec) {
     fetchSongs();
     prog = prov;
     recents = rec;
@@ -257,7 +257,7 @@ Future<ListaCancionesDefault> obtenerListaPodcasts() async {
   Map data = {
   };
   final http.Response response = await http.post(
-    'http://34.69.44.48:8080/Espotify/obtener_randomaudios_android',    //TODO cambiar URL a la de los podcasts
+    'http://34.69.44.48:8080/Espotify/obtener_randomaudios_android',    //TODO cambiar URL a la de los CapPodcasts
     headers: <String, String>{
       'Content-Type': 'application/json; charset=UTF-8',
     },

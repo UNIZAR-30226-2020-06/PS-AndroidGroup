@@ -1,6 +1,6 @@
 import 'dart:async';
 import 'package:beats/models/MisCancionesModel.dart';
-import 'package:beats/models/PodcastsModel.dart';
+import 'package:beats/models/CapPodcastsModel.dart';
 import 'package:beats/models/Username.dart';
 import 'package:beats/models/PlaylistRepo.dart';
 import 'package:beats/models/BookmarkModel.dart';
@@ -10,6 +10,7 @@ import 'package:beats/screens/login.dart';
 import 'package:flutter_media_notification/flutter_media_notification.dart';
 import 'models/LocalPlaylistRepo.dart';
 import 'models/LocalSongsModel.dart';
+import 'models/PodcastRepo.dart';
 import 'models/RecentsModel.dart';
 import 'models/SongsModel.dart';
 import 'package:provider/provider.dart';
@@ -61,8 +62,11 @@ void main(List<String> args) {
     ChangeNotifierProvider<SongsModel>(
       create: (context) => SongsModel(prov, rec),
     ),
-    ChangeNotifierProvider<PodcastsModel>(
-      create: (context) => PodcastsModel(prov, rec),
+    ChangeNotifierProvider<CapPodcastsModel>(
+      create: (context) => CapPodcastsModel(prov, rec),
+    ),
+    ChangeNotifierProvider<PodcastRepo>(
+      create: (context) => PodcastRepo(),
     ),
     ChangeNotifierProvider<LocalSongsModel>(
       create: (context) => LocalSongsModel(),
