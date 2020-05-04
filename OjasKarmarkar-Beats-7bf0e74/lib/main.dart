@@ -44,6 +44,9 @@ void main(List<String> args) {
     ChangeNotifierProvider<PlaylistRepo>(
       create: (context) => PlaylistRepo(),
     ),
+    ChangeNotifierProvider<PodcastRepo>(
+      create: (context) => PodcastRepo(),
+    ),
     ChangeNotifierProvider<MisCancionesModel>(
       create: (context) => MisCancionesModel(),
     ),

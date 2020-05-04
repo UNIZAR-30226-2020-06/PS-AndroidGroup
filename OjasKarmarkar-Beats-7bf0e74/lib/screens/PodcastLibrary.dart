@@ -2,12 +2,8 @@ import 'dart:convert';
 import 'dart:developer';
 
 import 'package:beats/Animations/transitions.dart';
-import 'package:beats/models/PlayListHelper.dart';
-import 'package:beats/models/PlaylistRepo.dart';
 import 'package:beats/models/PodcastRepo.dart';
 import 'package:beats/models/ThemeModel.dart';
-import 'package:beats/models/BookmarkModel.dart';
-import 'package:beats/models/const.dart';
 import 'package:flute_music_player/flute_music_player.dart';
 import 'package:flutter/material.dart';
 import 'dart:io';
@@ -18,17 +14,19 @@ import 'Player.dart';
 import 'package:http/http.dart' as http;
 
 import 'Podcasts.dart';
-import 'ProfileEdit.dart';
 
 double height, width;
 
+class PodcastLibrary extends StatefulWidget {
+  @override
+  _PodcastLibraryState createState() => _PodcastLibraryState();
+}
 // ignore: must_be_immutable
-class PodcastLibrary extends StatelessWidget {
+class _PodcastLibraryState extends State<PodcastLibrary> {
   TextEditingController editingController;
 
   PodcastRepo model;
 
-  BookmarkModel b;
 
   ThemeChanger themeChanger;
 
@@ -36,14 +34,31 @@ class PodcastLibrary extends StatelessWidget {
 
   bool error = false;
 
+  List<String> podcasts;
+  PodcastRepo podcastRepo;
+
   @override
-  Widget build(BuildContext context) {
-    b = Provider.of<BookmarkModel>(context);
+  void initState() {
+    super.initState();
+
+  }
+  @override
+  void didChangeDependencies() {
     height = MediaQuery.of(context).size.height;
     model = Provider.of<PodcastRepo>(context);
-    initPodcastsModel();
+
+
+      anyadePodcasts(podcastRepo);
+
+
     width = MediaQuery.of(context).size.width;
     themeChanger = Provider.of<ThemeChanger>(context);
+    super.didChangeDependencies();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    anyadePodcasts(podcastRepo);
     return WillPopScope(
       child: Scaffold(
           resizeToAvoidBottomInset: false,
@@ -118,7 +133,7 @@ class PodcastLibrary extends StatelessWidget {
 
   getLoading(PodcastRepo model) {
     if (model.podcast.length == 0) {
-      return Expanded(
+      return Flexible(
           child: Center(
             child: Text("No hay podcasts..."),
           ));
@@ -127,9 +142,9 @@ class PodcastLibrary extends StatelessWidget {
           padding: EdgeInsets.only(top: height * 0.04),
           child: SizedBox(
             height: height * 0.6,
-            child: Consumer<PlaylistRepo>(
-              builder: (context, playlistRepo, _) => ListView.builder(
-                itemCount: playlistRepo.playlist.length,
+            child: Consumer<PodcastRepo>(
+              builder: (context, pos, _) => ListView.builder(
+                itemCount: podcastRepo.podcast.length,
                 itemBuilder: (context, pos) {
                     return Card(
                       margin: EdgeInsets.only(left: 0.4, right: 5.0),
@@ -138,7 +153,7 @@ class PodcastLibrary extends StatelessWidget {
                           borderRadius: BorderRadius.circular(20)),
                       child: GestureDetector(
                         onTap: () {
-                          playlistRepo.selected = pos;
+                          podcastRepo.selected = pos;
                           Navigator.of(context).push(new MaterialPageRoute(
                               builder: (context) => new PodcastScreen()));
                         },
@@ -173,7 +188,7 @@ class PodcastLibrary extends StatelessWidget {
                               child: Stack(children: <Widget>[
 
                                 Center(
-                                    child: Text(playlistRepo.playlist[pos],
+                                    child: Text(podcastRepo.podcast[pos],
                                         style:
                                         TextStyle(color: Colors.white)))
                               ]),
@@ -189,139 +204,43 @@ class PodcastLibrary extends StatelessWidget {
     }
   }
 
-  getImage(model, pos) {
-    if (model.podcasts[pos].albumArt != null) {
-      return ClipRRect(
-          borderRadius: BorderRadius.circular(20),
-          child:
-          Image.file(File.fromUri(Uri.parse(model.podcasts[pos].albumArt))));
-    } else {
-      return Container(
-          child: IconButton(
-            onPressed: null,
-            icon: Icon(
-              Icons.music_note,
-              color: Colors.white,
-
-            ),
-          ),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(70),
-            // Box decoration takes a gradient
-            gradient: LinearGradient(
-              begin: Alignment.topRight,
-              end: Alignment.bottomLeft,
-              colors: pos % 2 == 0
-                  ? [
-                Colors.orangeAccent,
-                Colors.orange,
-                Colors.deepOrange,
-                Colors.orange,
-              ]
-                  : [
-                Colors.pinkAccent,
-                Colors.pink,
-                Colors.pinkAccent,
-                Colors.pink,
-              ],
-            ),
-          ));
-    }
-  }
-
   push(context) {
     Navigator.push(context, SlideRightRoute(page: PlayBackPage()));
   }
 
-  showStatus(model, BuildContext context) {
-    if (model.currentSong != null) {
-      return Container(
-        decoration: BoxDecoration(
-            color: Theme.of(context).backgroundColor,
-            border: Border(
-              top: BorderSide(
-                color: Theme.of(context).textTheme.display1.color,
-              ),
-            )),
-        height: height * 0.06,
-        width: width,
-        child: ListView.builder(
-          scrollDirection: Axis.horizontal,
-          itemCount: 1,
-          itemBuilder: (context, pos) {
-            return GestureDetector(
-              onTap: () {
-                Navigator.push(context, Scale(page: PlayBackPage()));
-              },
-              child: Stack(
-                children: <Widget>[
-                  Row(
-                    children: <Widget>[
-                      IconButton(
-                        color: Theme.of(context).textTheme.display1.color,
-                        icon: Icon(Icons.arrow_drop_up),
-                        onPressed: () {
-                          Navigator.push(context, Scale(page: PlayBackPage()));
-                        },
-                      ),
-                      Container(
-                        width: width * 0.75,
-                        child: Padding(
-                          padding: EdgeInsets.only(left: 20.0),
-                          child: Text(
-                            model.currentSong.title,
-                            style: Theme.of(context).textTheme.display2,
-                            maxLines: 1,
-                          ),
-                        ),
-                      ),
-                      Padding(
-                        padding: EdgeInsets.only(right: 20),
-                        child: IconButton(
-                          icon: model.currentState == PlayerState.PAUSED ||
-                              model.currentState == PlayerState.STOPPED
-                              ? Icon(
-                            CustomIcons.play,
-                            color: Theme.of(context)
-                                .textTheme
-                                .display1
-                                .color,
-                            size: 20.0,
-                          )
-                              : Icon(
-                            CustomIcons.pause,
-                            color: Theme.of(context)
-                                .textTheme
-                                .display1
-                                .color,
-                            size: 20.0,
-                          ),
-                          onPressed: () {
-                            if (model.currentState == PlayerState.PAUSED ||
-                                model.currentState == PlayerState.STOPPED) {
-                              model.play();
+  void anyadePodcasts(PodcastRepo podcastRepo) async{
+    Podcasts p = await obtenerPodcasts();
 
+    List<String> listaNombres = p.nombres.split('|');
+    List<String> listaDescripciones = p.descripciones.split('|');
+    log('podcasts: $listaNombres');
 
-                            } else {
-
-                              model.pause();
-                            }
-                          },
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            );
-          },
-        ),
-      );
-    } else {}
+    setState(() {
+       podcastRepo.generateInitialPodcast(listaNombres, listaDescripciones);
+    });
   }
 
-  void initPodcastsModel() async{
-    model = await model.obtenerPodcasts();
+
+  Future<Podcasts> obtenerPodcasts() async {
+    Map data = {
+    };
+    final http.Response response = await http.post(
+      'http://34.69.44.48:8080/Espotify/podcasts_android',
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+      body: jsonEncode(data),
+
+    );
+    if (response.statusCode == 200) {
+      // If the server did return a 201 CREATED response,
+      // then parse the JSON.
+      return Podcasts.fromJson(json.decode(response.body));
+    } else {
+      // If the server did not return a 201 CREATED response,
+      // then throw an exception.
+      throw Exception('Fallo al enviar petición');
+    }
   }
 
 
@@ -388,11 +307,6 @@ class Search extends SearchDelegate<Song> {
           padding: const EdgeInsets.all(8.0),
           child: ListTile(
             onTap: () {
-              model.player.stop();
-              //model.playURI(suggestion[index].uri);
-              model.playURI(suggestion[index].uri);
-              model.playlist = false;
-              close(context, null);
             },
             title: Text.rich(
               TextSpan(
@@ -417,6 +331,23 @@ class Search extends SearchDelegate<Song> {
         );
       },
     );
+  }
+}
+class Podcasts {
+  final String nombres;
+  final String descripciones;
+
+  Podcasts({this.nombres, this.descripciones});
+
+  factory Podcasts.fromJson(Map<String, dynamic> json) {
+    return Podcasts(
+      nombres: json['lista'],
+      descripciones: json['listaDescripcion'],
+    );
+
+  }
+  String getUserId(){
+    return nombres;
   }
 }
 

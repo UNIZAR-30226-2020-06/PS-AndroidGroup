@@ -9,24 +9,22 @@ import 'package:http/http.dart' as http;
 
 class PodcastRepo extends ChangeNotifier {
 
-  List<String> podcast = [];
+  List<String> podcast = [""];
   String podcastJSON;
-  List<String> descripciones = [];
+  List<String> descripciones = [""];
   String descripcionesJSON;
   List<String> imagenes = [];
   SharedPreferences prefList;
   int selected;
 
-  PodcastRepo({this.podcastJSON,this.descripcionesJSON}) {
+  PodcastRepo() {
     init();
   }
 
 
   init() async {
-    podcast.clear();
-    prefList = await SharedPreferences.getInstance();
-    List<String> list = prefList.getStringList("podcast");
-    updatePlayList(list, descripciones);
+    List<String> list = [""];
+    updatePodcast(list, descripciones);
 
   }
 
@@ -42,13 +40,6 @@ class PodcastRepo extends ChangeNotifier {
     return descripciones;
   }
 
-  getDescripcionesJSON(){
-    return descripcionesJSON;
-  }
-  getPodcastJSON(){
-    return podcastJSON;
-  }
-
   delete(String name)async{
     for(int i=0; i<podcast.length; i++){
       if(podcast[i] == name){
@@ -61,7 +52,7 @@ class PodcastRepo extends ChangeNotifier {
     notifyListeners();
   }
 
-  updatePlayList(List<String> list, List<String> descriptions) {
+  updatePodcast(List<String> list, List<String> descriptions) {
     if (list != null) {
       podcast.addAll(list);
       descripciones.addAll(descriptions);
@@ -69,7 +60,7 @@ class PodcastRepo extends ChangeNotifier {
     notifyListeners();
   }
 
-  generateInitialPlayList(List<String> list, List<String> descriptions) async{
+  generateInitialPodcast(List<String> list, List<String> descriptions) async{
     podcast = list;
     descripciones = descriptions;
   }
@@ -90,35 +81,5 @@ class PodcastRepo extends ChangeNotifier {
     return false;
   }
 
-  static PodcastRepo fromJson(Map<String, dynamic> json) {
-    return PodcastRepo(
-      podcastJSON: json['podcast'],
-      descripcionesJSON: json['descripciones'],
-    );
-  }
-  Future<PodcastRepo> obtenerPodcasts() async {
-    Map data = {
-    };
-    final http.Response response = await http.post(
-    'http://34.69.44.48:8080/Espotify/obtener_randomaudios_android',  //TODO CAMBIAR URL A LA DE LOS PODCASTS
-      headers: <String, String>{
-        'Content-Type': 'application/json; charset=UTF-8',
-      },
-      body: jsonEncode(data),
-
-    );
-    if (response.statusCode == 200) {
-      // If the server did return a 201 CREATED response,
-      // then parse the JSON.
-      PodcastRepo fromJtoPR = PodcastRepo.fromJson(json.decode(response.body));
-      fromJtoPR.podcast = fromJtoPR.getPodcastJSON().split('|');
-      fromJtoPR.descripciones = fromJtoPR.getDescripcionesJSON().split('|');
-      return(fromJtoPR);
-    } else {
-      // If the server did not return a 201 CREATED response,
-      // then throw an exception.
-      throw Exception('Fallo al enviar petición');
-    }
-  }
 }
 

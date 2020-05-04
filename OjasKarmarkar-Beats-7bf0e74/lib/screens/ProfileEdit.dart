@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:beats/icono_personalizado.dart';
 import 'package:beats/models/MisCancionesModel.dart';
@@ -1042,6 +1043,22 @@ class _ProfilePageState extends State<ProfilePage>
 
 
   }
+  void recibirDatos(String email, TextEditingController usernameController,
+      TextEditingController descriptionController,
+      TextEditingController emailController, TextEditingController passwordController) async{
+    Perfil p = await obtenerPerfil(email);
+    if(p.nombreUsuario != null){
+      usernameController.text = p.nombreUsuario;
+      descriptionController.text = p.descripcion;
+      emailController.text = p.email;
+      passwordController.text = p.contrasenya;
+      //Uint8List bd = base64.decode(p.imagen);
+      //final buffer = bd.buffer;
+      //_profileImage.writeAsBytes(
+      //    buffer.asUint8List(bd.offsetInBytes, bd.lengthInBytes));
+    }
+
+  }
 
 
    anyadePlaylists(String email, PlaylistRepo playlistRepo, MisCancionesModel misCanciones) async {
@@ -1382,7 +1399,7 @@ class _ProfilePageState extends State<ProfilePage>
       'imagen': base64Image,
     };
     final http.Response response = await http.post(
-      'http://34.69.44.48:8080/Espotify/android_testing',
+      'http://34.69.44.48:8080/Espotify/imagen_usuario_android',
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
       },
@@ -1626,6 +1643,7 @@ class _ProfilePageState extends State<ProfilePage>
           );
         });
   }
+
 
   void seleccionarImagen(){
     showDialog(
@@ -1968,21 +1986,22 @@ class Perfil {
   final String descripciones;
   final String canciones;
   final String urls;
+  final imagen;
 
   Perfil({this.respuesta, this.nombreUsuario, this.descripcion, this.email,
     this.contrasenya, this.repetirContraseya, this.playlists, this.descripciones,
-    this.canciones, this.urls});
+    this.canciones, this.urls, this.imagen});
 
   factory Perfil.fromJson(Map<String, dynamic> json) {
     return Perfil(
       nombreUsuario: json['nombreUsuario'],
       descripcion: json['descripcion'],
+      //imagen: json['imagen'],
       email: json['email'],
       playlists: json['lista'],
       descripciones: json['listaDescripcion'],
       canciones: json['audiosTitulo'],
-      urls: json['audiosUrl']
-
+      urls: json['audiosUrl'],
 
     );
 
@@ -1993,19 +2012,7 @@ class Perfil {
 }
 
 
-void recibirDatos(String email, TextEditingController usernameController,
-    TextEditingController descriptionController,
-    TextEditingController emailController, TextEditingController passwordController) async{
-  Perfil p = await obtenerPerfil(email);
-  if(p.nombreUsuario != null){
-    usernameController.text = p.nombreUsuario;
-    descriptionController.text = p.descripcion;
-    emailController.text = p.email;
-    passwordController.text = p.contrasenya;
 
-  }
-
-}
 
 Future<Perfil> obtenerPerfil(String email) async {
   Map data = {
@@ -2087,7 +2094,7 @@ Future<Respuesta> actualizarUser(String nombre, String descripcion, String email
     'nombre': nombre,
     'descripcion': descripcion,
     'email': email,
-    'nueva_contrasenya': contra,
+    'contrasenya': contra,
   };
   final http.Response response = await http.post(
     'http://34.69.44.48:8080/Espotify/modificar_usuario_android',

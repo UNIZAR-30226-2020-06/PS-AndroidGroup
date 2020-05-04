@@ -6,6 +6,7 @@ import 'package:beats/models/PlayListHelper.dart';
 import 'package:beats/models/PlaylistRepo.dart';
 import 'package:beats/models/ThemeModel.dart';
 import 'package:beats/models/BookmarkModel.dart';
+import 'package:beats/models/Username.dart';
 import 'package:beats/models/const.dart';
 import 'package:flute_music_player/flute_music_player.dart';
 import 'package:flutter/material.dart';
@@ -38,12 +39,12 @@ class _MusicLibraryState extends State<MusicLibrary> {
 
   bool error = false;
   List<Song> songs;
-
+  Username username;
   @override
   void didChangeDependencies() {
     model = Provider.of<SongsModel>(context);
     b = Provider.of<BookmarkModel>(context);
-
+    username = Provider.of<Username>(context);
       obtenerCancionesRandom(model);
 
 
@@ -309,6 +310,30 @@ class _MusicLibraryState extends State<MusicLibrary> {
       );
     }
   }
+  Future<Respuesta> anyadirCancionAPlaylistBD(String cancion, String nombrePlaylist) async {
+    Map data = {
+      'email': username.email,
+      'nombreAudio': cancion,
+      'nombreLista': nombrePlaylist,
+    };
+    final http.Response response = await http.post(
+      'http://34.69.44.48:8080/Espotify/anyadir_audio_lista_android',
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+      body: jsonEncode(data),
+
+    );
+    if (response.statusCode == 200) {
+      // If the server did return a 201 CREATED response,
+      // then parse the JSON.
+      return Respuesta.fromJson(json.decode(response.body));
+    } else {
+      // If the server did not return a 201 CREATED response,
+      // then throw an exception.
+      throw Exception('Fallo al enviar petición');
+    }
+  }
 
   getImage(model, pos) {
     if (model.songs[pos].albumArt != null) {
@@ -466,29 +491,7 @@ class _MusicLibraryState extends State<MusicLibrary> {
   }
 }*/
 
-Future<Respuesta> anyadirCancionAPlaylistBD(String cancion, String nombrePlaylist) async {
-  Map data = {
-    'nombreCancion': cancion,
-    'nombrePlaylist': nombrePlaylist,
-  };
-  final http.Response response = await http.post(
-    'http://34.69.44.48:8080/Espotify/obtener_audios_android',  //todo cambiar url a la de añadir cancion a playlist
-    headers: <String, String>{
-      'Content-Type': 'application/json; charset=UTF-8',
-    },
-    body: jsonEncode(data),
 
-  );
-  if (response.statusCode == 200) {
-    // If the server did return a 201 CREATED response,
-    // then parse the JSON.
-    return Respuesta.fromJson(json.decode(response.body));
-  } else {
-    // If the server did not return a 201 CREATED response,
-    // then throw an exception.
-    throw Exception('Fallo al enviar petición');
-  }
-}
 
 class Search extends SearchDelegate<Song> {
   SongsModel model;
