@@ -25,9 +25,6 @@ class PodcastLibrary extends StatefulWidget {
 class _PodcastLibraryState extends State<PodcastLibrary> {
   TextEditingController editingController;
 
-  PodcastRepo model;
-
-
   ThemeChanger themeChanger;
 
   TextEditingController txt = TextEditingController();
@@ -45,10 +42,10 @@ class _PodcastLibraryState extends State<PodcastLibrary> {
   @override
   void didChangeDependencies() {
     height = MediaQuery.of(context).size.height;
-    model = Provider.of<PodcastRepo>(context);
+    podcastRepo = Provider.of<PodcastRepo>(context);
 
 
-      anyadePodcasts(podcastRepo);
+    anyadePodcasts(podcastRepo);
 
 
     width = MediaQuery.of(context).size.width;
@@ -58,12 +55,11 @@ class _PodcastLibraryState extends State<PodcastLibrary> {
 
   @override
   Widget build(BuildContext context) {
-    anyadePodcasts(podcastRepo);
     return WillPopScope(
       child: Scaffold(
           resizeToAvoidBottomInset: false,
           backgroundColor: Theme.of(context).backgroundColor,
-          body: (model.podcast == null)
+          body: (podcastRepo.podcast == null)
               ? Center(
             child: Text(
               "No hay podcasts",
@@ -126,7 +122,7 @@ class _PodcastLibraryState extends State<PodcastLibrary> {
                     NestedScrollView.sliverOverlapAbsorberHandleFor(
                         context))
               ],
-              body: getLoading(model))),
+              body: getLoading(podcastRepo))),
       onWillPop: () {},
     );
   }

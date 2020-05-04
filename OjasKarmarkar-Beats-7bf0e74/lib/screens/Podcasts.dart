@@ -78,7 +78,7 @@ class PodcastScreenState extends State<PodcastScreen> {
                   snap: false,
                   flexibleSpace: Container(
                     height: 200,
-                    color: Colors.orange,
+                    color: Colors.purpleAccent,
                     child: Stack(children: <Widget>[
                       Padding(
                           padding: EdgeInsets.only(
@@ -127,14 +127,6 @@ class PodcastScreenState extends State<PodcastScreen> {
                         padding:
                         const EdgeInsets.only(top: 0.0, left: 10.0),
                         child: ListTile(
-                          trailing: IconButton(
-                            icon: Icon(
-                              Icons.delete_outline,
-                              color: Colors.grey,
-                            ),
-                            onPressed: () async {
-                            },
-                          ),
                           onTap: () {
                             //isPlayed = true;
                             model.player.stop();
@@ -223,8 +215,8 @@ class PodcastScreenState extends State<PodcastScreen> {
     if (model.currentSong != null) {
       return Container(
         decoration: BoxDecoration(
-          color: Colors.orange[400],
-          border: Border.all(color: Colors.orangeAccent),
+          color: Colors.purpleAccent[400],
+          border: Border.all(color: Colors.purpleAccent),
           borderRadius: BorderRadius.only(
               topLeft: Radius.circular(40.0),
               topRight: Radius.circular(10.0),
@@ -304,14 +296,13 @@ class Canciones {
   final String respuesta;
   final String nombresAudio;
   final String urlsAudio;
-  final String genero;
-  final String autor;
-  Canciones({this.respuesta, this.nombresAudio,this.urlsAudio, this.genero, this.autor});
+
+  Canciones({this.respuesta, this.nombresAudio,this.urlsAudio});
 
   factory Canciones.fromJson(Map<String, dynamic> json) {
     return Canciones(
-      nombresAudio: json['nombresAudio'],
-      urlsAudio: json['urlsAudio'],
+      nombresAudio: json['nombresPodcast'],
+      urlsAudio: json['urlsPodcast'],
 
 
     );
@@ -330,10 +321,11 @@ class Canciones {
 
 Future<Canciones> obtenerCapitulos(String nombrePodcast) async {
   Map data = {
-    'nombrePlaylist': nombrePodcast,
+    'podcast': nombrePodcast,
   };
+  log("servlet: $nombrePodcast");
   final http.Response response = await http.post(
-    'http://34.69.44.48:8080/Espotify/obtener_audios_android',  //TODO OBTENER CAPS DE PODCASTS
+    'http://34.69.44.48:8080/Espotify/capitulos_podcast_android',
     headers: <String, String>{
       'Content-Type': 'application/json; charset=UTF-8',
     },
@@ -343,7 +335,10 @@ Future<Canciones> obtenerCapitulos(String nombrePodcast) async {
   if (response.statusCode == 200) {
     // If the server did return a 201 CREATED response,
     // then parse the JSON.
-    return Canciones.fromJson(json.decode(response.body));
+    Canciones c = Canciones.fromJson(json.decode(response.body));
+    String s = c.getNombresAudio();
+    log("nombresAudio: $s");
+    return c;
   } else {
     // If the server did not return a 201 CREATED response,
     // then throw an exception.
