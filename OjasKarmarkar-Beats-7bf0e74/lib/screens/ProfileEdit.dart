@@ -21,6 +21,7 @@ import 'MusicLibrary.dart';
 import 'package:http/http.dart' as http;
 import 'package:image_picker/image_picker.dart';
 
+import 'Podcasts.dart';
 import 'login.dart';
 
 
@@ -1122,7 +1123,7 @@ class _ProfilePageState extends State<ProfilePage>
                                               podcastRepo.selected = null;
                                               podcastRepo.selected = pos;
                                               Navigator.of(context).push(new MaterialPageRoute(
-                                                  builder: (context) => new PLayListScreen()));
+                                                  builder: (context) => new PodcastScreen()));
                                             },
                                             child: ClipRRect(
                                                 borderRadius: BorderRadius.circular(20),
