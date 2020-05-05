@@ -87,7 +87,7 @@ class Bookmarks extends StatelessWidget {
 
                           model.play();
                         },
-                        leading: CircleAvatar(child: getImage(bm, pos)),
+                        leading: CircleAvatar(backgroundColor: Colors.orange,child: getImage(bm, pos)),
                         title: Text(
                           bm.bookmarks[pos].title,
                           maxLines: 1,
@@ -133,7 +133,7 @@ class Bookmarks extends StatelessWidget {
           child:
               Image.file(File.fromUri(Uri.parse(bm.bookmarks[pos].albumArt))));
     } else {
-      return Icon(Icons.music_note);
+      return Icon(Icons.music_note, color: Colors.white,);
     }
   }
 
