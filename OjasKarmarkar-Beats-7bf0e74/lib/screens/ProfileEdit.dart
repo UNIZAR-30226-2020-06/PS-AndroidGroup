@@ -13,6 +13,7 @@ import 'package:beats/models/Username.dart';
 import 'package:beats/models/const.dart';
 import 'package:beats/screens/PlayList.dart';
 import 'package:beats/screens/UploadSong.dart';
+import 'package:beats/screens/uploadPodcast.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:provider/provider.dart';
@@ -20,6 +21,7 @@ import 'MusicLibrary.dart';
 import 'package:http/http.dart' as http;
 import 'package:image_picker/image_picker.dart';
 
+import 'Podcasts.dart';
 import 'login.dart';
 
 
@@ -892,7 +894,7 @@ class _ProfilePageState extends State<ProfilePage>
                                                     ),
                                                     Center(
                                                         child: Padding(padding: EdgeInsets.only(
-                                                          left: 25.0, right: 25.0, top: 66.0),
+                                                          left: 25.0, right: 25.0, top: 50.0),
                                                            child: Column(children: <Widget>[
                                                               Text(playlistRepo.playlist[pos],
                                                                   textAlign: TextAlign.center,
@@ -1121,7 +1123,7 @@ class _ProfilePageState extends State<ProfilePage>
                                               podcastRepo.selected = null;
                                               podcastRepo.selected = pos;
                                               Navigator.of(context).push(new MaterialPageRoute(
-                                                  builder: (context) => new PLayListScreen()));
+                                                  builder: (context) => new PodcastScreen()));
                                             },
                                             child: ClipRRect(
                                                 borderRadius: BorderRadius.circular(20),
@@ -1528,9 +1530,30 @@ class _ProfilePageState extends State<ProfilePage>
                                                         ),
                                                       ),
                                                     ),
+                                                    Align(
+                                                      alignment: Alignment.topRight,
+                                                      child: Padding(
+                                                        padding:
+                                                        const EdgeInsets.only(right: 60.0, top: 8.0),
+                                                        child: IconButton(
+                                                          icon: Icon(
+                                                            Icons.add,
+                                                            size: 17,
+                                                            color: Colors.white,
+                                                          ),
+                                                          onPressed: () async {
+                                                            Navigator.of(
+                                                                context).push(
+                                                                new MaterialPageRoute(
+                                                                    builder: (
+                                                                        context) => new uploadPodcast()));
+                                                          }
+                                                        ),
+                                                      ),
+                                                    ),
                                                     Center(
                                                       child: Padding(padding: EdgeInsets.only(
-                                                          left: 25.0, right: 25.0, top: 66.0),
+                                                          left: 25.0, right: 25.0, top: 50.0),
                                                         child: Column(children: <Widget>[
                                                           Text(podcastRepo.podcast[pos],
                                                               textAlign: TextAlign.center,
