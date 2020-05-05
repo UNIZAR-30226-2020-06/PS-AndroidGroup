@@ -7,6 +7,7 @@ import 'package:beats/screens/UserProfile.dart';
 import 'package:beats/screens/login.dart';
 import 'package:flutter/material.dart';
 import 'package:expanding_bottom_bar/expanding_bottom_bar.dart';
+import 'Directos.dart';
 import 'HomeScreen.dart';
 import 'Register.dart';
 import 'Settings.dart';
@@ -22,7 +23,7 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver{
 
 
   var index = 1;
-  var screens = [PodcastLibrary(), MusicLibrary(), Bookmarks(), ProfilePage()]; //tenía añadido upload song
+  var screens = [PodcastLibrary(), Directos(), MusicLibrary(), Bookmarks(), ProfilePage()]; //tenía añadido upload song
 
   @override
   Widget build(BuildContext context) {
@@ -38,6 +39,10 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver{
                     icon: Icons.mic,
                     text: "Podcasts",
                     selectedColor: Colors.deepPurpleAccent),
+                ExpandingBottomBarItem(
+                    icon: Icons.radio,
+                    text: "Directos",
+                    selectedColor: Colors.red),
                 ExpandingBottomBarItem(
                     icon: Icons.music_note,
                     text: "Canciones",

@@ -207,7 +207,7 @@ class PodcastScreenState extends State<PodcastScreen> {
           borderRadius: BorderRadius.circular(20),
           child: Image.file(File.fromUri(Uri.parse(songs[pos].albumArt))));
     } else {
-      return Icon(Icons.music_note);
+      return Icon(Icons.mic);
     }
   }
 
