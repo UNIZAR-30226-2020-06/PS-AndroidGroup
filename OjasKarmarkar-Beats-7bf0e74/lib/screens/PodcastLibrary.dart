@@ -243,7 +243,7 @@ class _PodcastLibraryState extends State<PodcastLibrary> {
 }
 
 class Search extends SearchDelegate<Song> {
-  CapPodcastsModel model;
+  PodcastRepo model;
   @override
   List<Widget> buildActions(BuildContext context) {
     // actions
@@ -281,11 +281,11 @@ class Search extends SearchDelegate<Song> {
 
   @override
   Widget buildSuggestions(BuildContext context) {
-    model = Provider.of<CapPodcastsModel>(context);
-    List<Song> dummy = <Song>[];
-    List<Song> recents = <Song>[];
-    for (int i = 0; i < model.podcasts.length; i++) {
-      dummy.add(model.podcasts[i]);
+    model = Provider.of<PodcastRepo>(context);
+    List<String> dummy = <String>[];
+    List<String> recents = <String>[];
+    for (int i = 0; i < model.podcast.length; i++) {
+      dummy.add(model.podcast[i]);
     }
     //for (int i = 0; i < 4; i++) {
     // recents.add(model.podcasts[i].title);
@@ -293,7 +293,7 @@ class Search extends SearchDelegate<Song> {
     var suggestion = query.isEmpty
         ? recents
         : dummy
-        .where((p) => p.title.toLowerCase().startsWith(query.toLowerCase()))
+        .where((p) => p.toLowerCase().startsWith(query.toLowerCase()))
         .toList();
     // hint when searches
     return ListView.builder(
@@ -303,10 +303,13 @@ class Search extends SearchDelegate<Song> {
           padding: const EdgeInsets.all(8.0),
           child: ListTile(
             onTap: () {
+              //model.selected = index;
+              Navigator.of(context).push(new MaterialPageRoute(
+                  builder: (context) => new PodcastScreen()));
             },
             title: Text.rich(
               TextSpan(
-                  text: suggestion[index].title + "\n",
+                  text: suggestion[index] + "\n",
                   style: TextStyle(
                     color: Colors.black,
                     fontWeight: FontWeight.w800,
@@ -314,7 +317,7 @@ class Search extends SearchDelegate<Song> {
                   ),
                   children: <TextSpan>[
                     new TextSpan(
-                        text: suggestion[index].artist,
+                        text: suggestion[index],
                         style: TextStyle(
                             color: Colors.black,
                             fontSize: 17,
@@ -322,7 +325,7 @@ class Search extends SearchDelegate<Song> {
                   ]),
               style: TextStyle(color: Colors.black, fontSize: 18),
             ),
-            leading: CircleAvatar(child: Icon(Icons.music_note)),
+            leading: CircleAvatar(backgroundColor: Colors.purple,child: Icon(Icons.mic, color: Colors.white,)),
           ),
         );
       },

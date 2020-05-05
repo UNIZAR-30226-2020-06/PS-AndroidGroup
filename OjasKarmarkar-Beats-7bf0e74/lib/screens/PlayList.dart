@@ -458,7 +458,7 @@ class _PLayListScreenState extends State<PLayListScreen> {
           borderRadius: BorderRadius.circular(20),
           child: Image.file(File.fromUri(Uri.parse(songs[pos].albumArt))));
     } else {
-      return Icon(Icons.music_note);
+      return Icon(Icons.music_note, color: Colors.white,);
     }
   }
 

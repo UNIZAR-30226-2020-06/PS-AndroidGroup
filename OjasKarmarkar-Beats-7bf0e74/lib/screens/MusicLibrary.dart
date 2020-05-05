@@ -578,7 +578,7 @@ class Search extends SearchDelegate<Song> {
                   ]),
               style: TextStyle(color: Colors.black, fontSize: 18),
             ),
-            leading: CircleAvatar(child: Icon(Icons.music_note)),
+            leading: CircleAvatar(backgroundColor: Colors.orange,child: Icon(Icons.music_note, color: Colors.white,)),
           ),
         );
       },

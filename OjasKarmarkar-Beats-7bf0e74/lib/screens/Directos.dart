@@ -469,7 +469,7 @@ class Search extends SearchDelegate<Song> {
                   ]),
               style: TextStyle(color: Colors.black, fontSize: 18),
             ),
-            leading: CircleAvatar(backgroundColor: Colors.red, child: Icon(Icons.radio)),
+            leading: CircleAvatar(backgroundColor: Colors.red, child: Icon(Icons.radio, color: Colors.white,)),
           ),
         );
       },
