@@ -303,7 +303,7 @@ class Search extends SearchDelegate<Song> {
           padding: const EdgeInsets.all(8.0),
           child: ListTile(
             onTap: () {
-              //model.selected = index;
+              model.selected = index;
               Navigator.of(context).push(new MaterialPageRoute(
                   builder: (context) => new PodcastScreen()));
             },
