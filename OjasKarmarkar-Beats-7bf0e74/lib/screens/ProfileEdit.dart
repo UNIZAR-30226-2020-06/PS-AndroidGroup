@@ -112,6 +112,8 @@ class _ProfilePageState extends State<ProfilePage>
     playlistRepo = Provider.of<PlaylistRepo>(context);
     podcastRepo = Provider.of<PodcastRepo>(context);
     misCanciones = Provider.of<MisCancionesModel>(context);
+    height = MediaQuery.of(context).size.height;
+    width = MediaQuery.of(context).size.width;
     recibirDatos(username.email, usernameController,
         descriptionController, emailController, passwordController);
     setState(() {

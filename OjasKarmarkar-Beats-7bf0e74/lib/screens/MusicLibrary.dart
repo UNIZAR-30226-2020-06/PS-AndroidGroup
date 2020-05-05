@@ -47,8 +47,6 @@ class _MusicLibraryState extends State<MusicLibrary> {
     username = Provider.of<Username>(context);
       obtenerCancionesRandom(model);
 
-
-
     height = MediaQuery.of(context).size.height;
     width = MediaQuery.of(context).size.width;
     themeChanger = Provider.of<ThemeChanger>(context);
