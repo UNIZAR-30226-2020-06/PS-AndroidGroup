@@ -1553,16 +1553,16 @@ class _ProfilePageState extends State<ProfilePage>
                                                     ),
                                                     Center(
                                                       child: Padding(padding: EdgeInsets.only(
-                                                          left: 25.0, right: 25.0, top: 50.0),
+                                                          left: 25.0, right: 25.0, top: 50.0, bottom: 1),
                                                         child: Column(children: <Widget>[
                                                           Text(podcastRepo.podcast[pos],
                                                               textAlign: TextAlign.center,
                                                               style:
                                                               TextStyle(color: Colors.white),
                                                               textScaleFactor: 1.3),
-                                                          Text(podcastRepo.descripciones[pos],
+                                                          Flexible(child: Text(podcastRepo.descripciones[pos],
                                                               style:
-                                                              TextStyle(color: Colors.white)),
+                                                              TextStyle(color: Colors.white)),),
                                                         ]),),
                                                     ),
                                                   ]),
@@ -1730,8 +1730,11 @@ class _ProfilePageState extends State<ProfilePage>
      if (p.nombreUsuario != null) {
        var playlistss = p.playlists.split('|');
        var descripciones = p.descripcionesPlay.split('|');
+       //var podcastss = p.nombresPodcasts.split('|');
+       //var descripcionesPodcasts = p.descripcionesPodcasts.split('|');
        log('data: $playlistss');
        playlistRepo.generateInitialPlayList(playlistss, descripciones);
+       //podcastRepo.generateInitialPodcast(podcastss, descripcionesPodcasts);
        List<String> misCancionesTitle = new List();
        misCancionesTitle.add("Mis canciones");
        misCanciones.generateInitialPlayList(misCancionesTitle);
@@ -2827,9 +2830,6 @@ class Respuesta {
     return creado;
   }
 }
-
-
-
 
 
 
