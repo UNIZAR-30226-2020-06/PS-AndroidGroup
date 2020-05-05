@@ -13,6 +13,7 @@ class Constants{
     //re
   ];
   static const List<String> opciones = <String>[
+    ed,
     de,
     //de,
     //re

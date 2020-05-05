@@ -8,6 +8,7 @@ import 'package:beats/models/PlaylistRepo.dart';
 import 'package:beats/models/SongsModel.dart';
 import 'package:beats/models/PlayListHelper.dart';
 import 'package:beats/models/Username.dart';
+import 'package:beats/screens/UploadSong.dart';
 import 'package:beats/models/const.dart';
 import 'package:beats/reproductorMusica.dart';
 import 'package:conditional_builder/conditional_builder.dart';
@@ -15,6 +16,7 @@ import 'package:flute_music_player/flute_music_player.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_media_notification/flutter_media_notification.dart';
 import 'package:provider/provider.dart';
+import 'package:beats/screens/ProfileEdit.dart';
 import '../custom_icons.dart';
 import 'MusicLibrary.dart';
 import 'package:http/http.dart' as http;
@@ -37,6 +39,8 @@ class _PLayListScreenState extends State<PLayListScreen> {
   bool error = false;
   List<Song> songs;
   Username username;
+  List<String> generos; // Option 2
+  String genero;
   //final String email;
 
   //_PLayListScreenState({Key key, @required this.email}) : super(key: key);
@@ -51,7 +55,7 @@ class _PLayListScreenState extends State<PLayListScreen> {
     model = Provider.of<SongsModel>(context);
     int stringer = misCanciones.selected;
     int stringerr = playlistRepo.selected;
-
+    obtieneGeneros();
 
     log("miscanciones: $stringer");
     log("playlistrepo: $stringerr");
@@ -244,12 +248,36 @@ class _PLayListScreenState extends State<PLayListScreen> {
                                                                         4))),
                                                           ),
                                                         ),
+                                                        Padding(
+                                                          padding: EdgeInsets.only(
+                                                              left: 25.0, right: 25.0, top: 2.0),
+                                                          child: DropdownButton(
+                                                            hint: Text('Elige un género',style: TextStyle(
+                                                                fontSize: 16.0,
+                                                                fontWeight: FontWeight.bold)), // Not necessary for Option 1
+                                                            value: genero,
+                                                            onChanged: (newValue) {
+                                                              genero = newValue;
+                                                            },
+                                                            items: generos.map((location) {
+                                                              return DropdownMenuItem(
+                                                                child: new Text(location),
+                                                                value: location,
+                                                              );
+                                                            }).toList(),
+                                                          ),
+                                                        ),
                                                         InkWell(
                                                           onTap: ()  {
                                                             setState(() {
-                                                              editarUnaCancionMia(username.email, misCanciones.playlist[pos],txt.text);  //editar en la BD
+                                                              for(int i =0; i<misCanciones.playlist.length;i++){
+                                                                String s = misCanciones.playlist[i];
+                                                                log("playlist: $s" );
+                                                              }
 
-                                                              initDataMisCanciones();
+                                                                editarUnaCancionMia(username.email, model.songs[pos].title,txt.text, genero);  //editar en la BD
+
+
                                                               Navigator.pop(
                                                                   context);
                                                             });
@@ -293,8 +321,11 @@ class _PLayListScreenState extends State<PLayListScreen> {
                                             },
                                           );
                                         }else if(choice == Constants.de){ //borrar canciones
-                                           borrarCancionDeMisCanciones(username.email, model.songs[pos]);
-                                           initDataMisCanciones();   //reiniciamos
+                                          setState(() {
+                                            borrarCancionDeMisCanciones(username.email, model.songs[pos]);
+
+                                          });
+
                                         }
                                       },
                                       itemBuilder: (BuildContext context) {
@@ -438,7 +469,7 @@ class _PLayListScreenState extends State<PLayListScreen> {
   void initDataMisCanciones() async{
     var listaNombres = username.getCanciones().split('|');
     var listaUrls = username.getCancionesUrl().split('|');
-    log('initData3: $listaUrls');
+    log('initData3: $listaNombres');
     List<Song> listaCanciones = new List<Song>();
     Song aux = new Song(0,"","","",0,0,"",null);
     for(int i = 0; i<listaNombres.length; i++){
@@ -541,14 +572,17 @@ class _PLayListScreenState extends State<PLayListScreen> {
     } else {}
   }
 
-  void editarUnaCancionMia(String email, String title, String newTitle) async {
-    await editarCanciones(email, title, newTitle);
+  void editarUnaCancionMia(String email, String title, String newTitle, String genero) async {
+    await editarCanciones(email, title, newTitle, genero);
+    await actualizarUsername(username.email);
+    initDataMisCanciones();
   }
 
   void borrarCancionDeMisCanciones(String email, Song song) async {
 
     await borrarCanciones(email, "misCanciones", song.title);
-
+    await actualizarUsername(username.email);
+    initDataMisCanciones();   //reiniciamos
 
   }
 
@@ -560,6 +594,20 @@ class _PLayListScreenState extends State<PLayListScreen> {
     log("hecho2");
 
   }
+
+  void obtieneGeneros() async {
+     generos = await convertirALista();
+  }
+
+   actualizarUsername(String email) async{
+     Perfil p = await obtenerPerfil(email);
+     String s = p.canciones;
+     log("actualizarUsername: $s");
+     setState(() {
+       username.setCanciones(p.canciones);
+       username.setCancionesUrl(p.urls);
+     });
+   }
 }
 
 class Canciones {
@@ -617,12 +665,14 @@ Future<Canciones> obtenerCanciones(String email, String nombrePlaylist) async {
 
 
 
-Future<Canciones> editarCanciones(String email, String nombreCancion, String nuevoNombre) async {
+Future<Canciones> editarCanciones(String email, String nombreCancion, String nuevoNombre, String genero) async {
   Map data = {
     'email': email,
-    'nombreCancion': nombreCancion,
-    'nuevoNombre': nuevoNombre,
+    'nombreCancionViejo': nombreCancion,
+    'nombreCancionNuevo': nuevoNombre,
+    'generoCancionNuevo': genero,
   };
+  log("editarCanciones: $nombreCancion, $nuevoNombre, $email, $genero" );
   final http.Response response = await http.post(
     'http://34.69.44.48:8080/Espotify/cancion_modificar_android',
     headers: <String, String>{
@@ -647,11 +697,11 @@ Future<Canciones> editarCanciones(String email, String nombreCancion, String nue
 Future<Canciones> borrarCanciones(String email, String nombrePlaylist, String nombreCancion) async {
   Map data = {
     'email': email,
-    'nombrePlaylist': nombrePlaylist,
     'nombreCancion': nombreCancion,
   };
+  log("debug: $email, $nombrePlaylist, $nombreCancion");
   final http.Response response = await http.post(
-    'http://34.69.44.48:8080/Espotify/eliminar_cancionlista_android',
+    'http://34.69.44.48:8080/Espotify/cancion_eliminar_android',
     headers: <String, String>{
       'Content-Type': 'application/json; charset=UTF-8',
     },
