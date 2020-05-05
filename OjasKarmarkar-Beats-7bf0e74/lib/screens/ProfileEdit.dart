@@ -57,6 +57,7 @@ class _ProfilePageState extends State<ProfilePage>
 
   File _profileImage;
   File _playlistImage;
+  File _podcastImage;
 
   Future getImageFromDevice(String opcionOrigen, String opcionDestino) async {
     if(opcionOrigen == "cámara"){
@@ -410,7 +411,7 @@ class _ProfilePageState extends State<ProfilePage>
                                                                   decoration: new BoxDecoration(
                                                                     shape: BoxShape.circle,
                                                                     image: new DecorationImage(
-                                                                      image: _profileImage == null
+                                                                      image: _playlistImage == null
                                                                           ? new ExactAssetImage(
                                                                           'assets/prof.png')
                                                                           : FileImage(_playlistImage),
@@ -820,7 +821,7 @@ class _ProfilePageState extends State<ProfilePage>
                                                                                         .textTheme
                                                                                         .display2,
                                                                                     labelText:
-                                                                                    "Ponle una descripción",
+                                                                                    "Ponle una descipción",
                                                                                     labelStyle: Theme.of(
                                                                                         context)
                                                                                         .textTheme
@@ -861,7 +862,7 @@ class _ProfilePageState extends State<ProfilePage>
                                                                               decoration:
                                                                               BoxDecoration(
                                                                                 color:
-                                                                                Colors.orange,
+                                                                                Colors.purple,
                                                                                 borderRadius: BorderRadius.only(
                                                                                     bottomLeft:
                                                                                     Radius.circular(
@@ -896,7 +897,7 @@ class _ProfilePageState extends State<ProfilePage>
                                                     ),
                                                     Center(
                                                         child: Padding(padding: EdgeInsets.only(
-                                                          left: 25.0, right: 25.0, top: 50.0),
+                                                          left: 25.0, right: 25.0, top: 50.0, bottom: 13.0),
                                                            child: Column(children: <Widget>[
                                                               Text(playlistRepo.playlist[pos],
                                                                   textAlign: TextAlign.center,
@@ -1042,26 +1043,21 @@ class _ProfilePageState extends State<ProfilePage>
                                                                           BorderRadius.circular(
                                                                               4))),
                                                                 ),
-                                                                new GestureDetector(onTap: seleccionarImagenPlaylist,child:new Container(
-                                                                    width: 40.0,
-                                                                    height: 40.0,
-                                                                    decoration: new BoxDecoration(
-                                                                      shape: BoxShape.circle,
-                                                                      image: new DecorationImage(
-                                                                        image: _profileImage == null
-                                                                            ? new ExactAssetImage(
-                                                                            'assets/prof.png')
-                                                                            : FileImage(_playlistImage),
-                                                                        fit: BoxFit.cover,
-                                                                      ),
-                                                                    ))),
+                                                                new GestureDetector(onTap: seleccionarImagenPodcast,child:new CircleAvatar(
+                                                                  backgroundColor: Colors.red,
+                                                                  radius: 25.0,
+                                                                  child: new Icon(
+                                                                    Icons.camera_alt,
+                                                                    color: Colors.white,
+                                                                  ),
+                                                                )),
                                                               ],)
                                                           ),
                                                           InkWell(
                                                             onTap: () {
                                                               setState(() {
                                                                 if(txt.text != ""){
-                                                                  validate(context, podcastRepo, txt.text, "create");
+                                                                  validatePodcast(context, podcastRepo, txt.text, "create");
                                                                 }
 
                                                               });
@@ -1211,7 +1207,7 @@ class _ProfilePageState extends State<ProfilePage>
                                                                                   .min,
                                                                               children: <Widget>[
                                                                                 Text(
-                                                                                  "Eliminar Playlist",
+                                                                                  "Eliminar Podcast",
                                                                                   style: TextStyle(
                                                                                       fontSize:
                                                                                       24.0,
@@ -1242,7 +1238,7 @@ class _ProfilePageState extends State<ProfilePage>
                                                                               onTap: () async {
 
                                                                                 setState(() {
-                                                                                  validate(context, podcastRepo, podcastRepo.podcast[pos], "Delete");
+                                                                                  validatePodcast(context, podcastRepo, podcastRepo.podcast[pos], "Delete");
 
                                                                                 });
                                                                               },
@@ -1499,7 +1495,7 @@ class _ProfilePageState extends State<ProfilePage>
                                                                               decoration:
                                                                               BoxDecoration(
                                                                                 color:
-                                                                                Colors.orange,
+                                                                                Colors.purple,
                                                                                 borderRadius: BorderRadius.only(
                                                                                     bottomLeft:
                                                                                     Radius.circular(
@@ -1555,7 +1551,7 @@ class _ProfilePageState extends State<ProfilePage>
                                                     ),
                                                     Center(
                                                       child: Padding(padding: EdgeInsets.only(
-                                                          left: 25.0, right: 25.0, top: 50.0, bottom: 1),
+                                                          left: 25.0, right: 25.0, top: 50.0, bottom: 13.0),
                                                         child: Column(children: <Widget>[
                                                           Text(podcastRepo.podcast[pos],
                                                               textAlign: TextAlign.center,
@@ -1563,6 +1559,7 @@ class _ProfilePageState extends State<ProfilePage>
                                                               TextStyle(color: Colors.white),
                                                               textScaleFactor: 1.3),
                                                           Flexible(child: Text(podcastRepo.descripciones[pos],
+                                                              textAlign: TextAlign.center,
                                                               style:
                                                               TextStyle(color: Colors.white)),),
                                                         ]),),
@@ -1709,6 +1706,35 @@ class _ProfilePageState extends State<ProfilePage>
 
 
   }
+  Future<Respuesta> actualizarPlaylist(String email, String nombrePlaylistAntiguo,
+      String descripcionPlaylist,  String nombrePlaylistNuevo) async {
+    List<int> imageBytes = _playlistImage.readAsBytesSync();
+    String base64Image = base64.encode(imageBytes);
+    Map data = {
+      'nombrePlaylistViejo': nombrePlaylistAntiguo,
+      'descripcion': descripcionPlaylist,
+      'email': email,
+      'nombrePlaylistNuevo': nombrePlaylistNuevo,
+      'imagen': base64Image,
+    };
+    final http.Response response = await http.post(
+      'http://34.69.44.48:8080/Espotify/playlist_modificar_android',
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+      body: jsonEncode(data),
+
+    );
+    if (response.statusCode == 200) {
+      // If the server did return a 201 CREATED response,
+      // then parse the JSON.
+      return Respuesta.fromJson(json.decode(response.body));
+    } else {
+      // If the server did not return a 201 CREATED response,
+      // then throw an exception.
+      throw Exception('Fallo al enviar petición');
+    }
+  }
   void recibirDatos(String email, TextEditingController usernameController,
       TextEditingController descriptionController,
       TextEditingController emailController, TextEditingController passwordController) async{
@@ -1732,11 +1758,11 @@ class _ProfilePageState extends State<ProfilePage>
      if (p.nombreUsuario != null) {
        var playlistss = p.playlists.split('|');
        var descripciones = p.descripcionesPlay.split('|');
-       //var podcastss = p.nombresPodcasts.split('|');
-       //var descripcionesPodcasts = p.descripcionesPodcasts.split('|');
+       var podcastss = p.podcasts.split('|');
+       var descripcionesPodcasts = p.descripcionesPod.split('|');
        log('data: $playlistss');
        playlistRepo.generateInitialPlayList(playlistss, descripciones);
-       //podcastRepo.generateInitialPodcast(podcastss, descripcionesPodcasts);
+       podcastRepo.generateInitialPodcast(podcastss, descripcionesPodcasts);
        List<String> misCancionesTitle = new List();
        misCancionesTitle.add("Mis canciones");
        misCanciones.generateInitialPlayList(misCancionesTitle);
@@ -2059,6 +2085,64 @@ class _ProfilePageState extends State<ProfilePage>
       ),
     );
   }
+  Future<Respuesta> crearPlaylist(String email, String nombrePlaylist,
+      String descripcionPlaylist) async {
+    List<int> imageBytes = _playlistImage.readAsBytesSync();
+    String base64Image = base64.encode(imageBytes);
+    Map data = {
+      'email': email,
+      'nombrePlaylist': nombrePlaylist,
+      'descripcion': descripcionPlaylist,
+      'imagen': base64Image,
+    };
+    final http.Response response = await http.post(
+      'http://34.69.44.48:8080/Espotify/crear_lista_android',
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+      body: jsonEncode(data),
+
+    );
+    if (response.statusCode == 200) {
+      // If the server did return a 201 CREATED response,
+      // then parse the JSON.
+      return Respuesta.fromJson(json.decode(response.body));
+    } else {
+      // If the server did not return a 201 CREATED response,
+      // then throw an exception.
+      throw Exception('Fallo al enviar petición');
+    }
+  }
+
+  Future<Respuesta> crearPodcast(String email, String nombrePodcast,
+      String descripcionPodcast) async {
+    //List<int> imageBytes = _podcastImage.readAsBytesSync();
+    //String base64Image = base64.encode(imageBytes);
+    Map data = {
+      'email': email,
+      'nombrePodcast': nombrePodcast,
+      'descripcion': descripcionPodcast,
+      //'imagen': base64Image,
+    };
+    final http.Response response = await http.post(
+      'http://34.69.44.48:8080/Espotify/crear_podcast_android',
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+      body: jsonEncode(data),
+
+    );
+    if (response.statusCode == 200) {
+      // If the server did return a 201 CREATED response,
+      // then parse the JSON.
+      return Respuesta.fromJson(json.decode(response.body));
+    } else {
+      // If the server did not return a 201 CREATED response,
+      // then throw an exception.
+      throw Exception('Fallo al enviar petición');
+    }
+  }
+
 
   Future<Respuesta> uploadProfilePicture(String email) async {
     List<int> imageBytes = _profileImage.readAsBytesSync();
@@ -2219,6 +2303,100 @@ class _ProfilePageState extends State<ProfilePage>
     );
   }
   void seleccionarImagenPlaylist(){
+    showDialog(
+        context: context,
+        builder: (context) {
+          return Padding(
+            padding: const EdgeInsets.all(4.0),
+            child: AlertDialog(
+              backgroundColor:
+              Theme.of(context).backgroundColor,
+              shape: RoundedRectangleBorder(
+                side: BorderSide(),
+                borderRadius: BorderRadius.all(
+                    Radius.circular(30.0)),
+              ),
+              contentPadding: EdgeInsets.only(top: 10.0),
+              content: Container(
+                width: 70.0,
+                child: Column(
+                  mainAxisAlignment:
+                  MainAxisAlignment.start,
+                  crossAxisAlignment:
+                  CrossAxisAlignment.stretch,
+                  mainAxisSize: MainAxisSize.min,
+                  children: <Widget>[
+                    Row(
+                      mainAxisAlignment:
+                      MainAxisAlignment.spaceEvenly,
+                      mainAxisSize: MainAxisSize.min,
+                      children: <Widget>[
+                        Text(
+                          "Subir foto desde",
+                          style: TextStyle(
+                              fontSize: 24.0,
+                              fontFamily: 'Sans'),
+                        ),
+                      ],
+                    ),
+                    Divider(
+                      color: Colors.grey,
+                      height: 4.0,
+                    ),
+                    InkWell(
+                      onTap: () {
+                        getImageFromDevice("cámara", "playlist");
+                        Navigator.pop(context);
+                      },
+                      child: Container(
+                        padding: EdgeInsets.only(
+                            top: 10.0, bottom: 20.0),
+                        decoration: BoxDecoration(
+                          color: Colors.orange,
+                        ),
+                        child: Text(
+                          "Cámara",
+                          style: TextStyle(
+                              fontFamily: 'Sans',
+                              color: Colors.white),
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                    ),
+
+                    InkWell(
+                      onTap: () {
+                        getImageFromDevice("galería", "playlist");
+                        Navigator.pop(context);
+                      },
+                      child: Container(
+                        padding: EdgeInsets.only(
+                            top: 10.0, bottom: 20.0),
+                        decoration: BoxDecoration(
+                          color: Colors.pink,
+                          borderRadius: BorderRadius.only(
+                              bottomLeft:
+                              Radius.circular(32.0),
+                              bottomRight:
+                              Radius.circular(32.0)),
+                        ),
+                        child: Text(
+                          "Galería",
+                          style: TextStyle(
+                              fontFamily: 'Sans',
+                              color: Colors.white),
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          );
+        });
+  }
+  void seleccionarImagenPodcast(){
     showDialog(
         context: context,
         builder: (context) {
@@ -2516,6 +2694,18 @@ class _ProfilePageState extends State<ProfilePage>
           emailController.text, context, nombre);
     }
   }
+  void validatePodcast(context, repo, String nombre, String accion) {
+
+    txt.text.toString().isEmpty ? error = true : error = false;
+
+    if (txt.text.toString().isNotEmpty && accion == "create") {
+      esperoCrearPodcast(
+          emailController.text, txt.text, txtDescripcion.text, context, podcastRepo);
+
+    }else { //nombre ==te"
+      esperoBorrarPodcast(emailController.text, context, nombre);
+    }
+  }
   void esperoCrearPlaylist(String email, String nombrePlaylist,
       String descripcionPlaylist, BuildContext context, PlaylistRepo playlistRepo)async{
     Respuesta r = await crearPlaylist(email, nombrePlaylist, descripcionPlaylist);
@@ -2526,18 +2716,30 @@ class _ProfilePageState extends State<ProfilePage>
     txt.clear();
     txtDescripcion.clear();
     Navigator.of(context).pop();
+  }
+  void esperoCrearPodcast(String email, String nombrePodcast,
+      String descripcionPodcast, BuildContext context, PodcastRepo podcastRepo)async{
+    Respuesta r = await crearPodcast(email, nombrePodcast, descripcionPodcast);
 
+    if(r.getUserId()=="ok"){
+      playlistRepo.add(nombrePodcast, descripcionPodcast);
+    }
+    txt.clear();
+    txtDescripcion.clear();
+    Navigator.of(context).pop();
   }
 
   void esperoBorrarPlaylist(String email, BuildContext context, String nombrePlaylist) async
   {
      await borrarPlaylist(email, nombrePlaylist);
-
      playlistRepo.delete(nombrePlaylist);
-
      Navigator.of(context).pop();
-     //si ocurre algún error, lo notificará borrarPlaylist, en caso contrario,
-    //mantenemos el mismo funcionamiento que se llevaba acabo
+  }
+  void esperoBorrarPodcast(String email, BuildContext context, String nombrePodcast) async
+  {
+    await borrarPodcast(email, nombrePodcast);
+    playlistRepo.delete(nombrePodcast);
+    Navigator.of(context).pop();
   }
 
   getLoading(SongsModel model) {
@@ -2671,11 +2873,10 @@ class Perfil {
       email: json['email'],
       playlists: json['lista'],
       descripcionesPlay: json['listaDescripcion'],
-      //TODO podcasts: json['podcast']
-      //TODO descripcionesPod: json['descripcionesPod']
+      podcasts: json['podcasts'],
+      descripcionesPod: json['podcastsDescripcion'],
       canciones: json['audiosTitulo'],
       urls: json['audiosUrl'],
-
     );
 
   }
@@ -2711,16 +2912,13 @@ Future<Perfil> obtenerPerfil(String email) async {
     throw Exception('Fallo al enviar petición');
   }
 }
-
-Future<Respuesta> crearPlaylist(String email, String nombrePlaylist,
-    String descripcionPlaylist) async {
+Future<Respuesta> borrarPlaylist(String email, String nombrePlaylist) async {
   Map data = {
     'email': email,
     'nombrePlaylist': nombrePlaylist,
-    'descripcion': descripcionPlaylist,
   };
   final http.Response response = await http.post(
-    'http://34.69.44.48:8080/Espotify/crear_lista_android',
+    'http://34.69.44.48:8080/Espotify/eliminar_lista_android',
     headers: <String, String>{
       'Content-Type': 'application/json; charset=UTF-8',
     },
@@ -2738,13 +2936,13 @@ Future<Respuesta> crearPlaylist(String email, String nombrePlaylist,
   }
 }
 
-Future<Respuesta> borrarPlaylist(String email, String nombrePlaylist) async {
+Future<Respuesta> borrarPodcast(String email, String nombrePodcast) async {
   Map data = {
     'email': email,
-    'nombrePlaylist': nombrePlaylist,
+    'nombrePodcast': nombrePodcast,
   };
   final http.Response response = await http.post(
-    'http://34.69.44.48:8080/Espotify/eliminar_lista_android',
+    'http://34.69.44.48:8080/Espotify/eliminar_podcast_android',
     headers: <String, String>{
       'Content-Type': 'application/json; charset=UTF-8',
     },
@@ -2787,34 +2985,6 @@ Future<Respuesta> actualizarUser(String nombre, String descripcion, String email
     throw Exception('Fallo al enviar petición');
   }
 }
-
-Future<Respuesta> actualizarPlaylist(String email, String nombrePlaylistAntiguo,
-    String descripcionPlaylist,  String nombrePlaylistNuevo) async {
-  Map data = {
-    'nombrePlaylistViejo': nombrePlaylistAntiguo,
-    'descripcion': descripcionPlaylist,
-    'email': email,
-    'nombrePlaylistNuevo': nombrePlaylistNuevo,
-  };
-  final http.Response response = await http.post(
-    'http://34.69.44.48:8080/Espotify/playlist_modificar_android',
-    headers: <String, String>{
-      'Content-Type': 'application/json; charset=UTF-8',
-    },
-    body: jsonEncode(data),
-
-  );
-  if (response.statusCode == 200) {
-    // If the server did return a 201 CREATED response,
-    // then parse the JSON.
-    return Respuesta.fromJson(json.decode(response.body));
-  } else {
-    // If the server did not return a 201 CREATED response,
-    // then throw an exception.
-    throw Exception('Fallo al enviar petición');
-  }
-}
-
 
 class Respuesta {
   final String creado;
