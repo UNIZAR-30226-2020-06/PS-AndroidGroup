@@ -36,6 +36,8 @@ class PodcastScreenState extends State<PodcastScreen> {
   bool error = false;
   List<Song> songs;
   Username username;
+  List<String> generos; // Option 2
+  String genero;
   //final String email;
 
   //_PLayListScreenState({Key key, @required this.email}) : super(key: key);
@@ -48,14 +50,14 @@ class PodcastScreenState extends State<PodcastScreen> {
     podcastRepo = Provider.of<PodcastRepo>(context);
     model = Provider.of<SongsModel>(context);
     int stringerr = podcastRepo.selected;
-
+    convertirALista();
 
     log("playlistrepo: $stringerr");
     if(podcastRepo.selected != null)
     {
       name = podcastRepo.podcast[podcastRepo.selected];
       podcastRepo.selected = null;
-      initDataPlaylists();
+      initDataPodcasts();
     }
 
     super.didChangeDependencies();
@@ -119,7 +121,7 @@ class PodcastScreenState extends State<PodcastScreen> {
 
 
             ConditionalBuilder(
-                condition: true, //vista de una playlist de canciones
+                condition: true, //vista de una lista de capítulos de podcast
                 builder: (context) => ListView.builder(
                     itemCount: songs.length,
                     itemBuilder: (context, pos) {
@@ -127,6 +129,196 @@ class PodcastScreenState extends State<PodcastScreen> {
                         padding:
                         const EdgeInsets.only(top: 0.0, left: 10.0),
                         child: ListTile(
+                          trailing: PopupMenuButton<String>(
+                            icon: Icon(
+                              Icons.more_vert,
+                              color: Colors.grey,
+                            ),
+                            onSelected: (String choice) async {
+                              log("data: $choice");
+                              if (choice == Constants.ed) {   //editar capítulo de podcast
+                                showDialog(
+                                  context: context,
+                                  builder: (context) {
+                                    return Padding(
+                                      padding:
+                                      const EdgeInsets.all(8.0),
+                                      child: AlertDialog(
+                                        backgroundColor:
+                                        Theme.of(context)
+                                            .backgroundColor,
+                                        shape:
+                                        RoundedRectangleBorder(
+                                          side: BorderSide(),
+                                          borderRadius:
+                                          BorderRadius.all(
+                                              Radius.circular(
+                                                  30.0)),
+                                        ),
+                                        contentPadding:
+                                        EdgeInsets.only(
+                                            top: 10.0),
+                                        content: Container(
+                                          width: 200.0,
+                                          child: Column(
+                                            mainAxisAlignment:
+                                            MainAxisAlignment
+                                                .start,
+                                            crossAxisAlignment:
+                                            CrossAxisAlignment
+                                                .stretch,
+                                            mainAxisSize:
+                                            MainAxisSize.min,
+                                            children: <Widget>[
+                                              Row(
+                                                mainAxisAlignment:
+                                                MainAxisAlignment
+                                                    .spaceEvenly,
+                                                mainAxisSize:
+                                                MainAxisSize
+                                                    .min,
+                                                children: <Widget>[
+                                                  Text(
+                                                    "Editar",
+                                                    style: TextStyle(
+                                                        fontSize:
+                                                        24.0,
+                                                        fontFamily:
+                                                        'Sans'),
+                                                  ),
+                                                ],
+                                              ),
+                                              SizedBox(
+                                                height: 5.0,
+                                              ),
+                                              Divider(
+                                                color: Colors.grey,
+                                                height: 4.0,
+                                              ),
+                                              Padding(
+                                                padding:
+                                                EdgeInsets.only(
+                                                    left: 30.0,
+                                                    right: 30.0,
+                                                    top: 30.0,
+                                                    bottom:
+                                                    30.0),
+                                                child:
+                                                TextFormField(
+                                                  controller: txt,
+                                                  decoration: InputDecoration(
+                                                      disabledBorder: OutlineInputBorder(
+                                                          borderSide: BorderSide(
+                                                              color: Colors
+                                                                  .deepOrange)),
+                                                      enabledBorder: OutlineInputBorder(
+                                                          borderSide: BorderSide(
+                                                              color: Colors
+                                                                  .deepOrange)),
+                                                      errorText: error
+                                                          ? "El nombre no puede ser nulo"
+                                                          : null,
+                                                      errorStyle: Theme.of(
+                                                          context)
+                                                          .textTheme
+                                                          .display2,
+                                                      labelText:
+                                                      "Ponle un nombre",
+                                                      labelStyle: Theme.of(
+                                                          context)
+                                                          .textTheme
+                                                          .display2,
+                                                      border: OutlineInputBorder(
+                                                          borderRadius:
+                                                          BorderRadius.circular(
+                                                              4))),
+                                                ),
+                                              ),
+                                              Padding(
+                                                padding: EdgeInsets.only(
+                                                    left: 25.0, right: 25.0, top: 2.0),
+                                                child: DropdownButton(
+                                                  hint: Text('Elige un género',style: TextStyle(
+                                                      fontSize: 16.0,
+                                                      fontWeight: FontWeight.bold)), // Not necessary for Option 1
+                                                  value: genero,
+                                                  onChanged: (newValue) {
+                                                    genero = newValue;
+                                                  },
+                                                  items: generos.map((location) {
+                                                    return DropdownMenuItem(
+                                                      child: new Text(location),
+                                                      value: location,
+                                                    );
+                                                  }).toList(),
+                                                ),
+                                              ),
+                                              InkWell(
+                                                onTap: ()  {
+                                                  setState(() {
+                                                    //editarUnCapituloPodcast(username.email, misCanciones.playlist[pos],txt.text, genero);  //editar en la BD
+
+                                                    Navigator.pop(
+                                                        context);
+                                                  });
+                                                },
+                                                child: Container(
+                                                  padding: EdgeInsets
+                                                      .only(
+                                                      top: 10.0,
+                                                      bottom:
+                                                      20.0),
+                                                  decoration:
+                                                  BoxDecoration(
+                                                    color:
+                                                    Colors.blue,
+                                                    borderRadius: BorderRadius.only(
+                                                        bottomLeft:
+                                                        Radius.circular(
+                                                            32.0),
+                                                        bottomRight:
+                                                        Radius.circular(
+                                                            32.0)),
+                                                  ),
+                                                  child: Text(
+                                                    "Aplicar",
+                                                    style: TextStyle(
+                                                        fontFamily:
+                                                        'Sans',
+                                                        color: Colors
+                                                            .white),
+                                                    textAlign:
+                                                    TextAlign
+                                                        .center,
+                                                  ),
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ),
+                                    );
+                                  },
+                                );
+                              }else if(choice == Constants.de){ //borrar canciones
+                                borrarCapituloPodcast(username.email, model.songs[pos]);
+                              }
+                            },
+                            itemBuilder: (BuildContext context) {
+                              return Constants.opciones.map((String choice) {
+                                return PopupMenuItem<String>(
+                                  value: choice,
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(8.0),
+                                    child: Text(
+                                      choice,
+                                      style: Theme.of(context).textTheme.display2,
+                                    ),
+                                  ),
+                                );
+                              }).toList();
+                            },
+                          ),
                           onTap: () {
                             //isPlayed = true;
                             model.player.stop();
@@ -178,27 +370,87 @@ class PodcastScreenState extends State<PodcastScreen> {
     );
   }
 
-  //void initData() async {
-  //  var helper = PlaylistHelper(name);
-  //  songs = await helper.getSongs();
-  //  setState(() {});
-  //}
-
-  void initDataPlaylists() async {
+  void initDataPodcasts() async {
     Canciones l = await obtenerCapitulos(name);
     var listaNombres = l.getNombresAudio().split('|');
     var listaUrls = l.getUrlsAudio().split('|');
     log('initData2: $listaNombres');
-    List<Song> listaCanciones = new List<Song>();
+    List<Song> listaPodcasts = new List<Song>();
     for(int i = 0; i<listaNombres.length; i++){
-      listaCanciones.add(new Song(1,"", listaNombres[i], "",0,0,listaUrls[i],null));
+      listaPodcasts.add(new Song(1,"", listaNombres[i], "",0,0,listaUrls[i],null));
     }
 
-    songs = listaCanciones;
+    songs = listaPodcasts;
     model.fetchSongsManual(songs);
     setState(() {});
   }
 
+  void editarUnCapituloPodcast(String email, String title, String newTitle, String genero) async {
+    await editarCapPodcast(email, title, newTitle, genero);
+    initDataPodcasts();
+  }
+
+  void borrarCapituloPodcast(String email, Song song) async {
+
+    await borrarCapPodcast(email, "misCanciones", song.title);
+    initDataPodcasts();
+  }
+
+
+  Future<Canciones> editarCapPodcast(String email, String nombreViejo, String nuevoNombre, String genero) async {
+    Map data = {
+      //'email': email,
+      'nombrePodcastViejo': nombreViejo,
+      'nombrePodcastNuevo': nuevoNombre,
+      'generoPodcastNuevo': genero,
+    };
+    final http.Response response = await http.post(
+      'http://34.69.44.48:8080/Espotify/modificar_capitulo_android',
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+      body: jsonEncode(data),
+
+    );
+    if (response.statusCode == 200) {
+      // If the server did return a 201 CREATED response,
+      // then parse the JSON.
+      return Canciones.fromJson(json.decode(response.body));
+    } else {
+      // If the server did not return a 201 CREATED response,
+      // then throw an exception.
+      throw Exception('Fallo al enviar petición');
+    }
+
+
+  }
+
+  Future<Canciones> borrarCapPodcast(String email, String nombrePodcast, String nombreCapPodcast) async {
+    Map data = {
+      //'email': email,
+      'nombrePodcast': nombrePodcast,
+      'nombreCapitulo': nombreCapPodcast,
+    };
+    final http.Response response = await http.post(
+      'http://34.69.44.48:8080/Espotify/eliminar_capitulo_android',
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+      body: jsonEncode(data),
+
+    );
+    if (response.statusCode == 200) {
+      // If the server did return a 201 CREATED response,
+      // then parse the JSON.
+      return Canciones.fromJson(json.decode(response.body));
+    } else {
+      // If the server did not return a 201 CREATED response,
+      // then throw an exception.
+      throw Exception('Fallo al enviar petición');
+    }
+
+
+  }
 
 
   getImage(pos) {
@@ -289,7 +541,11 @@ class PodcastScreenState extends State<PodcastScreen> {
       );
     } else {}
   }
+  convertirALista() async{
+    Respuesta r = await recibeGeneros();
+    generos = r.generos.split('|');
 
+  }
 }
 
 class Canciones {
@@ -339,6 +595,46 @@ Future<Canciones> obtenerCapitulos(String nombrePodcast) async {
     String s = c.getNombresAudio();
     log("nombresAudio: $s");
     return c;
+  } else {
+    // If the server did not return a 201 CREATED response,
+    // then throw an exception.
+    throw Exception('Fallo al enviar petición');
+  }
+}
+
+
+class Respuesta {
+  final String generos;
+
+  Respuesta({this.generos});
+
+  factory Respuesta.fromJson(Map<String, dynamic> json) {
+    return Respuesta(
+      generos: json['generos'],
+
+    );
+
+  }
+  String getUserId(){
+    return generos;
+  }
+}
+
+Future<Respuesta> recibeGeneros() async {
+  Map data = {
+  };
+  final http.Response response = await http.post(
+    'http://34.69.44.48:8080/Espotify/generos_podcast_android',
+    headers: <String, String>{
+      'Content-Type': 'application/json; charset=UTF-8',
+    },
+    body: jsonEncode(data),
+
+  );
+  if (response.statusCode == 200) {
+    // If the server did return a 201 CREATED response,
+    // then parse the JSON.
+    return Respuesta.fromJson(json.decode(response.body));
   } else {
     // If the server did not return a 201 CREATED response,
     // then throw an exception.

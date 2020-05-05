@@ -1479,7 +1479,7 @@ class _ProfilePageState extends State<ProfilePage>
                                                                             onTap: () {
                                                                               setState(() {
                                                                                 if(txt.text != ""){
-                                                                                  actualizarPlaylist(username.email, podcastRepo.podcast[pos], txtDescripcion.text,txt.text);
+                                                                                  actualizarPodcast(username.email, podcastRepo.podcast[pos], txtDescripcion.text,txt.text);
                                                                                   podcastRepo.podcast[pos] = txt.text;
                                                                                   podcastRepo.descripciones[pos] = txtDescripcion.text;
                                                                                   Navigator.pop(context);
@@ -1719,6 +1719,36 @@ class _ProfilePageState extends State<ProfilePage>
     };
     final http.Response response = await http.post(
       'http://34.69.44.48:8080/Espotify/playlist_modificar_android',
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+      body: jsonEncode(data),
+
+    );
+    if (response.statusCode == 200) {
+      // If the server did return a 201 CREATED response,
+      // then parse the JSON.
+      return Respuesta.fromJson(json.decode(response.body));
+    } else {
+      // If the server did not return a 201 CREATED response,
+      // then throw an exception.
+      throw Exception('Fallo al enviar petición');
+    }
+  }
+
+  Future<Respuesta> actualizarPodcast(String email, String nombrePodcastAntiguo,
+      String descripcionPlaylist,  String nombrePodcastNuevo) async {
+    //List<int> imageBytes = _playlistImage.readAsBytesSync();
+    //String base64Image = base64.encode(imageBytes);
+    Map data = {
+      'nombrePodcastViejo': nombrePodcastAntiguo,
+      'descripcion': descripcionPlaylist,
+      'email': email,
+      'nombrePodcastNuevo': nombrePodcastNuevo,
+      //'imagen': base64Image,
+    };
+    final http.Response response = await http.post(
+      'http://34.69.44.48:8080/Espotify/modificar_podcast_android',
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
       },
