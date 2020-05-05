@@ -180,100 +180,6 @@ class _DirectosState extends State<Directos> {
           itemBuilder: (context, pos) {
             return Consumer<PlaylistRepo>(builder: (context, repo, _) {
               return ListTile(
-                trailing: PopupMenuButton<String>(
-                  icon: Icon(
-                    Icons.more_vert,
-                    color: Colors.grey,
-                  ),
-                  onSelected: (String choice) async {
-                    log("data: $choice");
-                    if (choice == Constants.pl) {
-                      showDialog(
-                          context: context,
-                          builder: (context) {
-                            return SimpleDialog(
-                              shape: RoundedRectangleBorder(
-                                side: BorderSide(),
-                                borderRadius:
-                                BorderRadius.all(Radius.circular(30.0)),
-                              ),
-                              backgroundColor:
-                              Theme.of(context).backgroundColor,
-                              children: <Widget>[
-                                Row(
-                                  mainAxisAlignment:
-                                  MainAxisAlignment.spaceEvenly,
-                                  children: <Widget>[
-                                    Padding(
-                                      padding: const EdgeInsets.all(8.0),
-                                      child: Text(
-                                        "Añadir a Playlist",
-                                        style: Theme.of(context)
-                                            .textTheme
-                                            .display1,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                Container(
-                                  width: double.maxFinite,
-                                  child: (repo.playlist.length != 0)
-                                      ? ListView.builder(
-                                    shrinkWrap: true,
-                                    itemCount: repo.playlist.length,
-                                    itemBuilder: (context, index) {
-                                      return Padding(
-                                        padding:
-                                        EdgeInsets.only(left: 10.0),
-                                        child: ListTile(
-                                          onTap: () {
-                                            PlaylistHelper(
-                                                repo.playlist[index])
-                                                .add(model.songs[pos]);
-                                            Navigator.pop(context);
-                                            anyadirCancionAPlaylist(model.songs[pos], repo.playlist[index]);
-                                          },
-                                          title: Text(
-                                            repo.playlist[index],
-                                            style: Theme.of(context)
-                                                .textTheme
-                                                .display2,
-                                          ),
-                                        ),
-                                      );
-                                    },
-                                  )
-                                      : Center(
-                                    child: Text("No existen Playlists"),
-                                  ),
-                                )
-                              ],
-                            );
-                          });
-                    }
-                    //} else if (choice == Constants.de) {
-
-                    //   model.fetchSongs();
-                    // }else if(choice == Constants.re){
-                    //   Directory x = await getExternalStorageDirectory();
-                    //   await File("${x.path}../../").rename(x.path);
-                    //}
-                  },
-                  itemBuilder: (BuildContext context) {
-                    return Constants.choices.map((String choice) {
-                      return PopupMenuItem<String>(
-                        value: choice,
-                        child: Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: Text(
-                            choice,
-                            style: Theme.of(context).textTheme.display2,
-                          ),
-                        ),
-                      );
-                    }).toList();
-                  },
-                ),
                 onTap: () async {
                   model.player.stop();
                   model.playlist = true;
@@ -347,7 +253,7 @@ class _DirectosState extends State<Directos> {
           child: IconButton(
             onPressed: null,
             icon: Icon(
-              Icons.music_note,
+              Icons.radio,
               color: Colors.white,
 
             ),
@@ -360,16 +266,16 @@ class _DirectosState extends State<Directos> {
               end: Alignment.bottomLeft,
               colors: pos % 2 == 0
                   ? [
-                Colors.orangeAccent,
-                Colors.orange,
-                Colors.deepOrange,
-                Colors.orange,
+                Colors.redAccent,
+                Colors.red,
+                Colors.redAccent,
+                Colors.red,
               ]
                   : [
-                Colors.pinkAccent,
-                Colors.pink,
-                Colors.pinkAccent,
-                Colors.pink,
+                Colors.black,
+                Colors.black54,
+                Colors.black,
+                Colors.black54,
               ],
             ),
           ));
@@ -563,7 +469,7 @@ class Search extends SearchDelegate<Song> {
                   ]),
               style: TextStyle(color: Colors.black, fontSize: 18),
             ),
-            leading: CircleAvatar(child: Icon(Icons.radio)),
+            leading: CircleAvatar(backgroundColor: Colors.red, child: Icon(Icons.radio)),
           ),
         );
       },

@@ -138,7 +138,7 @@ class PodcastScreenState extends State<PodcastScreen> {
                             model.play();
 
                           },
-                          leading: CircleAvatar(child: getImage(pos)),
+                          leading: CircleAvatar(backgroundColor: Colors.purpleAccent,child: getImage(pos)),
                           title: Text(
                             songs[pos].title,
                             maxLines: 1,

@@ -323,7 +323,7 @@ class _PLayListScreenState extends State<PLayListScreen> {
                                       model.play();
 
                                     },
-                                    leading: CircleAvatar(child: getImage(pos)),
+                                    leading: CircleAvatar(backgroundColor: Colors.orange,child: getImage(pos)),
                                     title: Text(
                                       songs[pos].title,
                                       maxLines: 1,
