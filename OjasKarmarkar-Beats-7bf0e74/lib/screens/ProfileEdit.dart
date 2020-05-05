@@ -1540,6 +1540,7 @@ class _ProfilePageState extends State<ProfilePage>
                                                             color: Colors.white,
                                                           ),
                                                           onPressed: () async {
+                                                            podcastRepo.selected = pos;
                                                             Navigator.of(
                                                                 context).push(
                                                                 new MaterialPageRoute(

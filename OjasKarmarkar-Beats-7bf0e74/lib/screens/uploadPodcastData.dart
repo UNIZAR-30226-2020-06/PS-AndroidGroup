@@ -24,13 +24,15 @@ class UploadPodcastDataState extends StatelessWidget   {
   List<String> generos; // Option 2
   String genero;
   String email;
+  String nombrePodcast;
 
 
-  UploadPodcastDataState({Key key, @required this.archivo, this.email, this.generos}) : super(key: key);
+  UploadPodcastDataState({Key key, @required this.archivo, this.email, this.generos, this.nombrePodcast}) : super(key: key);
 
 
   @override
   Widget build(BuildContext context) {
+    log("gnerasos: $generos");
     return new Scaffold(
         body: new Container(
           color: Colors.white,
@@ -184,7 +186,7 @@ class UploadPodcastDataState extends StatelessWidget   {
                         if(r.getUserId() == "fail"){
                           mostrarError("No se ha podido subir el podcast.", context);
                         }else{
-                          mostrarError("podcast subida con éxito.", context);
+                          mostrarError("podcast subido con éxito.", context);
                         }
                       }
                     },
@@ -216,18 +218,19 @@ class UploadPodcastDataState extends StatelessWidget   {
     );
   }
 
-  Future<Respuesta> uploadSong(String email, String nombreCancion, String generoCancion) async {
+  Future<Respuesta> uploadSong(String email, String nombreCapitulo, String genero) async {
     File songFile = new File(archivo);
     List<int> songBytes = songFile.readAsBytesSync();
     String base64Song = base64.encode(songBytes);
     Map data = {
       'email': email,
-      'nombreCancion': nombreCancion,
-      'generoCancion': generoCancion,
-      'cancion': base64Song,
+      'nombrePodcast': nombrePodcast,
+      'nombreCapitulo': nombreCapitulo,
+      'generoCapitulo': genero,
+      'capitulo': base64Song,
     };
     final http.Response response = await http.post(
-      'http://34.69.44.48:8080/Espotify/subir_audio_android',
+      'http://34.69.44.48:8080/Espotify/subir_capitulo_android',
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
       },

@@ -3,6 +3,7 @@ import 'dart:developer';
 import 'package:beats/Animations/transitions.dart';
 import 'package:beats/models/LocalPlaylistRepo.dart';
 import 'package:beats/models/PlayListHelper.dart';
+import 'package:beats/models/PodcastRepo.dart';
 import 'package:beats/models/ThemeModel.dart';
 import 'package:beats/models/Username.dart';
 import 'package:beats/models/const.dart';
@@ -29,7 +30,8 @@ class uploadPodcastState extends State<uploadPodcast> {
   TextEditingController editingController;
 
   LocalSongsModel model;
-
+  String nombrePodcast;
+  PodcastRepo podcastRepo;
 
   ThemeChanger themeChanger;
 
@@ -45,7 +47,9 @@ class uploadPodcastState extends State<uploadPodcast> {
   }
   @override
   void didChangeDependencies() {
+    podcastRepo = Provider.of<PodcastRepo>(context);
     username = Provider.of<Username>(context);
+    recibeGeneros();
     super.didChangeDependencies();
   }
   @override
@@ -101,7 +105,7 @@ class uploadPodcastState extends State<uploadPodcast> {
                               child: Stack(
                                 children: <Widget>[
                                   Text(
-                                    "Sube una podcast",
+                                    "Sube un capítulo",
                                     style: TextStyle(
                                         fontWeight: FontWeight.bold,
                                         fontSize: 30,
@@ -225,10 +229,11 @@ class uploadPodcastState extends State<uploadPodcast> {
                         child: GestureDetector(
                           onTap: () async { String s = model.songs[pos].uri;
                           log('Uri: $s');
-                          generos = await convertirALista();
+                          await convertirALista();
+                          log("cambio: $generos");
                           Navigator.push(context, new MaterialPageRoute(
                               builder: (context) =>
-                              new UploadPodcastDataState(archivo: s,email: username.email, generos: generos))); },
+                              new UploadPodcastDataState(archivo: s,email: username.email, generos: generos, nombrePodcast: podcastRepo.podcast[podcastRepo.selected]))); },
                           child: Padding(
                             padding: const EdgeInsets.all(8.0),
                             child:  Text(choice,
@@ -267,6 +272,11 @@ class uploadPodcastState extends State<uploadPodcast> {
     }
   }
 
+  convertirALista() async{
+    Respuesta r = await recibeGeneros();
+    generos = r.generos.split('|');
+    log("geneross: $generos");
+  }
   getImage(model, pos) {
     if (model.songs[pos].albumArt != null) {
       return ClipRRect(
@@ -402,11 +412,6 @@ class Search extends SearchDelegate<Song> {
   }
 }
 
-Future<List<String>> convertirALista() async{
-  Respuesta r = await recibeGeneros();
-  var generosLista = r.generos.split('|');
-  return generosLista;
-}
 class Respuesta {
   final String generos;
 
@@ -428,7 +433,7 @@ Future<Respuesta> recibeGeneros() async {
   Map data = {
   };
   final http.Response response = await http.post(
-    'http://34.69.44.48:8080/Espotify/generos_android',
+    'http://34.69.44.48:8080/Espotify/generos_podcast_android',
     headers: <String, String>{
       'Content-Type': 'application/json; charset=UTF-8',
     },

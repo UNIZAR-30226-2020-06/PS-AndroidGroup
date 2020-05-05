@@ -116,9 +116,8 @@ class PodcastScreenState extends State<PodcastScreen> {
             ];
           },
           body: (songs != null)
-              ? (songs.length != 0)
+              ? (songs[0].title != "")
               ? Stack(children: <Widget>[
-
 
             ConditionalBuilder(
                 condition: true, //vista de una lista de capítulos de podcast
@@ -136,7 +135,7 @@ class PodcastScreenState extends State<PodcastScreen> {
                             ),
                             onSelected: (String choice) async {
                               log("data: $choice");
-                              if (choice == Constants.ed) {   //editar capítulo de podcast
+                              if (choice == Constants.ep) {   //editar capítulo de podcast
                                 showDialog(
                                   context: context,
                                   builder: (context) {
@@ -234,16 +233,15 @@ class PodcastScreenState extends State<PodcastScreen> {
                                                               4))),
                                                 ),
                                               ),
-                                              Padding(
-                                                padding: EdgeInsets.only(
-                                                    left: 25.0, right: 25.0, top: 2.0),
-                                                child: DropdownButton(
+                                              DropdownButton(
                                                   hint: Text('Elige un género',style: TextStyle(
                                                       fontSize: 16.0,
                                                       fontWeight: FontWeight.bold)), // Not necessary for Option 1
                                                   value: genero,
                                                   onChanged: (newValue) {
-                                                    genero = newValue;
+                                                    setState(() {
+                                                      genero = newValue;
+                                                    });
                                                   },
                                                   items: generos.map((location) {
                                                     return DropdownMenuItem(
@@ -252,11 +250,11 @@ class PodcastScreenState extends State<PodcastScreen> {
                                                     );
                                                   }).toList(),
                                                 ),
-                                              ),
+
                                               InkWell(
                                                 onTap: ()  {
                                                   setState(() {
-                                                    //editarUnCapituloPodcast(username.email, misCanciones.playlist[pos],txt.text, genero);  //editar en la BD
+                                                    editarUnCapituloPodcast(username.email, model.songs[pos].title,txt.text, genero);  //editar en la BD
 
                                                     Navigator.pop(
                                                         context);
@@ -300,12 +298,12 @@ class PodcastScreenState extends State<PodcastScreen> {
                                     );
                                   },
                                 );
-                              }else if(choice == Constants.de){ //borrar canciones
-                                borrarCapituloPodcast(username.email, model.songs[pos]);
+                              }else if(choice == Constants.dp){ //borrar canciones
+                                borrarCapituloPodcast(username.email, name, model.songs[pos]);
                               }
                             },
                             itemBuilder: (BuildContext context) {
-                              return Constants.opciones.map((String choice) {
+                              return Constants.opcionesPodcast.map((String choice) {
                                 return PopupMenuItem<String>(
                                   value: choice,
                                   child: Padding(
@@ -357,7 +355,7 @@ class PodcastScreenState extends State<PodcastScreen> {
           ])
               : Center(
             child: Text(
-              "No hay capitulos",
+              "No hay capítulos",
               style: Theme.of(context).textTheme.display2,
             ),
           )
@@ -386,20 +384,22 @@ class PodcastScreenState extends State<PodcastScreen> {
   }
 
   void editarUnCapituloPodcast(String email, String title, String newTitle, String genero) async {
+    log("pod: $title $newTitle $genero");
     await editarCapPodcast(email, title, newTitle, genero);
     initDataPodcasts();
   }
 
-  void borrarCapituloPodcast(String email, Song song) async {
+  void borrarCapituloPodcast(String email,String nombrePodcast, Song song) async {
 
-    await borrarCapPodcast(email, "misCanciones", song.title);
+    await borrarCapPodcast(email,nombrePodcast, song.title);
     initDataPodcasts();
   }
 
 
   Future<Canciones> editarCapPodcast(String email, String nombreViejo, String nuevoNombre, String genero) async {
+    log("pod: $nombreViejo $nuevoNombre $genero");
     Map data = {
-      //'email': email,
+      'email': email,
       'nombrePodcastViejo': nombreViejo,
       'nombrePodcastNuevo': nuevoNombre,
       'generoPodcastNuevo': genero,
@@ -426,8 +426,9 @@ class PodcastScreenState extends State<PodcastScreen> {
   }
 
   Future<Canciones> borrarCapPodcast(String email, String nombrePodcast, String nombreCapPodcast) async {
+
     Map data = {
-      //'email': email,
+      'email': email,
       'nombrePodcast': nombrePodcast,
       'nombreCapitulo': nombreCapPodcast,
     };
