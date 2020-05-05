@@ -7,6 +7,7 @@ import 'package:beats/icono_personalizado.dart';
 import 'package:beats/models/MisCancionesModel.dart';
 import 'package:beats/models/PlayListHelper.dart';
 import 'package:beats/models/PlaylistRepo.dart';
+import 'package:beats/models/PodcastRepo.dart';
 import 'package:beats/models/SongsModel.dart';
 import 'package:beats/models/Username.dart';
 import 'package:beats/models/const.dart';
@@ -44,6 +45,7 @@ class _ProfilePageState extends State<ProfilePage>
   TextEditingController controlador = new TextEditingController();
   List<String> playlists;
   PlaylistRepo playlistRepo = new PlaylistRepo();
+  PodcastRepo podcastRepo = new PodcastRepo();
   MisCancionesModel misCanciones = new MisCancionesModel();
 
   TextEditingController textFieldController = TextEditingController();
@@ -106,11 +108,13 @@ class _ProfilePageState extends State<ProfilePage>
     model = Provider.of<SongsModel>(context);
     username = Provider.of<Username>(context);
     playlistRepo = Provider.of<PlaylistRepo>(context);
+    podcastRepo = Provider.of<PodcastRepo>(context);
     misCanciones = Provider.of<MisCancionesModel>(context);
     recibirDatos(username.email, usernameController,
         descriptionController, emailController, passwordController);
     setState(() {
-      anyadePlaylists(username.email, playlistRepo, misCanciones);
+      anyadeDatosUsuario(username.email, playlistRepo, misCanciones, podcastRepo);
+
     });
     super.didChangeDependencies();
   }
@@ -910,7 +914,644 @@ class _ProfilePageState extends State<ProfilePage>
                                   ),
                                 ),
                               )),
+                          mostrarApartado("Mis podcasts"),
+                          Padding(
+                              padding: EdgeInsets.only(top: height * 0.04),
+                              child: SizedBox(
+                                height: height * 0.23,
+                                child: Consumer<PodcastRepo>(
+                                  builder: (context, podcastRepo, _) => ListView.builder(
 
+                                    itemCount: podcastRepo.podcast.length + 1,
+                                    itemBuilder: (context, pos) {
+
+
+                                      var padd = (pos == 0) ? width * 0.08 : 5.0;
+                                      if (pos == (podcastRepo.podcast.length)) {
+                                        return GestureDetector(
+                                          onTap: () {
+                                            showDialog(
+                                              context: context,
+                                              builder: (context) {
+                                                return Padding(
+                                                  padding: const EdgeInsets.all(8.0),
+                                                  child: AlertDialog(
+                                                    backgroundColor:
+                                                    Theme.of(context).backgroundColor,
+                                                    shape: RoundedRectangleBorder(
+                                                      side: BorderSide(),
+                                                      borderRadius: BorderRadius.all(
+                                                          Radius.circular(30.0)),
+                                                    ),
+                                                    contentPadding: EdgeInsets.only(top: 10.0),
+                                                    content: Container(
+                                                      width: 50.0,
+                                                      child: Column(
+                                                        mainAxisAlignment:
+                                                        MainAxisAlignment.start,
+                                                        crossAxisAlignment:
+                                                        CrossAxisAlignment.stretch,
+                                                        mainAxisSize: MainAxisSize.min,
+                                                        children: <Widget>[
+                                                          Row(
+                                                            mainAxisAlignment:
+                                                            MainAxisAlignment.spaceEvenly,
+                                                            mainAxisSize: MainAxisSize.min,
+                                                            children: <Widget>[
+                                                              Text(
+                                                                "Nuevo Podcast",
+                                                                style: TextStyle(
+                                                                    fontSize: 24.0,
+                                                                    fontFamily: 'Sans'),
+                                                              ),
+                                                            ],
+                                                          ),
+                                                          SizedBox(
+                                                            height: 5.0,
+                                                          ),
+                                                          Divider(
+                                                            color: Colors.grey,
+                                                            height: 4.0,
+                                                          ),
+                                                          Padding(
+                                                              padding: EdgeInsets.only(
+                                                                  left: 27.0,
+                                                                  right: 27.0,
+                                                                  top: 27.0,
+                                                                  bottom: 27.0),
+                                                              child: Column(children: <Widget>[
+                                                                TextFormField(
+                                                                  controller: txt,
+                                                                  decoration: InputDecoration(
+                                                                      disabledBorder: OutlineInputBorder(
+                                                                          borderSide: BorderSide(
+                                                                              color: Colors
+                                                                                  .deepPurple)),
+                                                                      enabledBorder: OutlineInputBorder(
+                                                                          borderSide: BorderSide(
+                                                                              color: Colors
+                                                                                  .deepPurple)),
+                                                                      errorText: error
+                                                                          ? "El nombre no \n puede ser nulo"
+                                                                          : null,
+                                                                      errorStyle: Theme.of(
+                                                                          context)
+                                                                          .textTheme
+                                                                          .display2,
+                                                                      labelText:
+                                                                      "Ponle un nombre",
+                                                                      labelStyle: Theme.of(
+                                                                          context)
+                                                                          .textTheme
+                                                                          .display2,
+                                                                      border: OutlineInputBorder(
+                                                                          borderRadius:
+                                                                          BorderRadius.circular(
+                                                                              4))),
+                                                                ),
+                                                                TextFormField(
+                                                                  controller: txtDescripcion,
+                                                                  decoration: InputDecoration(
+                                                                      disabledBorder: OutlineInputBorder(
+                                                                          borderSide: BorderSide(
+                                                                              color: Colors
+                                                                                  .deepPurple)),
+                                                                      enabledBorder: OutlineInputBorder(
+                                                                          borderSide: BorderSide(
+                                                                              color: Colors
+                                                                                  .deepPurple)),
+                                                                      errorText: error
+                                                                          ? "La descripción no \n puede ser nula"
+                                                                          : null,
+                                                                      errorStyle: Theme.of(
+                                                                          context)
+                                                                          .textTheme
+                                                                          .display2,
+                                                                      labelText:
+                                                                      "Ponle una descripción",
+                                                                      labelStyle: Theme.of(
+                                                                          context)
+                                                                          .textTheme
+                                                                          .display2,
+                                                                      border: OutlineInputBorder(
+                                                                          borderRadius:
+                                                                          BorderRadius.circular(
+                                                                              4))),
+                                                                ),
+                                                                new GestureDetector(onTap: seleccionarImagenPlaylist,child:new Container(
+                                                                    width: 40.0,
+                                                                    height: 40.0,
+                                                                    decoration: new BoxDecoration(
+                                                                      shape: BoxShape.circle,
+                                                                      image: new DecorationImage(
+                                                                        image: _profileImage == null
+                                                                            ? new ExactAssetImage(
+                                                                            'assets/prof.png')
+                                                                            : FileImage(_playlistImage),
+                                                                        fit: BoxFit.cover,
+                                                                      ),
+                                                                    ))),
+                                                              ],)
+                                                          ),
+                                                          InkWell(
+                                                            onTap: () {
+                                                              setState(() {
+                                                                if(txt.text != ""){
+                                                                  validate(context, podcastRepo, txt.text, "create");
+                                                                }
+
+                                                              });
+
+
+                                                            },
+                                                            child: Container(
+                                                              padding: EdgeInsets.only(
+                                                                  top: 10.0, bottom: 20.0),
+                                                              decoration: BoxDecoration(
+                                                                color: Colors.purple,
+                                                                borderRadius: BorderRadius.only(
+                                                                    bottomLeft:
+                                                                    Radius.circular(32.0),
+                                                                    bottomRight:
+                                                                    Radius.circular(32.0)),
+                                                              ),
+                                                              child: Text(
+                                                                "¡Crear!",
+                                                                style: TextStyle(
+                                                                    fontFamily: 'Sans',
+                                                                    color: Colors.white),
+                                                                textAlign: TextAlign.center,
+                                                              ),
+                                                            ),
+                                                          ),
+                                                        ],
+                                                      ),
+                                                    ),
+                                                  ),
+                                                );
+                                              },
+                                            );
+                                          },
+                                          child: Card(
+                                            margin: EdgeInsets.only(left: padd, right: 5.0),
+                                            elevation: 5,
+                                            shape: RoundedRectangleBorder(
+                                                side: BorderSide(color: Colors.purpleAccent),
+                                                borderRadius: BorderRadius.circular(20)),
+                                            child: ClipRRect(
+                                                borderRadius: BorderRadius.circular(20),
+                                                child: Container(
+                                                    width: width * 0.4,
+                                                    child: Center(
+                                                        child: Icon(
+                                                          Icons.add,
+                                                          size: 25,
+                                                        )))),
+                                          ),
+                                        );
+                                      } else {
+                                        return Card(
+                                          margin: EdgeInsets.only(left: padd, right: 5.0),
+                                          elevation: 20,
+                                          shape: RoundedRectangleBorder(
+                                              borderRadius: BorderRadius.circular(20)),
+                                          child: GestureDetector(
+                                            onTap: () {
+                                              misCanciones.selected = null;
+                                              podcastRepo.selected = null;
+                                              podcastRepo.selected = pos;
+                                              Navigator.of(context).push(new MaterialPageRoute(
+                                                  builder: (context) => new PLayListScreen()));
+                                            },
+                                            child: ClipRRect(
+                                                borderRadius: BorderRadius.circular(20),
+                                                child: Container(
+                                                  width: width * 0.4,
+                                                  decoration: BoxDecoration(
+                                                    // Box decoration takes a gradient
+                                                    gradient: LinearGradient(
+                                                      // Where the linear gradient begins and ends
+                                                      begin: Alignment.topRight,
+                                                      end: Alignment.bottomLeft,
+                                                      // Add one stop for each color. Stops should increase from 0 to 1
+                                                      stops: [0.1, 0.5, 0.7, 0.9],
+                                                      colors: pos % 2 == 0
+                                                          ? [
+                                                        Colors.purpleAccent,
+                                                        Colors.purple,
+                                                        Colors.purple,
+                                                        Colors.purpleAccent,
+                                                      ]
+                                                          : [
+                                                        Colors.lightBlueAccent,
+                                                        Colors.indigoAccent,
+                                                        Colors.indigoAccent,
+                                                        Colors.lightBlueAccent,
+                                                      ],
+                                                    ),
+                                                  ),
+                                                  child: Stack(children: <Widget>[
+                                                    Align(
+                                                      alignment: Alignment.topRight,
+                                                      child: Padding(
+                                                        padding:
+                                                        const EdgeInsets.only(top: 8.0),
+                                                        child: IconButton(
+                                                          icon: Icon(
+                                                            Icons.delete_outline,
+                                                            size: 17,
+                                                            color: Colors.white,
+                                                          ),
+                                                          onPressed: () async {
+                                                            setState(() {
+
+                                                              showDialog(
+                                                                context: context,
+                                                                builder: (context) {
+                                                                  return Padding(
+                                                                    padding:
+                                                                    const EdgeInsets.all(8.0),
+                                                                    child: AlertDialog(
+                                                                      backgroundColor:
+                                                                      Theme.of(context)
+                                                                          .backgroundColor,
+                                                                      shape:
+                                                                      RoundedRectangleBorder(
+                                                                        side: BorderSide(),
+                                                                        borderRadius:
+                                                                        BorderRadius.all(
+                                                                            Radius.circular(
+                                                                                30.0)),
+                                                                      ),
+                                                                      contentPadding:
+                                                                      EdgeInsets.only(
+                                                                          top: 10.0),
+                                                                      content: Container(
+                                                                        width: 200.0,
+                                                                        child: Column(
+                                                                          mainAxisAlignment:
+                                                                          MainAxisAlignment
+                                                                              .start,
+                                                                          crossAxisAlignment:
+                                                                          CrossAxisAlignment
+                                                                              .stretch,
+                                                                          mainAxisSize:
+                                                                          MainAxisSize.min,
+                                                                          children: <Widget>[
+                                                                            Row(
+                                                                              mainAxisAlignment:
+                                                                              MainAxisAlignment
+                                                                                  .spaceEvenly,
+                                                                              mainAxisSize:
+                                                                              MainAxisSize
+                                                                                  .min,
+                                                                              children: <Widget>[
+                                                                                Text(
+                                                                                  "Eliminar Playlist",
+                                                                                  style: TextStyle(
+                                                                                      fontSize:
+                                                                                      24.0,
+                                                                                      fontFamily:
+                                                                                      'Sans'),
+                                                                                ),
+                                                                              ],
+                                                                            ),
+                                                                            SizedBox(
+                                                                              height: 5.0,
+                                                                            ),
+                                                                            Divider(
+                                                                              color: Colors.grey,
+                                                                              height: 4.0,
+                                                                            ),
+                                                                            Padding(
+                                                                              padding:
+                                                                              EdgeInsets.only(
+                                                                                  left: 30.0,
+                                                                                  right: 30.0,
+                                                                                  top: 30.0,
+                                                                                  bottom:
+                                                                                  30.0),
+                                                                              child:Text("¿Estás seguro?"),
+
+                                                                            ),
+                                                                            InkWell(
+                                                                              onTap: () async {
+
+                                                                                setState(() {
+                                                                                  validate(context, podcastRepo, podcastRepo.podcast[pos], "Delete");
+
+                                                                                });
+                                                                              },
+                                                                              child: Container(
+                                                                                padding: EdgeInsets
+                                                                                    .only(
+                                                                                    top: 10.0,
+                                                                                    bottom:
+                                                                                    20.0),
+                                                                                decoration:
+                                                                                BoxDecoration(
+                                                                                  color:
+                                                                                  Colors.red,
+                                                                                ),
+                                                                                child: Text(
+                                                                                  "Eliminar",
+                                                                                  style: TextStyle(
+                                                                                      fontFamily:
+                                                                                      'Sans',
+                                                                                      color: Colors
+                                                                                          .white),
+                                                                                  textAlign:
+                                                                                  TextAlign
+                                                                                      .center,
+                                                                                ),
+                                                                              ),
+                                                                            ),
+                                                                            InkWell(
+                                                                              onTap: () async {
+
+                                                                                setState(() {
+                                                                                  Navigator.pop(
+                                                                                      context);
+                                                                                });
+                                                                              },
+                                                                              child: Container(
+                                                                                padding: EdgeInsets
+                                                                                    .only(
+                                                                                    top: 10.0,
+                                                                                    bottom:
+                                                                                    20.0),
+                                                                                decoration:
+                                                                                BoxDecoration(
+                                                                                  color:
+                                                                                  Colors.orange,
+                                                                                  borderRadius: BorderRadius.only(
+                                                                                      bottomLeft:
+                                                                                      Radius.circular(
+                                                                                          32.0),
+                                                                                      bottomRight:
+                                                                                      Radius.circular(
+                                                                                          32.0)),
+                                                                                ),
+                                                                                child: Text(
+                                                                                  "Cancelar",
+                                                                                  style: TextStyle(
+                                                                                      fontFamily:
+                                                                                      'Sans',
+                                                                                      color: Colors
+                                                                                          .white),
+                                                                                  textAlign:
+                                                                                  TextAlign
+                                                                                      .center,
+                                                                                ),
+                                                                              ),
+                                                                            ),
+                                                                          ],
+                                                                        ),
+                                                                      ),
+                                                                    ),
+                                                                  );
+                                                                },
+                                                              );
+                                                            });
+                                                            //si servidor no contesta
+                                                            //exceptión, en caso de que responda
+                                                            //mantenemos el funcionamiento anterior
+                                                            //PlaylistHelper temp =
+                                                            //await PlaylistHelper(
+                                                            //    playlistRepo.playlist[pos]);
+                                                            //temp.deletePlaylist();
+                                                            //playlistRepo.delete(
+                                                            //    playlistRepo.playlist[pos]);
+                                                            //playlistRepo.init();
+                                                          },
+                                                        ),
+                                                      ),
+                                                    ),
+                                                    Align(
+                                                      alignment: Alignment.topRight,
+                                                      child: Padding(
+                                                        padding: const EdgeInsets.only(
+                                                            right: 30.0, top: 8.0),
+                                                        child: IconButton(
+                                                          icon: Icon(
+                                                            Icons.edit,
+                                                            size: 17,
+                                                            color: Colors.white,
+                                                          ),
+                                                          onPressed: () {
+                                                            showDialog(
+                                                              context: context,
+                                                              builder: (context) {
+                                                                return Padding(
+                                                                  padding:
+                                                                  const EdgeInsets.all(8.0),
+                                                                  child: AlertDialog(
+                                                                    backgroundColor:
+                                                                    Theme.of(context)
+                                                                        .backgroundColor,
+                                                                    shape:
+                                                                    RoundedRectangleBorder(
+                                                                      side: BorderSide(),
+                                                                      borderRadius:
+                                                                      BorderRadius.all(
+                                                                          Radius.circular(
+                                                                              30.0)),
+                                                                    ),
+                                                                    contentPadding:
+                                                                    EdgeInsets.only(
+                                                                        top: 10.0),
+                                                                    content: Container(
+                                                                      width: 200.0,
+                                                                      child: Column(
+                                                                        mainAxisAlignment:
+                                                                        MainAxisAlignment
+                                                                            .start,
+                                                                        crossAxisAlignment:
+                                                                        CrossAxisAlignment
+                                                                            .stretch,
+                                                                        mainAxisSize:
+                                                                        MainAxisSize.min,
+                                                                        children: <Widget>[
+                                                                          Row(
+                                                                            mainAxisAlignment:
+                                                                            MainAxisAlignment
+                                                                                .spaceEvenly,
+                                                                            mainAxisSize:
+                                                                            MainAxisSize
+                                                                                .min,
+                                                                            children: <Widget>[
+                                                                              Text(
+                                                                                "Editar",
+                                                                                style: TextStyle(
+                                                                                    fontSize:
+                                                                                    24.0,
+                                                                                    fontFamily:
+                                                                                    'Sans'),
+                                                                              ),
+                                                                            ],
+                                                                          ),
+                                                                          SizedBox(
+                                                                            height: 5.0,
+                                                                          ),
+                                                                          Divider(
+                                                                            color: Colors.grey,
+                                                                            height: 4.0,
+                                                                          ),
+                                                                          Padding(
+                                                                              padding:
+                                                                              EdgeInsets.only(
+                                                                                  left: 27.0,
+                                                                                  right: 27.0,
+                                                                                  top: 27.0,
+                                                                                  bottom:
+                                                                                  27.0),
+                                                                              child: Column(children: <Widget>[
+                                                                                TextFormField(
+                                                                                  controller: txt,
+                                                                                  decoration: InputDecoration(
+                                                                                      disabledBorder: OutlineInputBorder(
+                                                                                          borderSide: BorderSide(
+                                                                                              color: Colors
+                                                                                                  .deepPurple)),
+                                                                                      enabledBorder: OutlineInputBorder(
+                                                                                          borderSide: BorderSide(
+                                                                                              color: Colors
+                                                                                                  .deepPurple)),
+                                                                                      errorText: error
+                                                                                          ? "El nombre no \n puede ser nulo"
+                                                                                          : null,
+                                                                                      errorStyle: Theme.of(
+                                                                                          context)
+                                                                                          .textTheme
+                                                                                          .display2,
+                                                                                      labelText:
+                                                                                      "Ponle un nombre",
+                                                                                      labelStyle: Theme.of(
+                                                                                          context)
+                                                                                          .textTheme
+                                                                                          .display2,
+                                                                                      border: OutlineInputBorder(
+                                                                                          borderRadius:
+                                                                                          BorderRadius.circular(
+                                                                                              4))),
+                                                                                ),
+                                                                                TextFormField(
+                                                                                  controller: txtDescripcion,
+                                                                                  decoration: InputDecoration(
+                                                                                      disabledBorder: OutlineInputBorder(
+                                                                                          borderSide: BorderSide(
+                                                                                              color: Colors
+                                                                                                  .deepPurple)),
+                                                                                      enabledBorder: OutlineInputBorder(
+                                                                                          borderSide: BorderSide(
+                                                                                              color: Colors
+                                                                                                  .deepPurple)),
+                                                                                      errorText: error
+                                                                                          ? "La descripción no \n puede ser nula"
+                                                                                          : null,
+                                                                                      errorStyle: Theme.of(
+                                                                                          context)
+                                                                                          .textTheme
+                                                                                          .display2,
+                                                                                      labelText:
+                                                                                      "Ponle una descripción",
+                                                                                      labelStyle: Theme.of(
+                                                                                          context)
+                                                                                          .textTheme
+                                                                                          .display2,
+                                                                                      border: OutlineInputBorder(
+                                                                                          borderRadius:
+                                                                                          BorderRadius.circular(
+                                                                                              4))),
+                                                                                ),
+                                                                                new GestureDetector(onTap: seleccionarImagenPlaylist,child:new CircleAvatar(
+                                                                                  backgroundColor: Colors.red,
+                                                                                  radius: 25.0,
+                                                                                  child: new Icon(
+                                                                                    Icons.camera_alt,
+                                                                                    color: Colors.white,
+                                                                                  ),
+                                                                                )),
+                                                                              ],)
+
+                                                                          ),
+                                                                          InkWell(
+                                                                            onTap: () {
+                                                                              setState(() {
+                                                                                if(txt.text != ""){
+                                                                                  actualizarPlaylist(username.email, podcastRepo.podcast[pos], txtDescripcion.text,txt.text);
+                                                                                  podcastRepo.podcast[pos] = txt.text;
+                                                                                  podcastRepo.descripciones[pos] = txtDescripcion.text;
+                                                                                  Navigator.pop(context);
+                                                                                }
+                                                                              });
+                                                                            },
+                                                                            child: Container(
+                                                                              padding: EdgeInsets
+                                                                                  .only(
+                                                                                  top: 10.0,
+                                                                                  bottom:
+                                                                                  20.0),
+                                                                              decoration:
+                                                                              BoxDecoration(
+                                                                                color:
+                                                                                Colors.orange,
+                                                                                borderRadius: BorderRadius.only(
+                                                                                    bottomLeft:
+                                                                                    Radius.circular(
+                                                                                        32.0),
+                                                                                    bottomRight:
+                                                                                    Radius.circular(
+                                                                                        32.0)),
+                                                                              ),
+                                                                              child: Text(
+                                                                                "Aplicar",
+                                                                                style: TextStyle(
+                                                                                    fontFamily:
+                                                                                    'Sans',
+                                                                                    color: Colors
+                                                                                        .white),
+                                                                                textAlign:
+                                                                                TextAlign
+                                                                                    .center,
+                                                                              ),
+                                                                            ),
+                                                                          ),
+                                                                        ],
+                                                                      ),
+                                                                    ),
+                                                                  ),
+                                                                );
+                                                              },
+                                                            );
+                                                          },
+                                                        ),
+                                                      ),
+                                                    ),
+                                                    Center(
+                                                      child: Padding(padding: EdgeInsets.only(
+                                                          left: 25.0, right: 25.0, top: 66.0),
+                                                        child: Column(children: <Widget>[
+                                                          Text(podcastRepo.podcast[pos],
+                                                              textAlign: TextAlign.center,
+                                                              style:
+                                                              TextStyle(color: Colors.white),
+                                                              textScaleFactor: 1.3),
+                                                          Text(podcastRepo.descripciones[pos],
+                                                              style:
+                                                              TextStyle(color: Colors.white)),
+                                                        ]),),
+                                                    ),
+                                                  ]),
+                                                )),
+                                          ),
+                                        );
+                                      }
+                                    },
+                                    scrollDirection: Axis.horizontal,
+                                  ),
+                                ),
+                              )),
                           Padding(
                               padding: EdgeInsets.only(
                                   left: 25.0, right: 25.0, top: 25.0),
@@ -1061,11 +1702,11 @@ class _ProfilePageState extends State<ProfilePage>
   }
 
 
-   anyadePlaylists(String email, PlaylistRepo playlistRepo, MisCancionesModel misCanciones) async {
+   anyadeDatosUsuario(String email, PlaylistRepo playlistRepo, MisCancionesModel misCanciones, PodcastRepo podcastRepo) async {
      Perfil p = await obtenerPerfil(email);
      if (p.nombreUsuario != null) {
        var playlistss = p.playlists.split('|');
-       var descripciones = p.descripciones.split('|');
+       var descripciones = p.descripcionesPlay.split('|');
        log('data: $playlistss');
        playlistRepo.generateInitialPlayList(playlistss, descripciones);
        List<String> misCancionesTitle = new List();
@@ -1983,14 +2624,16 @@ class Perfil {
   final String contrasenya;
   final String repetirContraseya;
   final String playlists;
-  final String descripciones;
+  final String descripcionesPlay;
+  final String podcasts;
+  final String descripcionesPod;
   final String canciones;
   final String urls;
   final imagen;
 
   Perfil({this.respuesta, this.nombreUsuario, this.descripcion, this.email,
-    this.contrasenya, this.repetirContraseya, this.playlists, this.descripciones,
-    this.canciones, this.urls, this.imagen});
+    this.contrasenya, this.repetirContraseya, this.playlists, this.descripcionesPlay,
+    this.canciones, this.urls, this.podcasts,this.descripcionesPod,this.imagen});
 
   factory Perfil.fromJson(Map<String, dynamic> json) {
     return Perfil(
@@ -1999,7 +2642,9 @@ class Perfil {
       //imagen: json['imagen'],
       email: json['email'],
       playlists: json['lista'],
-      descripciones: json['listaDescripcion'],
+      descripcionesPlay: json['listaDescripcion'],
+      //TODO podcasts: json['podcast']
+      //TODO descripcionesPod: json['descripcionesPod']
       canciones: json['audiosTitulo'],
       urls: json['audiosUrl'],
 
