@@ -929,8 +929,6 @@ class _ProfilePageState extends State<ProfilePage>
 
                                     itemCount: podcastRepo.podcast.length + 1,
                                     itemBuilder: (context, pos) {
-
-
                                       var padd = (pos == 0) ? width * 0.08 : 5.0;
                                       if (pos == (podcastRepo.podcast.length)) {
                                         return GestureDetector(
@@ -1786,6 +1784,8 @@ class _ProfilePageState extends State<ProfilePage>
 
    anyadeDatosUsuario(String email, PlaylistRepo playlistRepo, MisCancionesModel misCanciones, PodcastRepo podcastRepo) async {
      Perfil p = await obtenerPerfil(email);
+     String u = p.nombreUsuario;
+     log("user: $u");
      if (p.nombreUsuario != null) {
        var playlistss = p.playlists.split('|');
        var descripciones = p.descripcionesPlay.split('|');
@@ -2931,7 +2931,6 @@ Future<Perfil> obtenerPerfil(String email) async {
     body: jsonEncode(data),
 
   );
-
 
   if (response.statusCode == 200) {
     // If the server did return a 201 CREATED response,
