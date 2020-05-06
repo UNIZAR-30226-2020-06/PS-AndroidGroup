@@ -59,7 +59,7 @@ class _LoginPageState extends State<LoginPage> {
                   SizedBox(height: 10,),
                   Align(
                       alignment: Alignment.topCenter,
-                      child: Image.asset("assets/espotifylogo.png"))
+                      child: Image.asset("assets/TituloLogoPinocho2.png"))
 
 
 

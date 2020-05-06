@@ -45,7 +45,7 @@ dependencies:
 flutter_icons:
   android: "launcher_icon"
   ios: true
-  image_path : "assets/launcher.png"
+  image_path : "assets/LogoPinocho.png"
 
 
 dev_dependencies:
@@ -80,6 +80,8 @@ flutter:
     - assets/password_icon.png
     - assets/prof.png
     - assets/user_icon.png
+    - assets/LogoPinocho.png
+    - assets/TituloLogoPinocho2.png
 
 
   # An image asset can refer to one or more resolution-specific "variants", see

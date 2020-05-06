@@ -76,9 +76,7 @@ class _RegisterPageState extends State<RegisterPage> {
                   Align(alignment: Alignment.topCenter,
                     child: Text("Registro", style: TextStyle(color: Colors.white, fontSize: 40)),),
                   SizedBox(height: 10,),
-                  Align(
-                      alignment: Alignment.topCenter,
-                      child: Image.asset("assets/espotify.png"))
+
 
 
 
@@ -97,6 +95,9 @@ class _RegisterPageState extends State<RegisterPage> {
                       padding: EdgeInsets.all(30),
                       child: Column(
                         children: <Widget>[
+                          SizedBox(height: 100, width: 90, child: Align(
+                              alignment: Alignment.topCenter,
+                              child: Image.asset("assets/prof.png")),),
                           SizedBox(height: 60,),
                           Container(
                             decoration: BoxDecoration(
