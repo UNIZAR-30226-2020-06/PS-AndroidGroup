@@ -1,10 +1,13 @@
+import 'dart:developer';
 import 'dart:io';
+import 'package:beats/models/Comentario.dart';
 import 'package:beats/models/SongsModel.dart';
 import 'package:beats/models/ThemeModel.dart';
 import 'package:beats/models/PlaylistRepo.dart';
 import 'package:beats/models/BookmarkModel.dart';
 import 'package:beats/models/PlayListHelper.dart';
 import 'package:beats/models/Now_Playing.dart';
+import 'package:beats/models/const.dart';
 import 'package:beats/screens/MusicLibrary.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_media_notification/flutter_media_notification.dart';
@@ -23,12 +26,16 @@ class _PlayBackPageState extends State<PlayBackPage> {
   MusicLibrary x;
   PageController pg;
   NowPlaying playScreen;
+  TextEditingController comentario;
+  Comentario c;
+  FocusNode myFocusNode;
   int currentPage = 1;
 
   @override
   void initState() {
     super.initState();
 
+    myFocusNode = FocusNode();
     pg = PageController(
         initialPage: currentPage, keepPage: true, viewportFraction: 0.95);
   }
@@ -36,6 +43,7 @@ class _PlayBackPageState extends State<PlayBackPage> {
   @override
   void dispose() {
     super.dispose();
+    myFocusNode.dispose();
     pg.dispose();
   }
 
@@ -46,9 +54,12 @@ class _PlayBackPageState extends State<PlayBackPage> {
 
   @override
   Widget build(BuildContext context) {
+    log("ESTOY AQUI, CARGANDO EL PLAYER BIEN");
     model = Provider.of<SongsModel>(context);
     playScreen = Provider.of<NowPlaying>(context);
     themeChanger = Provider.of<ThemeChanger>(context);
+
+    c.obtenerListaComentarios(model.currentSong.title);
 
     if (playScreen.getScreen() == true) {
       return Scaffold(
@@ -149,7 +160,8 @@ class _PlayBackPageState extends State<PlayBackPage> {
                               },
                               icon: Icon(
                                 Icons.loop,
-                                color: model.repeat ? Colors.orange : Colors.grey,
+                                color:
+                                    model.repeat ? Colors.orange : Colors.grey,
                                 size: 35.0,
                               ),
                             ),
@@ -242,6 +254,7 @@ class _PlayBackPageState extends State<PlayBackPage> {
                         ),
                       ),
                       Padding(
+                        //bloque fav y add
                         padding: EdgeInsets.only(top: height * 0.02),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -276,14 +289,13 @@ class _PlayBackPageState extends State<PlayBackPage> {
                                   },
                                   icon: Icon(
                                     bookmark.alreadyExists(model.currentSong)
-                                        ? Icons.star
-                                        : Icons.star_border,
+                                        ? Icons.star //star
+                                        : Icons.star_border, //star_border
                                     color: bookmark
                                             .alreadyExists(model.currentSong)
                                         ? Colors.orange
                                         : Colors.grey,
                                     size: 35.0,
-
                                   ),
                                 ),
                               ),
@@ -386,12 +398,13 @@ class _PlayBackPageState extends State<PlayBackPage> {
                             ),
                           ],
                         ),
-                      )
+                      ),
                     ])),
           ],
         ),
       );
     } else {
+      //player, está aquí normalmente
       return Scaffold(
           resizeToAvoidBottomInset: false,
           body: Stack(children: <Widget>[
@@ -747,6 +760,70 @@ class _PlayBackPageState extends State<PlayBackPage> {
                           },
                         ),
                       ],
+                    ),
+                  ),
+                  Padding(
+                    padding:
+                        EdgeInsets.only(left: width * 0.02, top: height * 0.03),
+                    child: TextField(
+                      focusNode: myFocusNode,
+                      controller: comentario,
+                      decoration: InputDecoration(
+                        hintText: "Escribe aquí tu comentario",
+                      ),
+                    ),
+                  ),
+                  Scaffold(
+                    //todo implementar la lista
+                    resizeToAvoidBottomInset: false,
+                    backgroundColor: Theme.of(context).backgroundColor,
+                    body: (c.texto == null)
+                        ? Center(
+                            child: Text(
+                              "No hay comentarios",
+                              style: Theme.of(context).textTheme.display1,
+                            ),
+                          )
+                        : Expanded(
+                      child: ListView.builder(
+                        itemCount: c.texto.length,
+                        itemBuilder: (context, pos) {
+                          return Consumer<Comentario>(builder: (context, comentario, _) {
+                            return ListTile(
+                              trailing: PopupMenuButton<String>(
+                                icon: IconButton(
+                                  icon: Icon(
+                                    Icons.delete_outline,
+                                    size: 17,
+                                    color: Colors.grey,
+                                  ),
+                                  onPressed: () { comentario.borrarComentario(
+                                      comentario.texto[pos], comentario.usuarios[pos], model.currentSong.title);}
+                                ),
+                              ),
+                              title: Text(
+                                comentario.texto[pos],
+                                maxLines: 2,
+                                style: TextStyle(
+                                    fontSize: 15,
+                                    fontWeight: FontWeight.w700,
+                                    fontFamily: 'Sans'),
+                              ),
+                              subtitle: Padding(
+                                padding: const EdgeInsets.only(top: 10.0),
+                                child: Text(
+                                  comentario.usuarios[pos],
+                                  maxLines: 1,
+                                  style: TextStyle(
+                                      color: Theme.of(context).textTheme.display1.color,
+                                      fontSize: 12,
+                                      fontFamily: 'Sans'),
+                                ),
+                              ),
+                            );
+                          });
+                        },
+                      ),
                     ),
                   ),
                 ],
