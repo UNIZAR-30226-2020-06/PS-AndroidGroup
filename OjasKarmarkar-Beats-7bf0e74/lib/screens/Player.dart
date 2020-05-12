@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';
 import 'package:beats/models/Comentario.dart';
@@ -7,13 +8,19 @@ import 'package:beats/models/PlaylistRepo.dart';
 import 'package:beats/models/BookmarkModel.dart';
 import 'package:beats/models/PlayListHelper.dart';
 import 'package:beats/models/Now_Playing.dart';
+import 'package:beats/models/Username.dart';
 import 'package:beats/models/const.dart';
 import 'package:beats/screens/MusicLibrary.dart';
+import 'package:flute_music_player/flute_music_player.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_media_notification/flutter_media_notification.dart';
+import 'package:pref_dessert/generated/i18n.dart';
 import '../custom_icons.dart';
 import 'package:provider/provider.dart';
 import 'package:beats/models/ProgressModel.dart';
+import 'package:http/http.dart' as http;
+
+
 
 class PlayBackPage extends StatefulWidget {
   @override
@@ -30,7 +37,10 @@ class _PlayBackPageState extends State<PlayBackPage> {
   Comentario c;
   FocusNode myFocusNode;
   int currentPage = 1;
-
+  Username username;
+  BookmarkModel bm;
+  List<Song> songs;
+  SongsModel songsModel;
   @override
   void initState() {
     super.initState();
@@ -53,13 +63,23 @@ class _PlayBackPageState extends State<PlayBackPage> {
   List<String> playlist = new List();
 
   @override
+  void didChangeDependencies() {
+    // TODO: implement didChangeDependencies
+    username = Provider.of<Username>(context);
+    bm = Provider.of<BookmarkModel>(context);
+    songsModel = Provider.of<SongsModel>(context);
+    comprobarFavorito();
+    super.didChangeDependencies();
+  }
+
+  @override
   Widget build(BuildContext context) {
     log("ESTOY AQUI, CARGANDO EL PLAYER BIEN");
     model = Provider.of<SongsModel>(context);
     playScreen = Provider.of<NowPlaying>(context);
     themeChanger = Provider.of<ThemeChanger>(context);
 
-    c.obtenerListaComentarios(model.currentSong.title);
+    //c.obtenerListaComentarios(model.currentSong.title);
 
     if (playScreen.getScreen() == true) {
       return Scaffold(
@@ -282,9 +302,15 @@ class _PlayBackPageState extends State<PlayBackPage> {
                                   onPressed: () {
                                     if (!bookmark
                                         .alreadyExists(model.currentSong)) {
-                                      bookmark.add(model.currentSong);
+                                      setState(() {
+                                        bookmark.add(model.currentSong);
+                                        anyadirFavorito(username.email, model.currentSong.title);
+                                      });
                                     } else {
-                                      bookmark.remove(model.currentSong);
+                                      setState(() {
+                                        bookmark.remove(model.currentSong);
+                                        eliminarFavorito(username.email, model.currentSong.title);
+                                      });
                                     }
                                   },
                                   icon: Icon(
@@ -623,8 +649,10 @@ class _PlayBackPageState extends State<PlayBackPage> {
                                 if (!bookmark
                                     .alreadyExists(model.currentSong)) {
                                   bookmark.add(model.currentSong);
+                                  anyadirFavorito(username.email, model.currentSong.title);
                                 } else {
                                   bookmark.remove(model.currentSong);
+                                  eliminarFavorito(username.email, model.currentSong.title);
                                 }
                               },
                               icon: Icon(
@@ -773,7 +801,7 @@ class _PlayBackPageState extends State<PlayBackPage> {
                       ),
                     ),
                   ),
-                  Scaffold(
+                  /*Scaffold(
                     //todo implementar la lista
                     resizeToAvoidBottomInset: false,
                     backgroundColor: Theme.of(context).backgroundColor,
@@ -825,7 +853,7 @@ class _PlayBackPageState extends State<PlayBackPage> {
                         },
                       ),
                     ),
-                  ),
+                  ),*/
                 ],
               ),
             )
@@ -900,5 +928,119 @@ class _PlayBackPageState extends State<PlayBackPage> {
       txt.clear();
       Navigator.of(context).pop();
     } else {}
+  }
+
+  void comprobarFavorito() async {
+
+    Canciones c = await obtenerFavoritos(username.email);
+    List<String> nombresAudio = c.nombresAudio.split('|');
+    List<String> urlsAudio = c.urlsAudio.split('|');
+    log('especial: $nombresAudio');
+    List<Song> l = new List<Song>();
+    for(int i = 0; i<nombresAudio.length; i++){
+      l.add(new Song(1,"", nombresAudio[i], "",0,0,urlsAudio[i],null));
+    }
+    songs = l;
+    bm.initFavorites(songs);
+    setState(() {
+
+    });
+
+  }
+}
+anyadirFavorito(String email, String nombreCancion) async {
+  log("tuk: $email");
+  Map data = {
+    'email': email,
+    'nombreCancion': nombreCancion,
+  };
+  final http.Response response = await http.post(
+    'http://34.69.44.48:8080/Espotify/anyadir_favorito_android',
+    headers: <String, String>{
+      'Content-Type': 'application/json; charset=UTF-8',
+    },
+    body: jsonEncode(data),
+
+  );
+  if (response.statusCode == 200) {
+    // If the server did return a 201 CREATED response,
+    // then parse the JSON.
+    return Canciones.fromJson(json.decode(response.body));
+  } else {
+    // If the server did not return a 201 CREATED response,
+    // then throw an exception.
+    throw Exception('Fallo al enviar petición');
+  }
+}
+
+eliminarFavorito(String email, String nombreCancion) async {
+  Map data = {
+    'email': email,
+    'nombreCancion': nombreCancion,
+  };
+  final http.Response response = await http.post(
+    'http://34.69.44.48:8080/Espotify/eliminar_favorito_android',
+    headers: <String, String>{
+      'Content-Type': 'application/json; charset=UTF-8',
+    },
+    body: jsonEncode(data),
+
+  );
+  if (response.statusCode == 200) {
+    // If the server did return a 201 CREATED response,
+    // then parse the JSON.
+    return Canciones.fromJson(json.decode(response.body));
+  } else {
+    // If the server did not return a 201 CREATED response,
+    // then throw an exception.
+    throw Exception('Fallo al enviar petición');
+  }
+}
+
+class Canciones {
+  final String respuesta;
+  final String nombresAudio;
+  final String urlsAudio;
+  final String genero;
+  final String autor;
+  Canciones({this.respuesta, this.nombresAudio,this.urlsAudio, this.genero, this.autor});
+
+  factory Canciones.fromJson(Map<String, dynamic> json) {
+    return Canciones(
+      nombresAudio: json['nombresAudio'],
+      urlsAudio: json['urlsAudio'],
+    );
+
+  }
+  String getUserId(){
+    return respuesta;
+  }
+  String getNombresAudio(){
+    return nombresAudio;
+  }
+  String getUrlsAudio(){
+    return urlsAudio;
+  }
+}
+Future<Canciones> obtenerFavoritos(String email) async {
+  Map data = {
+    'email': email,
+  };
+  final http.Response response = await http.post(
+    'http://34.69.44.48:8080/Espotify/obtener_favoritos_android',
+    headers: <String, String>{
+      'Content-Type': 'application/json; charset=UTF-8',
+    },
+    body: jsonEncode(data),
+
+  );
+  if (response.statusCode == 200) {
+    // If the server did return a 201 CREATED response,
+    // then parse the JSON.
+    return Canciones.fromJson(json.decode(response.body));
+  } else {
+    // If the server did not return a 201 CREATED response,
+    // then throw an exception.
+    throw Exception('Fallo al enviar petición');
   }
 }

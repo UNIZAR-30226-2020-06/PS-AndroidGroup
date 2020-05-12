@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:developer';
 import 'dart:io';
 import 'package:beats/models/Username.dart';
 import 'package:beats/screens/Player.dart';
@@ -22,6 +23,7 @@ class _BookmarksState extends State<Bookmarks> {
   SongsModel model;
   Username username;
   bool isPlayed = false;
+  Canciones canciones;
 
   List<Song> songs;
   @override
@@ -40,24 +42,24 @@ class _BookmarksState extends State<Bookmarks> {
   }
   @override
   Widget build(BuildContext context) {
-    return Consumer<BookmarkModel>(
+    return Consumer<SongsModel>(
       builder: (context, bm, _) => WillPopScope(
         child: Scaffold(
           backgroundColor: Theme.of(context).backgroundColor,
           body: Stack(
             children: <Widget>[
-              (bm.bookmarks == null)
+              (bm.songs == null)
                   ? Center(
                       child: CircularProgressIndicator(),
                     )
-                  : (bm.bookmarks.length == 0 || bm.bookmarks.length == null)
+                  : (bm.songs.length == 0 || bm.songs.length == null || canciones == null)
                       ? Center(
                           child: Text(
                           "No hay favoritos",
                           style: Theme.of(context).textTheme.display1,
                         ))
                       : Container(
-                          height: height * 0.2,
+                          height: 220,
                           width: width,
                           child: Align(
                             alignment: Alignment.center,
@@ -94,10 +96,13 @@ class _BookmarksState extends State<Bookmarks> {
                               ],
                             ),
                           )),
-              Padding(
-                padding: EdgeInsets.only(top: height * 0.2),
+              (bm.songs.length == 0 || bm.songs.length == null || canciones == null)
+              ? Text("")
+
+             : Padding(
+                padding: EdgeInsets.only(top: 220),
                 child: ListView.builder(
-                  itemCount: bm.bookmarks.length,
+                  itemCount: bm.songs.length,
                   itemBuilder: (context, pos) {
                     return Padding(
                       padding: const EdgeInsets.only(top: 20.0, left: 10.0),
@@ -105,14 +110,14 @@ class _BookmarksState extends State<Bookmarks> {
                         onTap: () {
                           model.player.stop();
                           model.playlist = true;
-                          model.playlistSongs = bm.bookmarks;
-                          model.currentSong = bm.bookmarks[pos];
+                          model.playlistSongs = bm.songs;
+                          model.currentSong = bm.songs[pos];
 
                           model.play();
                         },
                         leading: CircleAvatar(backgroundColor: Colors.orange,child: getImage(bm, pos)),
                         title: Text(
-                          bm.bookmarks[pos].title,
+                          bm.songs[pos].title,
                           maxLines: 1,
                           style: TextStyle(
                               fontSize: 15,
@@ -123,7 +128,7 @@ class _BookmarksState extends State<Bookmarks> {
                         subtitle: Padding(
                           padding: const EdgeInsets.all(8.0),
                           child: Text(
-                            bm.bookmarks[pos].artist,
+                            bm.songs[pos].artist,
                             maxLines: 1,
                             style: TextStyle(
                                 fontSize: 12,
@@ -157,18 +162,19 @@ class _BookmarksState extends State<Bookmarks> {
     for(int i = 0; i<listaNombres.length; i++){
       listaCanciones.add(new Song(1,"", listaNombres[i], "",0,0,listaUrls[i],null));
     }
-
     songs = listaCanciones;
     model.fetchSongsManual(songs);
+    canciones = l;
     setState(() {});
+
   }
 
   getImage(bm, pos) {
-    if (bm.bookmarks[pos].albumArt != null) {
+    if (bm.songs[pos].albumArt != null) {
       return ClipRRect(
           borderRadius: BorderRadius.circular(20),
           child:
-              Image.file(File.fromUri(Uri.parse(bm.bookmarks[pos].albumArt))));
+              Image.file(File.fromUri(Uri.parse(bm.songs[pos].albumArt))));
     } else {
       return Icon(Icons.music_note, color: Colors.white,);
     }

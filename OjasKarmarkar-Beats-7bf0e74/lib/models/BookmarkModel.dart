@@ -1,4 +1,5 @@
 import 'package:flute_music_player/flute_music_player.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/widgets.dart';
 import 'BookmarkHelper.dart';
 
@@ -33,6 +34,10 @@ class BookmarkModel extends ChangeNotifier {
   fetchBookmarks() async {
     bookmarks = await db.getBookmarks();
     notifyListeners();
+  }
+
+  initFavorites(List<Song> canciones){
+    bookmarks = canciones;
   }
 
 }
