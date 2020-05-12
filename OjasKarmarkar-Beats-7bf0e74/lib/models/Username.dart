@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -8,6 +10,11 @@ String email;
 String canciones;
 String cancionesUrl;
 SharedPreferences prefs;
+String archivoPodcast;
+List<String> listaGenerosPodcasts;
+List<String> listaGenerosCanciones;
+String archivoCancion;
+String nombrePodcast;
 
 Username(){
   this.name = "Bienvenido";

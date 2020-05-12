@@ -222,12 +222,14 @@ class UploadSongState extends State<UploadSong> {
                       return PopupMenuItem<String>(
                         value: choice,
                         child: GestureDetector(
-                            onTap: () async { String s = model.songs[pos].uri;
-                            log('Uri: $s');
-                            generos = await convertirALista();
+                            onTap: () async {
+                              String s = model.songs[pos].uri;
+                              log('Uri: $s');
+                              username.archivoCancion = s;
+                              username.listaGenerosCanciones = await convertirALista();
                               Navigator.push(context, new MaterialPageRoute(
                                 builder: (context) =>
-                                new UploadSongDataState(archivo: s,email: username.email, generos: generos))); },
+                                new uploadSongData())); },
                             child: Padding(
                               padding: const EdgeInsets.all(8.0),
                               child:  Text(choice,
@@ -350,6 +352,7 @@ class Search extends SearchDelegate<Song> {
   @override
   Widget buildSuggestions(BuildContext context) {
     model = Provider.of<LocalSongsModel>(context);
+    Username username = Provider.of<Username>(context);
     List<Song> dummy = <Song>[];
     List<Song> recents = <Song>[];
     for (int i = 0; i < model.songs.length; i++) {
@@ -370,10 +373,13 @@ class Search extends SearchDelegate<Song> {
         return Padding(
           padding: const EdgeInsets.all(8.0),
           child: ListTile(
-            onTap: () {String s = suggestion[index].uri;
-            log('Uri2: $s');
+            onTap: () async {
+              String s = suggestion[index].uri;
+              log('Uri2: $s');
+              username.archivoCancion = s;
+              username.listaGenerosCanciones = await convertirALista();
               Navigator.push(context, new MaterialPageRoute(
-                  builder: (context) => new UploadSongDataState(archivo: suggestion[index].uri)));
+                  builder: (context) => new uploadSongData()));
             },
             title: Text.rich(
               TextSpan(

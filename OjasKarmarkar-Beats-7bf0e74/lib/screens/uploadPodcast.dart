@@ -231,9 +231,11 @@ class uploadPodcastState extends State<uploadPodcast> {
                           log('Uri: $s');
                           await convertirALista();
                           log("cambio: $generos");
+                          username.nombrePodcast = podcastRepo.podcast[podcastRepo.selected];
+                          username.archivoPodcast = s;
                           Navigator.push(context, new MaterialPageRoute(
                               builder: (context) =>
-                              new UploadPodcastDataState(archivo: s,email: username.email, generos: generos, nombrePodcast: podcastRepo.podcast[podcastRepo.selected]))); },
+                              new uploadPodcastData())); },
                           child: Padding(
                             padding: const EdgeInsets.all(8.0),
                             child:  Text(choice,
@@ -275,6 +277,7 @@ class uploadPodcastState extends State<uploadPodcast> {
   convertirALista() async{
     Respuesta r = await recibeGeneros();
     generos = r.generos.split('|');
+    username.listaGenerosPodcasts = generos;
     log("geneross: $generos");
   }
   getImage(model, pos) {
@@ -361,6 +364,8 @@ class Search extends SearchDelegate<Song> {
   @override
   Widget buildSuggestions(BuildContext context) {
     model = Provider.of<LocalSongsModel>(context);
+    PodcastRepo podcastRepo = Provider.of<PodcastRepo>(context);
+    Username username = Provider.of<Username>(context);
     List<Song> dummy = <Song>[];
     List<Song> recents = <Song>[];
     for (int i = 0; i < model.songs.length; i++) {
@@ -381,10 +386,17 @@ class Search extends SearchDelegate<Song> {
         return Padding(
           padding: const EdgeInsets.all(8.0),
           child: ListTile(
-            onTap: () {String s = suggestion[index].uri;
-            log('Uri2: $s');
-            Navigator.push(context, new MaterialPageRoute(
-                builder: (context) => new UploadPodcastDataState(archivo: suggestion[index].uri)));
+            onTap: () async{
+              username.nombrePodcast = podcastRepo.podcast[podcastRepo.selected];
+              String s = suggestion[index].uri;
+              log('Uri2: $s');
+              Respuesta r = await recibeGeneros();
+              List<String> generos = r.generos.split('|');
+              username.listaGenerosPodcasts = generos;
+              username.archivoPodcast = s;
+              Navigator.push(context, new MaterialPageRoute(
+                  builder: (context) =>
+                  new uploadPodcastData()));
             },
             title: Text.rich(
               TextSpan(

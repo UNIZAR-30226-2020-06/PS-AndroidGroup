@@ -1,6 +1,7 @@
 import 'dart:developer';
 import 'dart:io';
 
+import 'package:beats/models/Username.dart';
 import 'package:beats/screens/ProfileEdit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
@@ -10,13 +11,20 @@ import 'package:flutter_uploader/flutter_uploader.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
+import 'package:provider/provider.dart';
 
 
-class UploadPodcastDataState extends StatelessWidget   {
+class uploadPodcastData extends StatefulWidget {
+  @override
+  UploadPodcastDataState createState() => UploadPodcastDataState();
+}
+
+class UploadPodcastDataState extends State<uploadPodcastData>   {
   bool _status = false;
   final FocusNode myFocusNode = FocusNode();
-  final String archivo;
+  String archivo;
   final uploader = FlutterUploader();
+  Username username;
 
   TextEditingController titleController = new TextEditingController();
   TextEditingController descriptionController = new TextEditingController();
@@ -27,8 +35,21 @@ class UploadPodcastDataState extends StatelessWidget   {
   String nombrePodcast;
 
 
-  UploadPodcastDataState({Key key, @required this.archivo, this.email, this.generos, this.nombrePodcast}) : super(key: key);
+  //UploadPodcastDataState({Key key, @required this.archivo, this.email, this.generos, this.nombrePodcast}) : super(key: key);
 
+  @override
+  void initState() {
+    super.initState();
+  }
+  @override
+  void didChangeDependencies() {
+    username = Provider.of<Username>(context);
+    archivo = username.archivoPodcast;
+    generos = username.listaGenerosPodcasts;
+    email = username.email;
+    nombrePodcast = username.nombrePodcast;
+    super.didChangeDependencies();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -140,7 +161,9 @@ class UploadPodcastDataState extends StatelessWidget   {
                                   fontWeight: FontWeight.bold)), // Not necessary for Option 1
                               value: genero,
                               onChanged: (newValue) {
-                                genero = newValue;
+                                setState(() {
+                                  genero = newValue;
+                                });
                               },
                               items: generos.map((location) {
                                 return DropdownMenuItem(

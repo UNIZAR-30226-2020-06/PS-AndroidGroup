@@ -1,6 +1,7 @@
 import 'dart:developer';
 import 'dart:io';
 
+import 'package:beats/models/Username.dart';
 import 'package:beats/screens/ProfileEdit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
@@ -10,13 +11,19 @@ import 'package:flutter_uploader/flutter_uploader.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
+import 'package:provider/provider.dart';
 
+class uploadSongData extends StatefulWidget {
+  @override
+  UploadSongDataState createState() => UploadSongDataState();
+}
 
-class UploadSongDataState extends StatelessWidget   {
+class UploadSongDataState extends State<uploadSongData>   {
   bool _status = false;
   final FocusNode myFocusNode = FocusNode();
-  final String archivo;
+  String archivo;
   final uploader = FlutterUploader();
+  Username username;
 
   TextEditingController titleController = new TextEditingController();
   TextEditingController descriptionController = new TextEditingController();
@@ -26,8 +33,19 @@ class UploadSongDataState extends StatelessWidget   {
   String email;
 
 
-  UploadSongDataState({Key key, @required this.archivo, this.email, this.generos}) : super(key: key);
-
+  //UploadSongDataState({Key key, @required this.archivo, this.email, this.generos}) : super(key: key);
+  @override
+  void initState() {
+    super.initState();
+  }
+  @override
+  void didChangeDependencies() {
+    username = Provider.of<Username>(context);
+    archivo = username.archivoCancion;
+    generos = username.listaGenerosCanciones;
+    email = username.email;
+    super.didChangeDependencies();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -138,7 +156,10 @@ class UploadSongDataState extends StatelessWidget   {
                                   fontWeight: FontWeight.bold)), // Not necessary for Option 1
                               value: genero,
                               onChanged: (newValue) {
-                                genero = newValue;
+                                setState(() {
+                                  genero = newValue;
+                                });
+
                               },
                               items: generos.map((location) {
                                 return DropdownMenuItem(

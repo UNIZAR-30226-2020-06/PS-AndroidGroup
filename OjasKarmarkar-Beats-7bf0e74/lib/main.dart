@@ -22,6 +22,8 @@ import './screens/MainScreen.dart';
 import 'models/ThemeModel.dart';
 import 'package:beats/models/ProgressModel.dart';
 
+import 'models/UsuariosModel.dart';
+
 
 void main(List<String> args) {
   MaterialApp(
@@ -67,6 +69,9 @@ void main(List<String> args) {
     ),
     ChangeNotifierProvider<CapPodcastsModel>(
       create: (context) => CapPodcastsModel(prov, rec),
+    ),
+    ChangeNotifierProvider<UsuariosModel>(
+      create: (context) => UsuariosModel(rec),
     ),
     ChangeNotifierProvider<PodcastRepo>(
       create: (context) => PodcastRepo(),

@@ -7,6 +7,7 @@ import 'package:beats/screens/login.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
+import 'package:image_picker/image_picker.dart';
 
 void main() => runApp(
     MaterialApp(
@@ -23,16 +24,10 @@ class _RegisterPageState extends State<RegisterPage> {
   Future<Registro> _futureRespuesta;
   TextEditingController controllerNickname;
 
-  @override
-  void initState() {
-    super.initState();
-   // datosRegistro = fetchAlbum();
-    //+log(datosRegistro.toString());
-  }
-
   String id;
   String nickName;
   String photoUrl;
+  File _profileImage;
 
   SharedPreferences prefs;
 
@@ -45,7 +40,26 @@ class _RegisterPageState extends State<RegisterPage> {
   final passwordController = TextEditingController();
   final securePasswordController = TextEditingController();
 
+  @override
+  void initState() {
+    super.initState();
+   // datosRegistro = fetchAlbum();
+    //+log(datosRegistro.toString());
+  }
 
+  Future getImageFromDevice(String opcionOrigen, String opcionDestino) async {
+    if (opcionOrigen == "cámara") {
+      var image = await ImagePicker.pickImage(source: ImageSource.camera);
+      setState(() {
+        _profileImage = image;
+      });
+    } else {
+      var image = await ImagePicker.pickImage(source: ImageSource.gallery);
+      setState(() {
+        _profileImage = image;
+      });
+    }
+  }
 
 
   @override
@@ -95,9 +109,43 @@ class _RegisterPageState extends State<RegisterPage> {
                       padding: EdgeInsets.all(30),
                       child: Column(
                         children: <Widget>[
-                          SizedBox(height: 100, width: 90, child: Align(
-                              alignment: Alignment.topCenter,
-                              child: Image.asset("assets/prof.png")),),
+                          new Stack(fit: StackFit.loose, children: <Widget>[
+                            new Row(
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: <Widget>[
+                                new GestureDetector(child: new Container(
+                                    width: 140.0,
+                                    height: 140.0,
+                                    decoration: new BoxDecoration(
+                                      shape: BoxShape.circle,
+                                      image: new DecorationImage(
+                                        image: _profileImage == null
+                                            ? new ExactAssetImage(
+                                            'assets/prof.png')
+                                            : FileImage(_profileImage),
+                                        fit: BoxFit.cover,
+                                      ),
+                                    )),),
+                              ],
+                            ),
+                            Padding(
+                                padding: EdgeInsets.only(top: 90.0, right: 100.0),
+                                child: new Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: <Widget>[
+                                    new GestureDetector(onTap: seleccionarImagen,child:new CircleAvatar(
+                                      backgroundColor: Colors.red,
+                                      radius: 25.0,
+                                      child: new Icon(
+                                        Icons.camera_alt,
+                                        color: Colors.white,
+                                      ),
+                                    )),
+
+                                  ],
+                                )),
+                          ]),
                           SizedBox(height: 60,),
                           Container(
                             decoration: BoxDecoration(
@@ -198,12 +246,13 @@ class _RegisterPageState extends State<RegisterPage> {
                           Text("Campos obligatorios*", style: TextStyle(color: Colors.red),),
                           SizedBox(height: 40,),
                           InkWell(
-                              onTap: (){ setState(() {
+                              onTap: (){ setState(() async {
                               if(usernameController.text != ""){
                                 if(emailController.text != ""){
                                   if(passwordController.text != ""){
                                     if(securePasswordController.text != ""){
                                       if(passwordController.text == securePasswordController.text){
+
                                         _futureRespuesta = esperaRegistro(context, usernameController.text, passwordController.text,
                                             securePasswordController.text, descriptionController.text, emailController.text);
                                       }else{
@@ -266,6 +315,111 @@ class _RegisterPageState extends State<RegisterPage> {
       ),
     );
   }
+  void seleccionarImagen(){
+    showDialog(
+        context: context,
+        builder: (context) {
+          return Padding(
+            padding: const EdgeInsets.all(4.0),
+            child: AlertDialog(
+              backgroundColor:
+              Theme.of(context).backgroundColor,
+              shape: RoundedRectangleBorder(
+                side: BorderSide(),
+                borderRadius: BorderRadius.all(
+                    Radius.circular(30.0)),
+              ),
+              contentPadding: EdgeInsets.only(top: 10.0),
+              content: Container(
+                width: 70.0,
+                child: Column(
+                  mainAxisAlignment:
+                  MainAxisAlignment.start,
+                  crossAxisAlignment:
+                  CrossAxisAlignment.stretch,
+                  mainAxisSize: MainAxisSize.min,
+                  children: <Widget>[
+                    Row(
+                      mainAxisAlignment:
+                      MainAxisAlignment.spaceEvenly,
+                      mainAxisSize: MainAxisSize.min,
+                      children: <Widget>[
+                        Text(
+                          "Subir foto desde",
+                          style: TextStyle(
+                              fontSize: 24.0,
+                              fontFamily: 'Sans'),
+                        ),
+                      ],
+                    ),
+                    Divider(
+                      color: Colors.grey,
+                      height: 4.0,
+                    ),
+                    InkWell(
+                      onTap: () {
+                        getImageFromDevice("cámara", "perfil");
+                        Navigator.pop(context);
+                      },
+                      child: Container(
+                        padding: EdgeInsets.only(
+                            top: 10.0, bottom: 20.0),
+                        decoration: BoxDecoration(
+                          color: Colors.orange,
+                        ),
+                        child: Text(
+                          "Cámara",
+                          style: TextStyle(
+                              fontFamily: 'Sans',
+                              color: Colors.white),
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                    ),
+
+                    InkWell(
+                      onTap: () {
+                        getImageFromDevice("galería", "perfil");
+                        Navigator.pop(context);
+                      },
+                      child: Container(
+                        padding: EdgeInsets.only(
+                            top: 10.0, bottom: 20.0),
+                        decoration: BoxDecoration(
+                          color: Colors.pink,
+                          borderRadius: BorderRadius.only(
+                              bottomLeft:
+                              Radius.circular(32.0),
+                              bottomRight:
+                              Radius.circular(32.0)),
+                        ),
+                        child: Text(
+                          "Galería",
+                          style: TextStyle(
+                              fontFamily: 'Sans',
+                              color: Colors.white),
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          );
+        });
+  }
+
+  Future<Registro> esperaRegistro(BuildContext context, String nombreUsuario, String contrasenya, String repiteContrasenya,
+      String descripcion, String correo) async {
+      Registro l = await registrarUsuario(nombreUsuario, contrasenya, repiteContrasenya,
+          descripcion, correo);
+      if(l.respuesta != "error"){
+        Navigator.push(context, MaterialPageRoute(builder: (context) => LoginPage()));
+      }
+    return l;
+  }
+
   void mostrarError(String textoError){
     showDialog(
       context: context,
@@ -350,6 +504,41 @@ class _RegisterPageState extends State<RegisterPage> {
       },
     );
   }
+  Future<Registro> registrarUsuario(String nombreUsuario, String contrasenya, String repiteContrasenya,
+      String descripcion, String correo) async {
+    List<int> imageBytes = _profileImage.readAsBytesSync();
+    String base64Image = base64.encode(imageBytes);
+    Map data = {
+      'nombreUsuario': nombreUsuario,
+      'contrasenya': contrasenya,
+      'repiteContrasenya': repiteContrasenya,
+      'descripcion': descripcion,
+      'correo': correo,
+      'imagen': base64Image,
+    };
+    final http.Response response = await http.post(
+      'http://34.69.44.48:8080/Espotify/registro_android',
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+      body: jsonEncode(data),
+
+      //body: jsonEncode(<String, String>{
+      //  'nombreUsuario': nombreUsuario,
+      //}),
+    );
+    if (response.statusCode == 200) {
+      // If the server did return a 201 CREATED response,
+      // then parse the JSON.
+      return Registro.fromJson(json.decode(response.body));
+    } else {
+      // If the server did not return a 201 CREATED response,
+      // then throw an exception.
+      throw Exception('Fallo al enviar petición');
+    }
+  }
+
+
 }
 
 
@@ -369,44 +558,6 @@ class Registro {
   }
 }
 
-Future<Registro> registrarUsuario(String nombreUsuario, String contrasenya, String repiteContrasenya,
-  String descripcion, String correo) async {
-  Map data = {
-    'nombreUsuario': nombreUsuario,
-    'contrasenya': contrasenya,
-    'repiteContrasenya': repiteContrasenya,
-    'descripcion': descripcion,
-    'correo': correo,
-  };
-  final http.Response response = await http.post(
-    'http://34.69.44.48:8080/Espotify/registro_android',
-    headers: <String, String>{
-      'Content-Type': 'application/json; charset=UTF-8',
-    },
-    body: jsonEncode(data),
 
-    //body: jsonEncode(<String, String>{
-    //  'nombreUsuario': nombreUsuario,
-    //}),
-  );
-  if (response.statusCode == 200) {
-    // If the server did return a 201 CREATED response,
-    // then parse the JSON.
-    return Registro.fromJson(json.decode(response.body));
-  } else {
-    // If the server did not return a 201 CREATED response,
-    // then throw an exception.
-    throw Exception('Fallo al enviar petición');
-  }
-}
 
-Future<Registro> esperaRegistro(BuildContext context, String nombreUsuario, String contrasenya, String repiteContrasenya,
-String descripcion, String correo) async {
-  Registro l = await registrarUsuario(nombreUsuario, contrasenya, repiteContrasenya,
-      descripcion, correo);
-  if(l.respuesta!= "error"){
-    Navigator.push(context, MaterialPageRoute(builder: (context) => LoginPage()));
-  }
 
-  return l;
-}

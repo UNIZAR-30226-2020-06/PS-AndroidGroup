@@ -9,9 +9,9 @@ import 'package:http/http.dart' as http;
 
 class PodcastRepo extends ChangeNotifier {
 
-  List<String> podcast = [];
+  List<String> podcast;
   String podcastJSON;
-  List<String> descripciones = [];
+  List<String> descripciones;
   String descripcionesJSON;
   List<String> imagenes = [];
   SharedPreferences prefList;

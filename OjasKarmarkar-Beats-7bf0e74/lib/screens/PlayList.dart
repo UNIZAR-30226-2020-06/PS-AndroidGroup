@@ -472,8 +472,12 @@ class _PLayListScreenState extends State<PLayListScreen> {
     log('initData3: $listaNombres');
     List<Song> listaCanciones = new List<Song>();
     Song aux = new Song(0,"","","",0,0,"",null);
+
     for(int i = 0; i<listaNombres.length; i++){
-      listaCanciones.add(new Song(1,"", listaNombres[i], "",0,0,listaUrls[i],null));
+      if(listaNombres[i] != ""){
+        listaCanciones.add(new Song(1,"", listaNombres[i], "",0,0,listaUrls[i],null));
+      }
+
     }
 
     songs = listaCanciones;

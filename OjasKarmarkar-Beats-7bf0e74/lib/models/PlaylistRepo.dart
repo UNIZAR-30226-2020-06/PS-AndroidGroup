@@ -6,9 +6,9 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class PlaylistRepo extends ChangeNotifier {
 
-  List<String> playlist = [];
-  List<String> descripciones = [];
-  List<String> imagenes = [];
+  List<String> playlist;
+  List<String> descripciones;
+  List<String> imagenes;
   SharedPreferences prefList;
   int selected;
 

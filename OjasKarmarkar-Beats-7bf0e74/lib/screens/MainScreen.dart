@@ -12,6 +12,7 @@ import 'HomeScreen.dart';
 import 'Register.dart';
 import 'Settings.dart';
 import 'MusicLibrary.dart';
+import 'Social.dart';
 import 'UploadSong.dart';
 
 class MainScreen extends StatefulWidget {
@@ -23,7 +24,7 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver{
 
 
   var index = 1;
-  var screens = [PodcastLibrary(), Directos(), MusicLibrary(), Bookmarks(), ProfilePage()]; //tenía añadido upload song
+  var screens = [PodcastLibrary(), Directos(), MusicLibrary(),Social(), Bookmarks(), ProfilePage()]; //tenía añadido upload song
 
   @override
   Widget build(BuildContext context) {
@@ -46,6 +47,10 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver{
                 ExpandingBottomBarItem(
                     icon: Icons.music_note,
                     text: "Canciones",
+                    selectedColor: Colors.pinkAccent),
+                ExpandingBottomBarItem(
+                    icon: Icons.person_add,
+                    text: "Social",
                     selectedColor: Colors.pinkAccent),
                // ExpandingBottomBarItem(
                //     icon: Icons.backup,

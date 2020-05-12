@@ -1,5 +1,8 @@
+import 'dart:convert';
 import 'dart:io';
+import 'package:beats/models/Username.dart';
 import 'package:beats/screens/Player.dart';
+import 'package:flute_music_player/flute_music_player.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_media_notification/flutter_media_notification.dart';
 import 'package:provider/provider.dart';
@@ -8,15 +11,35 @@ import 'package:beats/models/BookmarkModel.dart';
 import '../custom_icons.dart';
 import 'MusicLibrary.dart';
 import 'package:beats/Animations/transitions.dart';
+import 'package:http/http.dart' as http;
 
-class Bookmarks extends StatelessWidget {
+class Bookmarks extends StatefulWidget {
+  @override
+  _BookmarksState createState() => _BookmarksState();
+}
+
+class _BookmarksState extends State<Bookmarks> {
   SongsModel model;
-
+  Username username;
   bool isPlayed = false;
 
+  List<Song> songs;
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+  }
+
+  @override
+  void didChangeDependencies() {
+    username = Provider.of<Username>(context);
+    model = Provider.of<SongsModel>(context);
+    initDataFavoritos();
+
+    super.didChangeDependencies();
+  }
   @override
   Widget build(BuildContext context) {
-    model = Provider.of<SongsModel>(context);
     return Consumer<BookmarkModel>(
       builder: (context, bm, _) => WillPopScope(
         child: Scaffold(
@@ -126,6 +149,20 @@ class Bookmarks extends StatelessWidget {
     );
   }
 
+  void initDataFavoritos() async {
+    Canciones l = await obtenerFavoritos(username.email);
+    var listaNombres = l.getNombresAudio().split('|');
+    var listaUrls = l.getUrlsAudio().split('|');
+    List<Song> listaCanciones = new List<Song>();
+    for(int i = 0; i<listaNombres.length; i++){
+      listaCanciones.add(new Song(1,"", listaNombres[i], "",0,0,listaUrls[i],null));
+    }
+
+    songs = listaCanciones;
+    model.fetchSongsManual(songs);
+    setState(() {});
+  }
+
   getImage(bm, pos) {
     if (bm.bookmarks[pos].albumArt != null) {
       return ClipRRect(
@@ -219,5 +256,53 @@ class Bookmarks extends StatelessWidget {
         ),
       );
     } else {}
+  }
+}
+class Canciones {
+  final String respuesta;
+  final String nombresAudio;
+  final String urlsAudio;
+  final String genero;
+  final String autor;
+  Canciones({this.respuesta, this.nombresAudio,this.urlsAudio, this.genero, this.autor});
+
+  factory Canciones.fromJson(Map<String, dynamic> json) {
+    return Canciones(
+      nombresAudio: json['nombresAudio'],
+      urlsAudio: json['urlsAudio'],
+
+    );
+
+  }
+  String getUserId(){
+    return respuesta;
+  }
+  String getNombresAudio(){
+    return nombresAudio;
+  }
+  String getUrlsAudio(){
+    return urlsAudio;
+  }
+}
+Future<Canciones> obtenerFavoritos(String email) async {
+  Map data = {
+    'email': email,
+  };
+  final http.Response response = await http.post(
+    'http://34.69.44.48:8080/Espotify/obtener_favoritos_android',
+    headers: <String, String>{
+      'Content-Type': 'application/json; charset=UTF-8',
+    },
+    body: jsonEncode(data),
+
+  );
+  if (response.statusCode == 200) {
+    // If the server did return a 201 CREATED response,
+    // then parse the JSON.
+    return Canciones.fromJson(json.decode(response.body));
+  } else {
+    // If the server did not return a 201 CREATED response,
+    // then throw an exception.
+    throw Exception('Fallo al enviar petición');
   }
 }
