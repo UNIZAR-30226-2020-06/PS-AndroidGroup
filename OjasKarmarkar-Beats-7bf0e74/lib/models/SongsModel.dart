@@ -1,5 +1,6 @@
 import 'dart:convert';
-import 'dart:math';
+import 'dart:math' hide log;
+import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:flute_music_player/flute_music_player.dart';
@@ -219,9 +220,104 @@ class SongsModel extends ChangeNotifier {
           title: title, author: author, isPlaying: isPlaying);
     } on PlatformException {}
   }
+
+  void Like(String email) async {
+    Map data = {
+      'email' : email,
+      'titulo' : this.currentSong.title,
+      'tipo' : "audio",
+    };
+
+    final http.Response response = await http.post(
+      'http://34.69.44.48:8080/Espotify/tiene_like_android',
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+      body: jsonEncode(data),
+
+    );
+    if (response.statusCode == 200) {
+      // If the server did return a 201 CREATED response,
+      // then parse the JSON.
+      respuesta r = respuesta.fromJson(json.decode(response.body));
+      if(r.likeado)
+        {
+          this.quitarLike(email);
+        }else{
+        String e = r.likeado as String;
+        log("respuesta: $e");
+        this.darLike(email);
+      }
+    } else {
+      // If the server did not return a 201 CREATED response,
+      // then throw an exception.
+      throw Exception('Fallo al enviar petición');
+    }
+  }
+  void darLike(String email) async {
+
+    Map data = {
+      'email' : email,
+      'titulo' : this.currentSong.title,
+    };
+    final http.Response response = await http.post(
+      'http://34.69.44.48:8080/Espotify/like_android',
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+      body: jsonEncode(data),
+
+    );
+    if (response.statusCode == 200) {
+      // If the server did return a 201 CREATED response,
+      // then parse the JSON.
+      log("like dado");
+    } else {
+      // If the server did not return a 201 CREATED response,
+      // then throw an exception.
+      throw Exception('Fallo al enviar petición');
+    }
+  }
+
+  void quitarLike(String email) async {
+    Map data = {
+      'email' : email,
+      'titulo' : this.currentSong.title,
+    };
+    final http.Response response = await http.post(
+      'http://34.69.44.48:8080/Espotify/tiene_like_android',
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+      body: jsonEncode(data),
+
+    );
+    if (response.statusCode == 200) {
+      // If the server did return a 201 CREATED response,
+      // then parse the JSON.
+      log("like quitado");
+    } else {
+      // If the server did not return a 201 CREATED response,
+      // then throw an exception.
+      throw Exception('Fallo al enviar petición');
+    }
+  }
 }
 
+class respuesta {
+  final bool likeado;
 
+  respuesta({this.likeado});
+
+  factory respuesta.fromJson(Map<String, dynamic> json) {
+    return respuesta(
+      likeado: json['likeado'],
+    );
+  }
+  bool getlikeado(){
+    return likeado;
+  }
+}
 
 class ListaCancionesDefault {
   final String nombresAudio;
