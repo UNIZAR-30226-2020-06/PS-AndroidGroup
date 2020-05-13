@@ -14,9 +14,11 @@ import 'dart:io';
 import 'package:beats/models/SongsModel.dart';
 import '../custom_icons.dart';
 import 'package:provider/provider.dart';
+import 'PlayList.dart';
 import 'Player.dart';
 import 'package:http/http.dart' as http;
 
+import 'PlaylistGenero.dart';
 import 'ProfileEdit.dart';
 
 double height, width;
@@ -29,6 +31,7 @@ class MusicLibrary extends StatefulWidget {
 class _MusicLibraryState extends State<MusicLibrary> {
   TextEditingController editingController;
 
+  PlaylistRepo playlistRepo;
   SongsModel model;
 
   BookmarkModel b;
@@ -40,22 +43,24 @@ class _MusicLibraryState extends State<MusicLibrary> {
   bool error = false;
   List<Song> songs;
   Username username;
+  List<String> generos;
   @override
   void didChangeDependencies() {
     model = Provider.of<SongsModel>(context);
     b = Provider.of<BookmarkModel>(context);
     username = Provider.of<Username>(context);
+    playlistRepo = Provider.of<PlaylistRepo>(context);
       obtenerCancionesRandom(model);
 
     height = MediaQuery.of(context).size.height;
     width = MediaQuery.of(context).size.width;
     themeChanger = Provider.of<ThemeChanger>(context);
 
+    convertirALista();
     for(int i=0; i<model.getSongs().length;i++){
       String s = model.getSongs().elementAt(i).title;
       log('cancion: $s');
     }
-
     super.didChangeDependencies();
   }
   @override
@@ -79,6 +84,9 @@ class _MusicLibraryState extends State<MusicLibrary> {
                             child: SliverSafeArea(
                               top: false,
                               sliver: SliverAppBar(
+                                floating: true,
+                                pinned: true,
+                                snap: false,
                                 actions: <Widget>[
                                   Padding(
                                     padding: const EdgeInsets.only(right: 20),
@@ -95,39 +103,115 @@ class _MusicLibraryState extends State<MusicLibrary> {
                                       },
                                     ),
                                   ),
+
                                 ],
                                 backgroundColor:
                                     Theme.of(context).backgroundColor,
-                                expandedHeight: height * 0.11,
-                                pinned: true,
+                                expandedHeight: height * 0.31,
                                 flexibleSpace: Align(
                                   alignment: Alignment.centerLeft,
                                   child: Padding(
                                     padding:
-                                        EdgeInsets.only(left: width * 0.06),
+                                        EdgeInsets.only(left: width * 0.06, top: 20.9),
                                     child: Container(
-                                      child: Stack(
-                                        children: <Widget>[
-                                          Text(
-                                            "Canciones",
-                                            style: TextStyle(
-                                                fontWeight: FontWeight.bold,
-                                                fontSize: 30,
-                                                color: Theme.of(context)
-                                                    .textTheme
-                                                    .display1
-                                                    .color),
-                                          ),
+                                      child: Column(children: <Widget>[
+                                      Align(child: Text(
+                                        "Canciones",
+                                        style: TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 30,
+                                            color: Theme.of(context)
+                                                .textTheme
+                                                .display1
+                                                .color),
+                                      ),
+                                      alignment: Alignment.centerLeft,),
+
+
+                                            Flexible(child: SizedBox(
+                                              height: height * 0.16,
+                                              child: Consumer<PlaylistRepo>(
+                                                builder: (context, playlistRepo, _) => ListView.builder(
+
+                                                  itemCount: playlistRepo.playlist.length,
+                                                  itemBuilder: (context, pos) {
+                                                    var padd = (pos == 0) ? width * 0.08 : 5.0;
+                                                    return Card(
+                                                      margin: EdgeInsets.only(left: padd, right: 5.0, top: 15.0),
+                                                      elevation: 5,
+                                                      shape: RoundedRectangleBorder(
+                                                          borderRadius: BorderRadius.circular(20)),
+                                                      child: GestureDetector(
+                                                        onTap: () {
+                                                          playlistRepo.selected = null;
+                                                          playlistRepo.selected = pos;
+                                                          Navigator.of(context).push(new MaterialPageRoute(
+                                                              builder: (context) => new PlaylistGenero()));
+                                                        },
+                                                        child: ClipRRect(
+                                                            borderRadius: BorderRadius.circular(20),
+                                                            child: Container(
+                                                              width: width * 0.4,
+                                                              decoration: BoxDecoration(
+                                                                // Box decoration takes a gradient
+                                                                gradient: LinearGradient(
+                                                                  // Where the linear gradient begins and ends
+                                                                  begin: Alignment.topRight,
+                                                                  end: Alignment.bottomLeft,
+                                                                  // Add one stop for each color. Stops should increase from 0 to 1
+                                                                  stops: [0.1, 0.5, 0.7, 0.9],
+                                                                  colors: pos % 2 == 0
+                                                                      ? [
+                                                                    Colors.orangeAccent,
+                                                                    Colors.orange,
+                                                                    Colors.deepOrange,
+                                                                    Colors.orange,
+                                                                  ]
+                                                                      : [
+                                                                    Colors.pinkAccent,
+                                                                    Colors.pink,
+                                                                    Colors.pinkAccent,
+                                                                    Colors.pink,
+                                                                  ],
+                                                                ),
+                                                              ),
+                                                              child: Stack(children: <Widget>[
+                                                                Center(
+                                                                  child: Padding(padding: EdgeInsets.only(
+                                                                      left: 25.0, right: 25.0, top: 50.0, bottom: 13.0),
+                                                                    child: Column(children: <Widget>[
+                                                                      Flexible(child: Text(playlistRepo.playlist[pos],
+                                                                          textAlign: TextAlign.center,
+                                                                          style:
+                                                                          TextStyle(color: Colors.white),
+                                                                          textScaleFactor: 1.3),),
+
+                                                                    ]),),
+                                                                ),
+                                                              ]),
+                                                            )),
+                                                      ),
+                                                    );
+                                                  },
+                                                  scrollDirection: Axis.horizontal,
+                                                ),
+                                              ),
+                                            ),),
+
+
+
                                         ],
                                       ),
                                     ),
                                   ),
                                 ),
                               ),
+
                             ),
                             handle:
                                 NestedScrollView.sliverOverlapAbsorberHandleFor(
-                                    context))
+                                    context)),
+
                       ],
                   body: Stack(
                     children: <Widget>[
@@ -144,6 +228,12 @@ class _MusicLibraryState extends State<MusicLibrary> {
     );
   }
 
+  convertirALista() async{
+    Respuesta r = await recibeGeneros();
+    generos = r.generos.split('|');
+    playlistRepo.generateInitialPlayList(generos, generos);
+
+  }
   obtenerCancionesRandom(SongsModel model) async {
 
     ListaCancionesDefault c = await obtenerListaCanciones();
@@ -584,4 +674,41 @@ class Search extends SearchDelegate<Song> {
   }
 
 }
+class Respuesta {
+  final String generos;
 
+  Respuesta({this.generos});
+
+  factory Respuesta.fromJson(Map<String, dynamic> json) {
+    return Respuesta(
+      generos: json['generos'],
+
+    );
+
+  }
+  String getUserId(){
+    return generos;
+  }
+}
+
+Future<Respuesta> recibeGeneros() async {
+  Map data = {
+  };
+  final http.Response response = await http.post(
+    'http://34.69.44.48:8080/Espotify/generos_android',
+    headers: <String, String>{
+      'Content-Type': 'application/json; charset=UTF-8',
+    },
+    body: jsonEncode(data),
+
+  );
+  if (response.statusCode == 200) {
+    // If the server did return a 201 CREATED response,
+    // then parse the JSON.
+    return Respuesta.fromJson(json.decode(response.body));
+  } else {
+    // If the server did not return a 201 CREATED response,
+    // then throw an exception.
+    throw Exception('Fallo al enviar petición');
+  }
+}

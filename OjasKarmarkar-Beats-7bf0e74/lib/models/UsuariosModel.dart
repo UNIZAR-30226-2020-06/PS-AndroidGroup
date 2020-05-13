@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flute_music_player/flute_music_player.dart';
 import 'package:beats/models/ProgressModel.dart';
 import 'package:flutter_media_notification/flutter_media_notification.dart';
+import 'package:provider/provider.dart';
 import 'RecentsModel.dart';
 import 'package:flutter/services.dart';
 import 'package:beats/screens/PlayList.dart';
@@ -26,12 +27,12 @@ class UsuariosModel extends ChangeNotifier {
   Recents recents;
 
   UsuariosModel(rec) {
-    fetchUsers();
+    //fetchUsers();
     recents = rec;
   }
 
-  fetchUsers() async {
-    ListaUsuariosDefault c = await obtenerListaUsuarios();
+  /*fetchUsers() async {
+    ListaUsuariosDefault c = await obtenerListaUsuarios(username.email);
     List<String> listaNombres = c.getNombresUsuario().split('|');
     List<String> listaDescripciones = c.getDescripciones().split('|');
 
@@ -54,7 +55,7 @@ class UsuariosModel extends ChangeNotifier {
     });
 
     notifyListeners();
-  }
+  }*/
 
   fetchUsersManual(List<String> usuarios, List<String> descripciones){
     String s = usuarios[0];
@@ -108,8 +109,9 @@ class ListaUsuariosDefault {
   }
 }
 
-Future<ListaUsuariosDefault> obtenerListaUsuarios() async {
+Future<ListaUsuariosDefault> obtenerListaUsuarios(String email) async {
   Map data = {
+    'email': email,
   };
   final http.Response response = await http.post(
     'http://34.69.44.48:8080/Espotify/obtener_usuarios_android',

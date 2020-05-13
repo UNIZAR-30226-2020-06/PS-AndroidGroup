@@ -2182,8 +2182,6 @@ class _ProfilePageState extends State<ProfilePage>
          username.setCanciones(p.canciones);
          username.setCancionesUrl(p.urls);
        });
-
-
      }
 
    }

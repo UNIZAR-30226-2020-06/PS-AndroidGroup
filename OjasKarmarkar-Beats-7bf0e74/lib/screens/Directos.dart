@@ -149,9 +149,10 @@ class _DirectosState extends State<Directos> {
 
   obtenerCancionesRandom(SongsModel model) async {
 
-    ListaCancionesDefault c = await obtenerListaCanciones();
+    ListaDirectos c = await obtenerListaDirectos();
     List<String> listaNombres = c.getNombresAudio().split('|');
     List<String> listaUrls = c.getUrlsAudio().split('|');
+    List<String> usuarios = c.getUsuariosAudio().split('|');
 
 
     setState(() {
@@ -217,30 +218,6 @@ class _DirectosState extends State<Directos> {
       );
     }
   }
-  Future<Respuesta> anyadirCancionAPlaylistBD(String cancion, String nombrePlaylist) async {
-    Map data = {
-      'email': username.email,
-      'nombreAudio': cancion,
-      'nombreLista': nombrePlaylist,
-    };
-    final http.Response response = await http.post(
-      'http://34.69.44.48:8080/Espotify/anyadir_audio_lista_android',
-      headers: <String, String>{
-        'Content-Type': 'application/json; charset=UTF-8',
-      },
-      body: jsonEncode(data),
-
-    );
-    if (response.statusCode == 200) {
-      // If the server did return a 201 CREATED response,
-      // then parse the JSON.
-      return Respuesta.fromJson(json.decode(response.body));
-    } else {
-      // If the server did not return a 201 CREATED response,
-      // then throw an exception.
-      throw Exception('Fallo al enviar petición');
-    }
-  }
 
   getImage(model, pos) {
     if (model.songs[pos].albumArt != null) {
@@ -281,6 +258,29 @@ class _DirectosState extends State<Directos> {
           ));
     }
   }
+  Future<ListaDirectos> obtenerListaDirectos() async {
+    Map data = {
+    'email': username.email,
+  };
+    final http.Response response = await http.post(
+    'http://34.69.44.48:8080/Espotify/transmisiones_servlet',
+    headers: <String, String>{
+    'Content-Type': 'application/json; charset=UTF-8',
+    },
+    body: jsonEncode(data),
+
+    );
+    if (response.statusCode == 200) {
+    // If the server did return a 201 CREATED response,
+    // then parse the JSON.
+    return ListaDirectos.fromJson(json.decode(response.body));
+    } else {
+    // If the server did not return a 201 CREATED response,
+    // then throw an exception.
+    throw Exception('Fallo al enviar petición');
+    }
+  }
+
 
   push(context) {
     Navigator.push(context, SlideRightRoute(page: PlayBackPage()));
@@ -373,12 +373,6 @@ class _DirectosState extends State<Directos> {
     } else {}
   }
 
-  void anyadirCancionAPlaylist(Song song, String playlist) async {
-    String s = song.title;
-    log("data $s, $playlist");
-    await anyadirCancionAPlaylistBD(song.title, playlist);
-    log("done añadir a playlist");
-  }
 }
 
 
@@ -477,4 +471,31 @@ class Search extends SearchDelegate<Song> {
   }
 
 }
+
+class ListaDirectos {
+  final String nombresAudio;
+  final String urlsAudio;
+  final String usuarios;
+
+
+  ListaDirectos({this.nombresAudio, this.urlsAudio, this.usuarios});
+
+  factory ListaDirectos.fromJson(Map<String, dynamic> json) {
+    return ListaDirectos(
+      nombresAudio: json['nombresTransmision'],
+      urlsAudio: json['urlsTransmision'],
+      usuarios: json['usuariosTransmision'],
+    );
+  }
+  String getNombresAudio(){
+    return nombresAudio;
+  }
+  String getUrlsAudio(){
+    return urlsAudio;
+  }
+  String getUsuariosAudio(){
+    return usuarios;
+  }
+}
+
 

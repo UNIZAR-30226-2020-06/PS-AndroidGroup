@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:developer';
 
 import 'package:beats/Animations/transitions.dart';
+import 'package:beats/models/DifferentUsername.dart';
 import 'package:beats/models/ThemeModel.dart';
 import 'package:beats/models/BookmarkModel.dart';
 import 'package:beats/models/Username.dart';
@@ -37,11 +38,13 @@ class _SocialState extends State<Social> {
   List<String> usuarios;
   List<String> descripciones;
   Username username;
+  DifferentUsername differentUsername;
   @override
   void didChangeDependencies() {
     model = Provider.of<UsuariosModel>(context);
     b = Provider.of<BookmarkModel>(context);
     username = Provider.of<Username>(context);
+    differentUsername = Provider.of<DifferentUsername>(context);
     obtenerUsuarios(model);
 
     height = MediaQuery.of(context).size.height;
@@ -139,7 +142,7 @@ class _SocialState extends State<Social> {
 
   obtenerUsuarios(UsuariosModel model) async {
 
-    ListaUsuariosDefault c = await obtenerListaUsuarios();
+    ListaUsuariosDefault c = await obtenerListaUsuarios(username.email);
     List<String> listaNombres = c.getNombresUsuario().split('|');
     List<String> listaDescripciones = c.getDescripciones().split('|');
     setState(() {
@@ -173,7 +176,8 @@ class _SocialState extends State<Social> {
             return Consumer<UsuariosModel>(builder: (context, repo, _) {
               return ListTile(
                 onTap: () async {
-
+                  differentUsername.setName(repo.usuarios[pos]);
+                  push(context);
                 },
                 leading: CircleAvatar(child: getImage(model, pos)),
                 title: Text(
@@ -289,6 +293,7 @@ class Search extends SearchDelegate<String> {
   @override
   Widget buildSuggestions(BuildContext context) {
     model = Provider.of<UsuariosModel>(context);
+    DifferentUsername differentUsername = Provider.of<DifferentUsername>(context);
     List<String> dummy = <String>[];
     List<String> recents = <String>[];
     for (int i = 0; i < model.usuarios.length; i++) {
@@ -311,6 +316,8 @@ class Search extends SearchDelegate<String> {
           padding: const EdgeInsets.all(8.0),
           child: ListTile(
             onTap: () {
+              differentUsername.setName(model.usuarios[index]);
+              Navigator.push(context, SlideRightRoute(page: UserProfile()));
             },
             title: Text.rich(
               TextSpan(

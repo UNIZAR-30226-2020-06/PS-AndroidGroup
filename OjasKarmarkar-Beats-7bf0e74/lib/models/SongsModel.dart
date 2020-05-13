@@ -12,6 +12,8 @@ import 'package:beats/screens/PlayList.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter/foundation.dart';
 
+import 'Username.dart';
+
 enum PlayerState { PLAYING, PAUSED, STOPPED }
 
 class SongsModel extends ChangeNotifier {
@@ -361,3 +363,5 @@ Future<ListaCancionesDefault> obtenerListaCanciones() async {
     throw Exception('Fallo al enviar petición');
   }
 }
+
+

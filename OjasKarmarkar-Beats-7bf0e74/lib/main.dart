@@ -8,6 +8,7 @@ import 'package:beats/models/Now_Playing.dart';
 import 'package:beats/screens/Register.dart';
 import 'package:beats/screens/login.dart';
 import 'package:flutter_media_notification/flutter_media_notification.dart';
+import 'models/DifferentUsername.dart';
 import 'models/LocalPlaylistRepo.dart';
 import 'models/LocalSongsModel.dart';
 import 'models/PodcastRepo.dart';
@@ -57,6 +58,9 @@ void main(List<String> args) {
     ),
     ChangeNotifierProvider<Username>(
       create: (context) => Username(),
+    ),
+    ChangeNotifierProvider<DifferentUsername>(
+      create: (context) => DifferentUsername(),
     ),
     ChangeNotifierProvider<Recents>(
       create: (context) => rec,
