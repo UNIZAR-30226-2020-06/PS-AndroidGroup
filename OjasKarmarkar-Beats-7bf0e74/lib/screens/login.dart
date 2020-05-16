@@ -20,7 +20,7 @@ class _LoginPageState extends State<LoginPage> {
   var index = 1;
   var screens = [RegisterPage()];
 
-  final emailController = TextEditingController();
+  final nameController = TextEditingController();
   final passwordController = TextEditingController();
   TextEditingController controlador = TextEditingController();
   Future<Login> _futureRespuesta;
@@ -98,7 +98,7 @@ class _LoginPageState extends State<LoginPage> {
                                     border: Border(bottom: BorderSide(color: Colors.grey[200]))
                                 ),
                                 child: TextField(
-                                  controller: emailController,
+                                  controller: nameController,
                                   style: TextStyle(fontSize: 16),
                                   decoration: InputDecoration(
                                       hintText: "Correo electrónico",
@@ -130,7 +130,7 @@ class _LoginPageState extends State<LoginPage> {
                       GestureDetector(
                         onTap: () {
                           setState(() {
-                            esperaLogin(context, emailController.text, passwordController.text, controlador, username);
+                            esperaLogin(context, nameController.text, passwordController.text, controlador, username);
                           });
                          },
                         child: Container(
@@ -173,12 +173,14 @@ class _LoginPageState extends State<LoginPage> {
 
 class Login {
   final String respuesta;
+  final String email;
 
-  Login({this.respuesta});
+  Login({this.respuesta, this.email});
 
   factory Login.fromJson(Map<String, dynamic> json) {
     return Login(
       respuesta: json['respuesta'],
+      email: json['email'],
     );
   }
   String getUserId(){
@@ -186,9 +188,9 @@ class Login {
   }
 }
 
-Future<Login> logearUsuario(String email, String contrasenya) async {
+Future<Login> logearUsuario(String nombreUsuario, String contrasenya) async {
   Map data = {
-    'email': email,
+    'usuario': nombreUsuario,
     'contrasenya': contrasenya,
   };
   final http.Response response = await http.post(
@@ -210,11 +212,11 @@ Future<Login> logearUsuario(String email, String contrasenya) async {
   }
 }
 
-void esperaLogin(BuildContext context, String email,String contrasenya,
+void esperaLogin(BuildContext context, String nombreUsuario,String contrasenya,
     TextEditingController controlador, Username username) async {
-  Login l = await logearUsuario(email, contrasenya);
+  Login l = await logearUsuario(nombreUsuario, contrasenya);
   if(l.respuesta!= "error"){
-    username.email = email;
+    username.email = l.email;
     Navigator.push(context, MaterialPageRoute(builder: (context) => MainScreen()));
   }else{
     controlador.text = "Contraseña o usuario incorrectos";

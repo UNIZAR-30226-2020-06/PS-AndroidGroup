@@ -50,6 +50,12 @@ class PlaylistRepo extends ChangeNotifier {
     notifyListeners();
   }
 
+  generateInitialPlayListImage(List<String> list, List<String> descriptions, List<String> images) async{
+    playlist = list;
+    descripciones = descriptions;
+    imagenes = images;
+  }
+
   generateInitialPlayList(List<String> list, List<String> descriptions) async{
     playlist = list;
     descripciones = descriptions;

@@ -13,7 +13,7 @@ class PodcastRepo extends ChangeNotifier {
   String podcastJSON;
   List<String> descripciones;
   String descripcionesJSON;
-  List<String> imagenes = [];
+  List<String> imagenes;
   SharedPreferences prefList;
   int selected;
 
@@ -56,10 +56,16 @@ class PodcastRepo extends ChangeNotifier {
     notifyListeners();
   }
 
+  generateInitialPodcastImage(List<String> list, List<String> descriptions, List<String> images) async{
+    podcast = list;
+    descripciones = descriptions;
+    imagenes = images;
+  }
   generateInitialPodcast(List<String> list, List<String> descriptions) async{
     podcast = list;
     descripciones = descriptions;
   }
+
 
   add(String name, String description) async {
     podcast.add(name);

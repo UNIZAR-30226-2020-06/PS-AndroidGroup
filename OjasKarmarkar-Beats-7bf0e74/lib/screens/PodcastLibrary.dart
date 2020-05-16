@@ -14,6 +14,7 @@ import 'Player.dart';
 import 'package:http/http.dart' as http;
 
 import 'Podcasts.dart';
+import 'PodcastsNoEditable.dart';
 
 double height, width;
 
@@ -151,7 +152,7 @@ class _PodcastLibraryState extends State<PodcastLibrary> {
                         onTap: () {
                           podcastRepo.selected = pos;
                           Navigator.of(context).push(new MaterialPageRoute(
-                              builder: (context) => new PodcastScreen()));
+                              builder: (context) => new PodcastNoEditableScreen()));
                         },
                         child: ClipRRect(
                             borderRadius: BorderRadius.circular(20),
@@ -305,7 +306,7 @@ class Search extends SearchDelegate<Song> {
             onTap: () {
               model.selected = index;
               Navigator.of(context).push(new MaterialPageRoute(
-                  builder: (context) => new PodcastScreen()));
+                  builder: (context) => new PodcastNoEditableScreen()));
             },
             title: Text.rich(
               TextSpan(

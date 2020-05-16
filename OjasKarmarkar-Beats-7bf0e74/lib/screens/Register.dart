@@ -252,9 +252,12 @@ class _RegisterPageState extends State<RegisterPage> {
                                   if(passwordController.text != ""){
                                     if(securePasswordController.text != ""){
                                       if(passwordController.text == securePasswordController.text){
-
-                                        _futureRespuesta = esperaRegistro(context, usernameController.text, passwordController.text,
-                                            securePasswordController.text, descriptionController.text, emailController.text);
+                                        if(passwordController.text.length >= 8){
+                                          _futureRespuesta = esperaRegistro(context, usernameController.text, passwordController.text,
+                                              securePasswordController.text, descriptionController.text, emailController.text);
+                                        }else{
+                                          mostrarError("La contraseña ha de tener mínimo 8 caracteres");
+                                        }
                                       }else{
                                         mostrarError("Las contraseñas no coinciden");
                                       }

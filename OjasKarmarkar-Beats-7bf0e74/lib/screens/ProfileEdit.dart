@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';
+import 'dart:math';
 import 'dart:typed_data';
 
 import 'package:beats/icono_personalizado.dart';
@@ -16,11 +17,12 @@ import 'package:beats/screens/UploadSong.dart';
 import 'package:beats/screens/uploadPodcast.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
 import 'MusicLibrary.dart';
 import 'package:http/http.dart' as http;
 import 'package:image_picker/image_picker.dart';
-
+import 'package:flutter/painting.dart' as painting;
 import 'Podcasts.dart';
 import 'login.dart';
 
@@ -59,6 +61,9 @@ class _ProfilePageState extends State<ProfilePage>
   File _playlistImage;
   File _podcastImage;
   String numeroSeguidores = "Seguidores: ";
+  String imagenPerfil;
+  String imagenPlaylist;
+  String imagenPodcast;
 
   Future getImageFromDevice(String opcionOrigen, String opcionDestino) async {
     if(opcionOrigen == "cámara"){
@@ -161,19 +166,14 @@ class _ProfilePageState extends State<ProfilePage>
                               crossAxisAlignment: CrossAxisAlignment.center,
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: <Widget>[
-                                new GestureDetector(onTap: ampliarImagen,child: new Container(
-                                    width: 140.0,
-                                    height: 140.0,
-                                    decoration: new BoxDecoration(
-                                      shape: BoxShape.circle,
-                                      image: new DecorationImage(
-                                        image: _profileImage == null
-                                            ? new ExactAssetImage(
-                                            'assets/prof.png')
-                                            : FileImage(_profileImage),
-                                        fit: BoxFit.cover,
-                                      ),
-                                    )),),
+                                new GestureDetector(onTap: ampliarImagen,child: CircleAvatar(
+                                    radius: 75.0,
+                                    backgroundImage: imagenPerfil == null
+                                        ? new ExactAssetImage(
+                                        'assets/prof.png')
+                                        : NetworkImage(imagenPerfil),
+                                    backgroundColor: Colors.transparent,
+                                    )),
                               ],
                             ),
                             Padding(
@@ -424,7 +424,7 @@ class _ProfilePageState extends State<ProfilePage>
                                                                       image: new DecorationImage(
                                                                         image: _playlistImage == null
                                                                             ? new ExactAssetImage(
-                                                                            'assets/prof.png')
+                                                                            'assets/camera.png')
                                                                             : FileImage(_playlistImage),
                                                                         fit: BoxFit.cover,
                                                                       ),
@@ -439,7 +439,6 @@ class _ProfilePageState extends State<ProfilePage>
                                                                 }
 
                                                               });
-
 
                                                             },
                                                             child: Container(
@@ -607,7 +606,7 @@ class _ProfilePageState extends State<ProfilePage>
                                                                         image: new DecorationImage(
                                                                           image: _playlistImage == null
                                                                               ? new ExactAssetImage(
-                                                                              'assets/prof.png')
+                                                                              'assets/camera.png')
                                                                               : FileImage(_playlistImage),
                                                                           fit: BoxFit.cover,
                                                                         ),
@@ -688,7 +687,8 @@ class _ProfilePageState extends State<ProfilePage>
                                                   borderRadius: BorderRadius.circular(20),
                                                   child: Container(
                                                     width: width * 0.4,
-                                                    decoration: BoxDecoration(
+                                                    decoration: playlistRepo.imagenes[pos] == ""
+                                                    ? BoxDecoration(
                                                       // Box decoration takes a gradient
                                                       gradient: LinearGradient(
                                                         // Where the linear gradient begins and ends
@@ -710,6 +710,12 @@ class _ProfilePageState extends State<ProfilePage>
                                                           Colors.pink,
                                                         ],
                                                       ),
+                                                    )
+                                                    : BoxDecoration(
+                                                        image: DecorationImage(
+                                                          image: NetworkImage(playlistRepo.imagenes[pos]),
+                                                          fit: BoxFit.cover,
+                                                        )
                                                     ),
                                                     child: Stack(children: <Widget>[
                                                       Align(
@@ -797,10 +803,8 @@ class _ProfilePageState extends State<ProfilePage>
                                                                               ),
                                                                               InkWell(
                                                                                 onTap: () async {
-
                                                                                   setState(() {
                                                                                     validate(context, playlistRepo, playlistRepo.playlist[pos], "Delete");
-
                                                                                   });
                                                                                 },
                                                                                 child: Container(
@@ -1025,25 +1029,33 @@ class _ProfilePageState extends State<ProfilePage>
                                                                                             BorderRadius.circular(
                                                                                                 4))),
                                                                                   ),
-                                                                                  new GestureDetector(onTap: seleccionarImagenPlaylist,child:new CircleAvatar(
-                                                                                    backgroundColor: Colors.red,
-                                                                                    radius: 25.0,
-                                                                                    child: new Icon(
-                                                                                      Icons.camera_alt,
-                                                                                      color: Colors.white,
-                                                                                    ),
-                                                                                  )),
+                                                                                  new GestureDetector(onTap: seleccionarImagenPlaylist,child:new Container(
+                                                                                      width: 40.0,
+                                                                                      height: 40.0,
+                                                                                      decoration: new BoxDecoration(
+                                                                                        shape: BoxShape.circle,
+                                                                                        image: new DecorationImage(
+                                                                                          image: _playlistImage == null
+                                                                                              ? new ExactAssetImage(
+                                                                                              'assets/camera.png')
+                                                                                              : FileImage(_playlistImage),
+                                                                                          fit: BoxFit.cover,
+                                                                                        ),
+                                                                                      ))),
                                                                                 ],)
 
                                                                             ),
                                                                             InkWell(
                                                                               onTap: () {
-                                                                                setState(() {
+                                                                                setState(() async {
                                                                                   if(txt.text != ""){
-                                                                                    actualizarPlaylist(username.email, playlistRepo.playlist[pos], txtDescripcion.text,txt.text);
+                                                                                    await actualizarPlaylist(username.email, playlistRepo.playlist[pos], txtDescripcion.text,txt.text);
                                                                                     playlistRepo.playlist[pos] = txt.text;
                                                                                     playlistRepo.descripciones[pos] = txtDescripcion.text;
                                                                                     Navigator.pop(context);
+                                                                                    setState(() {
+                                                                                      anyadeDatosUsuario(username.email, playlistRepo, misCanciones, podcastRepo);
+                                                                                    });
                                                                                   }
                                                                                 });
                                                                               },
@@ -1237,14 +1249,19 @@ class _ProfilePageState extends State<ProfilePage>
                                                                           BorderRadius.circular(
                                                                               4))),
                                                                 ),
-                                                                new GestureDetector(onTap: seleccionarImagenPodcast,child:new CircleAvatar(
-                                                                  backgroundColor: Colors.red,
-                                                                  radius: 25.0,
-                                                                  child: new Icon(
-                                                                    Icons.camera_alt,
-                                                                    color: Colors.white,
-                                                                  ),
-                                                                )),
+                                                                new GestureDetector(onTap: seleccionarImagenPodcast,child:new Container(
+                                                                    width: 40.0,
+                                                                    height: 40.0,
+                                                                    decoration: new BoxDecoration(
+                                                                      shape: BoxShape.circle,
+                                                                      image: new DecorationImage(
+                                                                        image: _playlistImage == null
+                                                                            ? new ExactAssetImage(
+                                                                            'assets/camera.png')
+                                                                            : FileImage(_playlistImage),
+                                                                        fit: BoxFit.cover,
+                                                                      ),
+                                                                    ))),
                                                               ],)
                                                           ),
                                                           InkWell(
@@ -1415,14 +1432,19 @@ class _ProfilePageState extends State<ProfilePage>
                                                                             BorderRadius.circular(
                                                                                 4))),
                                                                   ),
-                                                                  new GestureDetector(onTap: seleccionarImagenPodcast,child:new CircleAvatar(
-                                                                    backgroundColor: Colors.red,
-                                                                    radius: 25.0,
-                                                                    child: new Icon(
-                                                                      Icons.camera_alt,
-                                                                      color: Colors.white,
-                                                                    ),
-                                                                  )),
+                                                                  new GestureDetector(onTap: seleccionarImagenPodcast,child:new Container(
+                                                                      width: 40.0,
+                                                                      height: 40.0,
+                                                                      decoration: new BoxDecoration(
+                                                                        shape: BoxShape.circle,
+                                                                        image: new DecorationImage(
+                                                                          image: _playlistImage == null
+                                                                              ? new ExactAssetImage(
+                                                                              'assets/camera.png')
+                                                                              : FileImage(_playlistImage),
+                                                                          fit: BoxFit.cover,
+                                                                        ),
+                                                                      ))),
                                                                 ],)
                                                             ),
                                                             InkWell(
@@ -1499,7 +1521,8 @@ class _ProfilePageState extends State<ProfilePage>
                                                   borderRadius: BorderRadius.circular(20),
                                                   child: Container(
                                                     width: width * 0.4,
-                                                    decoration: BoxDecoration(
+                                                    decoration: podcastRepo.imagenes[pos] == ""
+                                                    ? BoxDecoration(
                                                       // Box decoration takes a gradient
                                                       gradient: LinearGradient(
                                                         // Where the linear gradient begins and ends
@@ -1521,6 +1544,12 @@ class _ProfilePageState extends State<ProfilePage>
                                                           Colors.lightBlueAccent,
                                                         ],
                                                       ),
+                                                    )
+                                                    :  BoxDecoration(
+                                                        image: DecorationImage(
+                                                        image: NetworkImage(podcastRepo.imagenes[pos]),
+                                                        fit: BoxFit.cover,
+                                                        )
                                                     ),
                                                     child: Stack(children: <Widget>[
                                                       Align(
@@ -1836,25 +1865,33 @@ class _ProfilePageState extends State<ProfilePage>
                                                                                             BorderRadius.circular(
                                                                                                 4))),
                                                                                   ),
-                                                                                  new GestureDetector(onTap: seleccionarImagenPlaylist,child:new CircleAvatar(
-                                                                                    backgroundColor: Colors.red,
-                                                                                    radius: 25.0,
-                                                                                    child: new Icon(
-                                                                                      Icons.camera_alt,
-                                                                                      color: Colors.white,
-                                                                                    ),
-                                                                                  )),
+                                                                                  new GestureDetector(onTap: seleccionarImagenPodcast,child:new Container(
+                                                                                      width: 40.0,
+                                                                                      height: 40.0,
+                                                                                      decoration: new BoxDecoration(
+                                                                                        shape: BoxShape.circle,
+                                                                                        image: new DecorationImage(
+                                                                                          image: _playlistImage == null
+                                                                                              ? new ExactAssetImage(
+                                                                                              'assets/camera.png')
+                                                                                              : FileImage(_playlistImage),
+                                                                                          fit: BoxFit.cover,
+                                                                                        ),
+                                                                                      ))),
                                                                                 ],)
 
                                                                             ),
                                                                             InkWell(
-                                                                              onTap: () {
+                                                                              onTap: () async {
                                                                                 setState(() {
-                                                                                  if(txt.text != ""){
+                                                                                  if(txt.text != "") {
                                                                                     actualizarPodcast(username.email, podcastRepo.podcast[pos], txtDescripcion.text,txt.text);
                                                                                     podcastRepo.podcast[pos] = txt.text;
                                                                                     podcastRepo.descripciones[pos] = txtDescripcion.text;
                                                                                     Navigator.pop(context);
+                                                                                    setState(() {
+                                                                                      anyadeDatosUsuario(username.email, playlistRepo, misCanciones, podcastRepo);
+                                                                                    });
                                                                                   }
                                                                                 });
                                                                               },
@@ -2081,10 +2118,15 @@ class _ProfilePageState extends State<ProfilePage>
 
 
   }
+
   Future<Respuesta> actualizarPlaylist(String email, String nombrePlaylistAntiguo,
       String descripcionPlaylist,  String nombrePlaylistNuevo) async {
-    List<int> imageBytes = _playlistImage.readAsBytesSync();
-    String base64Image = base64.encode(imageBytes);
+    String base64Image;
+    if(_playlistImage != null){
+      List<int> imageBytes = _playlistImage.readAsBytesSync();
+      base64Image = base64.encode(imageBytes);
+    }
+
     Map data = {
       'nombrePlaylistViejo': nombrePlaylistAntiguo,
       'descripcion': descripcionPlaylist,
@@ -2113,14 +2155,17 @@ class _ProfilePageState extends State<ProfilePage>
 
   Future<Respuesta> actualizarPodcast(String email, String nombrePodcastAntiguo,
       String descripcionPlaylist,  String nombrePodcastNuevo) async {
-    //List<int> imageBytes = _playlistImage.readAsBytesSync();
-    //String base64Image = base64.encode(imageBytes);
+    String base64Image;
+    if(_playlistImage != null){
+      List<int> imageBytes = _playlistImage.readAsBytesSync();
+      base64Image = base64.encode(imageBytes);
+    }
     Map data = {
       'nombrePodcastViejo': nombrePodcastAntiguo,
       'descripcion': descripcionPlaylist,
       'email': email,
       'nombrePodcastNuevo': nombrePodcastNuevo,
-      //'imagen': base64Image,
+      'imagen': base64Image,
     };
     final http.Response response = await http.post(
       'http://34.69.44.48:8080/Espotify/modificar_podcast_android',
@@ -2145,15 +2190,12 @@ class _ProfilePageState extends State<ProfilePage>
       TextEditingController emailController, TextEditingController passwordController) async{
     Perfil p = await obtenerPerfil(email);
     if(p.nombreUsuario != null){
+      imagenPerfil = p.imagen;
       usernameController.text = p.nombreUsuario;
       descriptionController.text = p.descripcion;
       emailController.text = p.email;
       passwordController.text = p.contrasenya;
       numeroSeguidores = "Seguidores:  " +p.numSeguidores.toString();
-      //Uint8List bd = base64.decode(p.imagen);
-      //final buffer = bd.buffer;
-      //_profileImage.writeAsBytes(
-      //    buffer.asUint8List(bd.offsetInBytes, bd.lengthInBytes));
     }
 
   }
@@ -2162,18 +2204,21 @@ class _ProfilePageState extends State<ProfilePage>
    anyadeDatosUsuario(String email, PlaylistRepo playlistRepo, MisCancionesModel misCanciones, PodcastRepo podcastRepo) async {
      Perfil p = await obtenerPerfil(email);
      String u = p.nombreUsuario;
-     log("user: $u");
      if (p.nombreUsuario != null) {
        var playlistss = p.playlists.split('|');
        var descripciones = p.descripcionesPlay.split('|');
        var podcastss = p.podcasts.split('|');
        var descripcionesPodcasts = p.descripcionesPod.split('|');
-       log('data: $playlistss');
+       var imagenesPlaylists = p.imagenesPlaylists.split('|');
+       var imagenesPodcasts = p.imagenesPodcasts.split('|');
+       var rng = new Random();
+       int counter;
+       imageCache.clear();
        if (playlistss[0] != "" && descripciones[0] != "") {
-         playlistRepo.generateInitialPlayList(playlistss, descripciones);
+         playlistRepo.generateInitialPlayListImage(playlistss, descripciones, imagenesPlaylists);
        }
        if (podcastss[0] != "" && descripcionesPodcasts[0] != "") {
-         podcastRepo.generateInitialPodcast(podcastss, descripcionesPodcasts);
+         podcastRepo.generateInitialPodcastImage(podcastss, descripcionesPodcasts, imagenesPodcasts);
        }
        List<String> misCancionesTitle = new List();
        misCancionesTitle.add("Mis canciones");
@@ -2202,16 +2247,15 @@ class _ProfilePageState extends State<ProfilePage>
             content: new GestureDetector(onTap: desampliarImagen,child: new Container(
                 width: 400.0,
                 height: 450.0,
-                decoration: new BoxDecoration(
-                  shape: BoxShape.rectangle,
-                  image: new DecorationImage(
-                    image: _profileImage == null
-                        ? new ExactAssetImage(
-                        'assets/prof.png')
-                        : FileImage(_profileImage),
-                    fit: BoxFit.cover,
-                  ),
-                )),),
+                child: CircleAvatar(
+                  radius: 75.0,
+                  backgroundImage: imagenPerfil == null
+                      ? new ExactAssetImage(
+                      'assets/prof.png')
+                      : NetworkImage(imagenPerfil),
+                  backgroundColor: Colors.transparent,
+                ),
+                ),),
 
           ),
         );
@@ -2361,11 +2405,15 @@ class _ProfilePageState extends State<ProfilePage>
                      if(passwordController.text != ""){
                        if(securePasswordController.text != ""){
                          if(passwordController.text == securePasswordController.text){
-                           enviarDatosALaBD(usernameController.text,
-                               descriptionController.text
-                               , emailController.text, passwordController.text); //conectar los datos escritos con la BD
-                           editPasswordNoPresionado = true;
-                           Navigator.pop(context);
+                           if(passwordController.text.length >= 8){
+                             enviarDatosALaBD(usernameController.text,
+                                 descriptionController.text
+                                 , emailController.text, passwordController.text); //conectar los datos escritos con la BD
+                             editPasswordNoPresionado = true;
+                             Navigator.pop(context);
+                           }else{
+                             mostrarError("La contraseña ha de tener mínimo 8 caracteres");
+                           }
                          }else{
                            mostrarError("Las contraseñas no coinciden");
                          }
@@ -2497,8 +2545,12 @@ class _ProfilePageState extends State<ProfilePage>
   }
   Future<Respuesta> crearPlaylist(String email, String nombrePlaylist,
       String descripcionPlaylist) async {
-    List<int> imageBytes = _playlistImage.readAsBytesSync();
-    String base64Image = base64.encode(imageBytes);
+    String base64Image;
+    if(_playlistImage != null){
+      List<int> imageBytes = _playlistImage.readAsBytesSync();
+      base64Image = base64.encode(imageBytes);
+    }
+
     Map data = {
       'email': email,
       'nombrePlaylist': nombrePlaylist,
@@ -2526,8 +2578,13 @@ class _ProfilePageState extends State<ProfilePage>
 
   Future<Respuesta> crearPodcast(String email, String nombrePodcast,
       String descripcionPodcast) async {
-    //List<int> imageBytes = _podcastImage.readAsBytesSync();
-    //String base64Image = base64.encode(imageBytes);
+
+    String base64Image;
+    if(_playlistImage != null){
+      List<int> imageBytes = _playlistImage.readAsBytesSync();
+      base64Image = base64.encode(imageBytes);
+    }
+
     Map data = {
       'email': email,
       'nombrePodcast': nombrePodcast,
@@ -2755,8 +2812,11 @@ class _ProfilePageState extends State<ProfilePage>
                     ),
                     InkWell(
                       onTap: () {
-                        getImageFromDevice("cámara", "playlist");
-                        Navigator.pop(context);
+                        setState(() {
+                          getImageFromDevice("cámara", "playlist");
+                          Navigator.pop(context);
+                        });
+
                       },
                       child: Container(
                         padding: EdgeInsets.only(
@@ -2776,8 +2836,10 @@ class _ProfilePageState extends State<ProfilePage>
 
                     InkWell(
                       onTap: () {
-                        getImageFromDevice("galería", "playlist");
-                        Navigator.pop(context);
+                        setState(() {
+                          getImageFromDevice("galería", "playlist");
+                          Navigator.pop(context);
+                        });
                       },
                       child: Container(
                         padding: EdgeInsets.only(
@@ -2849,8 +2911,12 @@ class _ProfilePageState extends State<ProfilePage>
                     ),
                     InkWell(
                       onTap: () {
-                        getImageFromDevice("cámara", "playlist");
-                        Navigator.pop(context);
+                        setState(() {
+                          getImageFromDevice("cámara", "playlist");
+                          Navigator.pop(context);
+
+                        });
+
                       },
                       child: Container(
                         padding: EdgeInsets.only(
@@ -2870,8 +2936,10 @@ class _ProfilePageState extends State<ProfilePage>
 
                     InkWell(
                       onTap: () {
-                        getImageFromDevice("galería", "playlist");
-                        Navigator.pop(context);
+                        setState(() {
+                          getImageFromDevice("galería", "playlist");
+                          Navigator.pop(context);
+                        });
                       },
                       child: Container(
                         padding: EdgeInsets.only(
@@ -3281,18 +3349,20 @@ class Perfil {
   final String canciones;
   final String urls;
   final int numSeguidores;
-  final imagen;
+  final String imagen;
+  final String imagenesPlaylists;
+  final String imagenesPodcasts;
 
   Perfil({this.respuesta, this.nombreUsuario, this.descripcion, this.email,
     this.contrasenya, this.repetirContraseya, this.playlists, this.descripcionesPlay,
     this.canciones, this.urls, this.podcasts,this.descripcionesPod,this.imagen,
-    this.numSeguidores});
+    this.numSeguidores, this.imagenesPlaylists, this.imagenesPodcasts});
 
   factory Perfil.fromJson(Map<String, dynamic> json) {
     return Perfil(
       nombreUsuario: json['nombreUsuario'],
       descripcion: json['descripcion'],
-      //imagen: json['imagen'],
+      imagen: json['imagen'],
       email: json['email'],
       playlists: json['lista'],
       descripcionesPlay: json['listaDescripcion'],
@@ -3301,6 +3371,8 @@ class Perfil {
       canciones: json['audiosTitulo'],
       urls: json['audiosUrl'],
       numSeguidores: json['numSeguidores'],
+      imagenesPlaylists: json['imagenesPlaylists'],
+      imagenesPodcasts: json['imagenesPodcasts'],
     );
 
   }
