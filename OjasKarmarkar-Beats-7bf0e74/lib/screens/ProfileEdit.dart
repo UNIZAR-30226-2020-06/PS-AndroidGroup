@@ -904,6 +904,9 @@ class _ProfilePageState extends State<ProfilePage>
                                                               color: Colors.white,
                                                             ),
                                                             onPressed: () {
+                                                              txt.text = playlistRepo.playlist[pos];
+                                                              txtDescripcion.text = playlistRepo.descripciones[pos];
+                                                              _playlistImage = null;
                                                               showDialog(
                                                                 context: context,
                                                                 builder: (context) {
@@ -1055,6 +1058,7 @@ class _ProfilePageState extends State<ProfilePage>
                                                                                     Navigator.pop(context);
                                                                                     setState(() {
                                                                                       anyadeDatosUsuario(username.email, playlistRepo, misCanciones, podcastRepo);
+                                                                                      _playlistImage = null;
                                                                                     });
                                                                                   }
                                                                                 });
@@ -1740,6 +1744,9 @@ class _ProfilePageState extends State<ProfilePage>
                                                               color: Colors.white,
                                                             ),
                                                             onPressed: () {
+                                                              txt.text = podcastRepo.podcast[pos];
+                                                              txtDescripcion.text = podcastRepo.descripciones[pos];
+                                                              _playlistImage = null;
                                                               showDialog(
                                                                 context: context,
                                                                 builder: (context) {
@@ -1891,6 +1898,7 @@ class _ProfilePageState extends State<ProfilePage>
                                                                                     Navigator.pop(context);
                                                                                     setState(() {
                                                                                       anyadeDatosUsuario(username.email, playlistRepo, misCanciones, podcastRepo);
+                                                                                      _playlistImage = null;
                                                                                     });
                                                                                   }
                                                                                 });
@@ -2589,7 +2597,7 @@ class _ProfilePageState extends State<ProfilePage>
       'email': email,
       'nombrePodcast': nombrePodcast,
       'descripcion': descripcionPodcast,
-      //'imagen': base64Image,
+      'imagen': base64Image,
     };
     final http.Response response = await http.post(
       'http://34.69.44.48:8080/Espotify/crear_podcast_android',

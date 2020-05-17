@@ -43,7 +43,7 @@ class _MusicLibraryState extends State<MusicLibrary> {
   bool error = false;
   List<Song> songs;
   Username username;
-  List<String> generos;
+  List<String> generos = [""];
   @override
   void didChangeDependencies() {
     model = Provider.of<SongsModel>(context);
@@ -71,7 +71,7 @@ class _MusicLibraryState extends State<MusicLibrary> {
       child: Scaffold(
           resizeToAvoidBottomInset: false,
           backgroundColor: Theme.of(context).backgroundColor,
-          body: (model.songs == null)
+          body: (model.songs == null || (model.songs.length == 1 && model.songs[0].title == ""))
               ? Center(
                   child: Text(
                     "No hay canciones",
@@ -127,78 +127,77 @@ class _MusicLibraryState extends State<MusicLibrary> {
                                       ),
                                       alignment: Alignment.centerLeft,),
 
-
                                             Flexible(child: SizedBox(
                                               height: height * 0.16,
                                               child: Consumer<PlaylistRepo>(
                                                 builder: (context, playlistRepo, _) => ListView.builder(
 
-                                                  itemCount: playlistRepo.playlist.length,
+                                                  itemCount: (playlistRepo.playlist.length != null)
+                                                      ?playlistRepo.playlist.length : 0,
                                                   itemBuilder: (context, pos) {
                                                     var padd = (pos == 0) ? width * 0.08 : 5.0;
-                                                    return Card(
-                                                      margin: EdgeInsets.only(left: padd, right: 5.0, top: 15.0),
-                                                      elevation: 5,
-                                                      shape: RoundedRectangleBorder(
-                                                          borderRadius: BorderRadius.circular(20)),
-                                                      child: GestureDetector(
-                                                        onTap: () {
-                                                          playlistRepo.selected = null;
-                                                          playlistRepo.selected = pos;
-                                                          Navigator.of(context).push(new MaterialPageRoute(
-                                                              builder: (context) => new PlaylistGenero()));
-                                                        },
-                                                        child: ClipRRect(
-                                                            borderRadius: BorderRadius.circular(20),
-                                                            child: Container(
-                                                              width: width * 0.4,
-                                                              decoration: BoxDecoration(
-                                                                // Box decoration takes a gradient
-                                                                gradient: LinearGradient(
-                                                                  // Where the linear gradient begins and ends
-                                                                  begin: Alignment.topRight,
-                                                                  end: Alignment.bottomLeft,
-                                                                  // Add one stop for each color. Stops should increase from 0 to 1
-                                                                  stops: [0.1, 0.5, 0.7, 0.9],
-                                                                  colors: pos % 2 == 0
-                                                                      ? [
-                                                                    Colors.orangeAccent,
-                                                                    Colors.orange,
-                                                                    Colors.deepOrange,
-                                                                    Colors.orange,
-                                                                  ]
-                                                                      : [
-                                                                    Colors.pinkAccent,
-                                                                    Colors.pink,
-                                                                    Colors.pinkAccent,
-                                                                    Colors.pink,
-                                                                  ],
+                                                      return Card(
+                                                        margin: EdgeInsets.only(left: padd, right: 5.0, top: 15.0),
+                                                        elevation: 5,
+                                                        shape: RoundedRectangleBorder(
+                                                            borderRadius: BorderRadius.circular(20)),
+                                                        child: GestureDetector(
+                                                          onTap: () {
+                                                            playlistRepo.selected = null;
+                                                            playlistRepo.selected = pos;
+                                                            Navigator.of(context).push(new MaterialPageRoute(
+                                                                builder: (context) => new PlaylistGenero()));
+                                                          },
+                                                          child: ClipRRect(
+                                                              borderRadius: BorderRadius.circular(20),
+                                                              child: Container(
+                                                                width: width * 0.4,
+                                                                decoration: BoxDecoration(
+                                                                  // Box decoration takes a gradient
+                                                                  gradient: LinearGradient(
+                                                                    // Where the linear gradient begins and ends
+                                                                    begin: Alignment.topRight,
+                                                                    end: Alignment.bottomLeft,
+                                                                    // Add one stop for each color. Stops should increase from 0 to 1
+                                                                    stops: [0.1, 0.5, 0.7, 0.9],
+                                                                    colors: pos % 2 == 0
+                                                                        ? [
+                                                                      Colors.orangeAccent,
+                                                                      Colors.orange,
+                                                                      Colors.deepOrange,
+                                                                      Colors.orange,
+                                                                    ]
+                                                                        : [
+                                                                      Colors.pinkAccent,
+                                                                      Colors.pink,
+                                                                      Colors.pinkAccent,
+                                                                      Colors.pink,
+                                                                    ],
+                                                                  ),
                                                                 ),
-                                                              ),
-                                                              child: Stack(children: <Widget>[
-                                                                Center(
-                                                                  child: Padding(padding: EdgeInsets.only(
-                                                                      left: 25.0, right: 25.0, top: 50.0, bottom: 13.0),
-                                                                    child: Column(children: <Widget>[
-                                                                      Flexible(child: Text(playlistRepo.playlist[pos],
-                                                                          textAlign: TextAlign.center,
-                                                                          style:
-                                                                          TextStyle(color: Colors.white),
-                                                                          textScaleFactor: 1.3),),
+                                                                child: Stack(children: <Widget>[
+                                                                  Center(
+                                                                    child: Padding(padding: EdgeInsets.only(
+                                                                        left: 25.0, right: 25.0, top: 50.0, bottom: 13.0),
+                                                                      child: Column(children: <Widget>[
+                                                                        Flexible(child: Text(playlistRepo.playlist[pos],
+                                                                            textAlign: TextAlign.center,
+                                                                            style:
+                                                                            TextStyle(color: Colors.white),
+                                                                            textScaleFactor: 1.3),),
 
-                                                                    ]),),
-                                                                ),
-                                                              ]),
-                                                            )),
-                                                      ),
-                                                    );
+                                                                      ]),),
+                                                                  ),
+                                                                ]),
+                                                              )),
+                                                        ),
+                                                      );
+
                                                   },
                                                   scrollDirection: Axis.horizontal,
                                                 ),
                                               ),
-                                            ),),
-
-
+                                            ),)
 
                                         ],
                                       ),
@@ -583,12 +582,15 @@ class _MusicLibraryState extends State<MusicLibrary> {
 
 class Search extends SearchDelegate<Song> {
   SongsModel model;
+  PlaylistRepo modelPlaylists;
   @override
   List<Widget> buildActions(BuildContext context) {
     // actions
+    buscarPlaylists();
     return [
       IconButton(
         onPressed: () {
+          buscarPlaylists();
           query = "";
         },
         icon: Icon(
@@ -615,16 +617,22 @@ class Search extends SearchDelegate<Song> {
   @override
   Widget buildResults(BuildContext context) {
     // show results
+    buscarPlaylists();
     return null;
   }
 
   @override
   Widget buildSuggestions(BuildContext context) {
     model = Provider.of<SongsModel>(context);
-    List<Song> dummy = <Song>[];
-    List<Song> recents = <Song>[];
+    modelPlaylists = Provider.of<PlaylistRepo>(context);
+    buscarPlaylists();
+    List<String> dummy = <String>[];
+    List<String> recents = <String>[];
     for (int i = 0; i < model.songs.length; i++) {
-      dummy.add(model.songs[i]);
+      dummy.add(model.songs[i].title);
+    }
+    for (int i = 0; i < modelPlaylists.playlist.length; i++) {
+      dummy.add(modelPlaylists.playlist[i]);
     }
     //for (int i = 0; i < 4; i++) {
     // recents.add(model.songs[i].title);
@@ -632,7 +640,7 @@ class Search extends SearchDelegate<Song> {
     var suggestion = query.isEmpty
         ? recents
         : dummy
-            .where((p) => p.title.toLowerCase().startsWith(query.toLowerCase()))
+            .where((p) => p.toLowerCase().startsWith(query.toLowerCase()))
             .toList();
     // hint when searches
     return ListView.builder(
@@ -642,15 +650,21 @@ class Search extends SearchDelegate<Song> {
           padding: const EdgeInsets.all(8.0),
           child: ListTile(
             onTap: () {
-              model.player.stop();
-              //model.playURI(suggestion[index].uri);
-              model.playURI(suggestion[index].uri);
-              model.playlist = false;
-              close(context, null);
+              if(modelPlaylists.playlist.contains(suggestion[index])){
+                modelPlaylists.selected = modelPlaylists.devuelveIndexPlaylist(suggestion[index]);
+                Navigator.of(context).push(new MaterialPageRoute(
+                    builder: (context) => new PLayListScreen()));
+              }else{
+                model.player.stop();
+                //model.playURI(suggestion[index].uri);
+                model.playURI(model.devuelveCancion(suggestion[index]).uri);
+                model.playlist = false;
+                close(context, null);
+              }
             },
             title: Text.rich(
               TextSpan(
-                  text: suggestion[index].title + "\n",
+                  text: suggestion[index] + "\n",
                   style: TextStyle(
                     color: Colors.black,
                     fontWeight: FontWeight.w800,
@@ -658,7 +672,7 @@ class Search extends SearchDelegate<Song> {
                   ),
                   children: <TextSpan>[
                     new TextSpan(
-                        text: suggestion[index].artist,
+                        text: suggestion[index],
                         style: TextStyle(
                             color: Colors.black,
                             fontSize: 17,
@@ -671,6 +685,19 @@ class Search extends SearchDelegate<Song> {
         );
       },
     );
+  }
+
+  buscarPlaylists() async{
+    Playlists l = await recibePlaylists();
+    var listaNombres = l.getUserId().split('|');
+    log('capitulitos: $listaNombres');
+    List<String> listaPlaylists = new List<String>();
+    for(int i = 0; i<listaNombres.length; i++){
+      listaPlaylists.add(listaNombres[i]);
+    }
+
+    List<String> songs = listaPlaylists;
+    modelPlaylists.generateInitialPlayList(songs, songs);
   }
 
 }
@@ -706,6 +733,43 @@ Future<Respuesta> recibeGeneros() async {
     // If the server did return a 201 CREATED response,
     // then parse the JSON.
     return Respuesta.fromJson(json.decode(response.body));
+  } else {
+    // If the server did not return a 201 CREATED response,
+    // then throw an exception.
+    throw Exception('Fallo al enviar petición');
+  }
+}
+class Playlists {
+  final String playlists;
+
+  Playlists({this.playlists});
+
+  factory Playlists.fromJson(Map<String, dynamic> json) {
+    return Playlists(
+      playlists: json['lista'],
+
+    );
+
+  }
+  String getUserId(){
+    return playlists;
+  }
+}
+Future<Playlists> recibePlaylists() async {
+  Map data = {
+  };
+  final http.Response response = await http.post(
+    'http://34.69.44.48:8080/Espotify/todas_listas_android',
+    headers: <String, String>{
+      'Content-Type': 'application/json; charset=UTF-8',
+    },
+    body: jsonEncode(data),
+
+  );
+  if (response.statusCode == 200) {
+    // If the server did return a 201 CREATED response,
+    // then parse the JSON.
+    return Playlists.fromJson(json.decode(response.body));
   } else {
     // If the server did not return a 201 CREATED response,
     // then throw an exception.

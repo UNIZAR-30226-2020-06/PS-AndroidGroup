@@ -3,6 +3,7 @@ import 'dart:developer';
 
 import 'package:beats/Animations/transitions.dart';
 import 'package:beats/models/PodcastRepo.dart';
+import 'package:beats/models/SongsModel.dart';
 import 'package:beats/models/ThemeModel.dart';
 import 'package:flute_music_player/flute_music_player.dart';
 import 'package:flutter/material.dart';
@@ -159,7 +160,8 @@ class _PodcastLibraryState extends State<PodcastLibrary> {
                             child: Container(
                               width: width * 0.4,
                               height: height *0.1,
-                              decoration: BoxDecoration(
+                              decoration: podcastRepo.imagenes[pos] == ""
+                                  ?BoxDecoration(
                                 // Box decoration takes a gradient
                                 gradient: LinearGradient(
                                   // Where the linear gradient begins and ends
@@ -181,14 +183,30 @@ class _PodcastLibraryState extends State<PodcastLibrary> {
                                     Colors.lightBlueAccent,
                                   ],
                                 ),
+                              ) : BoxDecoration(
+                                  image: DecorationImage(
+                                    image: NetworkImage(podcastRepo.imagenes[pos]),
+                                    fit: BoxFit.cover,
+                                  )
                               ),
                               child: Stack(children: <Widget>[
 
                                 Center(
-                                    child: Text(podcastRepo.podcast[pos],
-                                        style:
-                                        TextStyle(color: Colors.white)))
-                              ]),
+                                    child: Padding(padding: EdgeInsets.only(
+                                  left: 25.0, right: 25.0, top: 23.0, bottom: 13.0),
+                              child: Column(children: <Widget>[
+                                Flexible(child: Text(podcastRepo.podcast[pos],
+                                    textAlign: TextAlign.center,
+                                    style:
+                                    TextStyle(color: Colors.white),
+                                    textScaleFactor: 1.3),),
+                                Flexible(child: Text(podcastRepo.descripciones[pos],
+                                    style:
+                                    TextStyle(color: Colors.white)),),
+
+
+                              ]),),
+                                ),]),
                             )),
                       ),
                     );
@@ -210,13 +228,13 @@ class _PodcastLibraryState extends State<PodcastLibrary> {
 
     List<String> listaNombres = p.nombres.split('|');
     List<String> listaDescripciones = p.descripciones.split('|');
+    List<String> listaImagenes = p.imagenesPodcasts.split('|');
     log('podcasts: $listaNombres');
 
     setState(() {
-       podcastRepo.generateInitialPodcast(listaNombres, listaDescripciones);
+       podcastRepo.generateInitialPodcastImage(listaNombres, listaDescripciones, listaImagenes);
     });
   }
-
 
   Future<Podcasts> obtenerPodcasts() async {
     Map data = {
@@ -245,6 +263,7 @@ class _PodcastLibraryState extends State<PodcastLibrary> {
 
 class Search extends SearchDelegate<Song> {
   PodcastRepo model;
+  SongsModel modelCapitulos;
   @override
   List<Widget> buildActions(BuildContext context) {
     // actions
@@ -283,10 +302,15 @@ class Search extends SearchDelegate<Song> {
   @override
   Widget buildSuggestions(BuildContext context) {
     model = Provider.of<PodcastRepo>(context);
+    modelCapitulos = Provider.of<SongsModel>(context);
+    buscarCapitulosPodcast();
     List<String> dummy = <String>[];
     List<String> recents = <String>[];
     for (int i = 0; i < model.podcast.length; i++) {
       dummy.add(model.podcast[i]);
+    }
+    for (int i = 0; i < modelCapitulos.songs.length; i++) {
+      dummy.add(modelCapitulos.songs[i].title);
     }
     //for (int i = 0; i < 4; i++) {
     // recents.add(model.podcasts[i].title);
@@ -304,9 +328,15 @@ class Search extends SearchDelegate<Song> {
           padding: const EdgeInsets.all(8.0),
           child: ListTile(
             onTap: () {
-              model.selected = index;
-              Navigator.of(context).push(new MaterialPageRoute(
-                  builder: (context) => new PodcastNoEditableScreen()));
+              if(model.podcast.contains(suggestion[index])){
+                model.selected = index;
+                Navigator.of(context).push(new MaterialPageRoute(
+                    builder: (context) => new PodcastNoEditableScreen()));
+              }else{
+                modelCapitulos.currentSong = modelCapitulos.devuelveCancion(suggestion[index]);
+                Navigator.push(context, Scale(page: PlayBackPage()));
+              }
+
             },
             title: Text.rich(
               TextSpan(
@@ -331,23 +361,85 @@ class Search extends SearchDelegate<Song> {
         );
       },
     );
+    
+  }
+
+  buscarCapitulosPodcast() async{
+    CapitulosPodcasts l = await obtenerCapitulosPodcasts();
+    var listaNombres = l.getNombresAudio().split('|');
+    var listaUrls = l.getUrlsAudio().split('|');
+    log('capitulitos: $listaNombres');
+    List<Song> listaPodcasts = new List<Song>();
+    for(int i = 0; i<listaNombres.length; i++){
+      listaPodcasts.add(new Song(1,"", listaNombres[i], "",0,0,listaUrls[i],null));
+    }
+
+    List<Song> songs = listaPodcasts;
+    modelCapitulos.fetchSongsManual(songs);
   }
 }
+
+
 class Podcasts {
   final String nombres;
   final String descripciones;
+  final String imagenesPodcasts;
 
-  Podcasts({this.nombres, this.descripciones});
+  Podcasts({this.nombres, this.descripciones, this.imagenesPodcasts});
 
   factory Podcasts.fromJson(Map<String, dynamic> json) {
     return Podcasts(
       nombres: json['lista'],
       descripciones: json['listaDescripcion'],
+      imagenesPodcasts: json['listaImagen'],
     );
 
   }
   String getUserId(){
     return nombres;
+  }
+}
+
+class CapitulosPodcasts {
+  final String nombresPodcast;
+  final String urlsPodcast;
+
+  CapitulosPodcasts({this.nombresPodcast, this.urlsPodcast});
+
+  factory CapitulosPodcasts.fromJson(Map<String, dynamic> json) {
+    return CapitulosPodcasts(
+      nombresPodcast: json['nombresPodcast'],
+      urlsPodcast: json['urlsPodcast'],
+    );
+
+  }
+  String getNombresAudio(){
+    return nombresPodcast;
+  }
+  String getUrlsAudio(){
+    return urlsPodcast;
+  }
+}
+
+Future<CapitulosPodcasts> obtenerCapitulosPodcasts() async {
+  Map data = {
+  };
+  final http.Response response = await http.post(
+    'http://34.69.44.48:8080/Espotify/todos_capitulos_android',
+    headers: <String, String>{
+      'Content-Type': 'application/json; charset=UTF-8',
+    },
+    body: jsonEncode(data),
+
+  );
+  if (response.statusCode == 200) {
+    // If the server did return a 201 CREATED response,
+    // then parse the JSON.
+    return CapitulosPodcasts.fromJson(json.decode(response.body));
+  } else {
+    // If the server did not return a 201 CREATED response,
+    // then throw an exception.
+    throw Exception('Fallo al enviar petición');
   }
 }
 

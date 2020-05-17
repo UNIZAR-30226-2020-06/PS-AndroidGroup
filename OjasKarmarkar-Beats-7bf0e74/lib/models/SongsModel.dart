@@ -79,6 +79,15 @@ class SongsModel extends ChangeNotifier {
 
   }
 
+  Song devuelveCancion(String nombreCancion){
+    for(Song s in songs){
+      if(s.title == nombreCancion){
+        return s;
+      }
+    }
+    return null;
+  }
+
 
   updateUI() {
     notifyListeners();

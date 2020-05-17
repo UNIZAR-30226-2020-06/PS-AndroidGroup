@@ -6,7 +6,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class PlaylistRepo extends ChangeNotifier {
 
-  List<String> playlist;
+  List<String> playlist = [""];
   List<String> descripciones;
   List<String> imagenes;
   SharedPreferences prefList;
@@ -28,6 +28,17 @@ class PlaylistRepo extends ChangeNotifier {
 
   getDescripciones(){
     return descripciones;
+  }
+
+  int devuelveIndexPlaylist(String nombrePlaylist){
+    int i = 0;
+    for(String s in playlist){
+      i++;
+      if(nombrePlaylist == s){
+        return i;
+      }
+    }
+    return null;
   }
 
   delete(String name)async{

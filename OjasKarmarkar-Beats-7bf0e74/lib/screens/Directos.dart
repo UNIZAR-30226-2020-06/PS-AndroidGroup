@@ -69,7 +69,7 @@ class _DirectosState extends State<Directos> {
       child: Scaffold(
           resizeToAvoidBottomInset: false,
           backgroundColor: Theme.of(context).backgroundColor,
-          body: (model.songs == null)
+          body: (model.songs == null || (model.songs.length == 1 && model.songs[0].title == ""))
               ? Center(
             child: Text(
               "No hay directos",

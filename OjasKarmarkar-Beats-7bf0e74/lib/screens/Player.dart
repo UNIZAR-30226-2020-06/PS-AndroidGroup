@@ -533,7 +533,7 @@ class _PlayBackPageState extends State<PlayBackPage> {
                     ),
                   ),
                   Consumer<ProgressModel>(builder: (context, a, _) {
-                    return SliderTheme(
+                     return SliderTheme(
                         child: Slider(
                           max: a.duration.toDouble(),
                           onChanged: (double value) {
