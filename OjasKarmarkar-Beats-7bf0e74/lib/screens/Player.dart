@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';
 import 'package:beats/models/Comentario.dart';
@@ -10,11 +11,13 @@ import 'package:beats/models/Now_Playing.dart';
 import 'package:beats/models/Username.dart';
 import 'package:beats/models/const.dart';
 import 'package:beats/screens/MusicLibrary.dart';
+import 'package:flute_music_player/flute_music_player.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_media_notification/flutter_media_notification.dart';
 import '../custom_icons.dart';
 import 'package:provider/provider.dart';
 import 'package:beats/models/ProgressModel.dart';
+import 'package:http/http.dart' as http;
 
 import 'ComentariosLibrary.dart';
 
@@ -35,6 +38,10 @@ class _PlayBackPageState extends State<PlayBackPage> {
   FocusNode myFocusNode;
   int currentPage = 1;
   bool likeado = false;
+  Username username;
+  BookmarkModel bm;
+  List<Song> songs;
+  SongsModel songsModel;
 
   @override
   void initState() {
@@ -43,6 +50,15 @@ class _PlayBackPageState extends State<PlayBackPage> {
     myFocusNode = FocusNode();
     pg = PageController(
         initialPage: currentPage, keepPage: true, viewportFraction: 0.95);
+  }
+  @override
+  void didChangeDependencies() {
+    // TODO: implement didChangeDependencies
+    username = Provider.of<Username>(context);
+    bm = Provider.of<BookmarkModel>(context);
+    songsModel = Provider.of<SongsModel>(context);
+    comprobarFavorito();
+    super.didChangeDependencies();
   }
 
   @override
@@ -63,7 +79,7 @@ class _PlayBackPageState extends State<PlayBackPage> {
     model = Provider.of<SongsModel>(context);
     playScreen = Provider.of<NowPlaying>(context);
     themeChanger = Provider.of<ThemeChanger>(context);
-
+    esperarLikeado();
     c.obtenerListaComentarios(model.currentSong.title);
 
 
@@ -289,8 +305,10 @@ class _PlayBackPageState extends State<PlayBackPage> {
                                     if (!bookmark
                                         .alreadyExists(model.currentSong)) {
                                       bookmark.add(model.currentSong);
+                                      anyadirFavorito(username.email, model.currentSong.title);
                                     } else {
                                       bookmark.remove(model.currentSong);
+                                      eliminarFavorito(username.email, model.currentSong.title);
                                     }
                                   },
                                   icon: Icon(
@@ -630,8 +648,10 @@ class _PlayBackPageState extends State<PlayBackPage> {
                                 if (!bookmark
                                     .alreadyExists(model.currentSong)) {
                                   bookmark.add(model.currentSong);
+                                  anyadirFavorito(username.email, model.currentSong.title);
                                 } else {
                                   bookmark.remove(model.currentSong);
+                                  eliminarFavorito(username.email, model.currentSong.title);
                                 }
                               },
                               icon: Icon(
@@ -659,16 +679,14 @@ class _PlayBackPageState extends State<PlayBackPage> {
                           ),
                         ),
                         IconButton(
-                          onPressed: () async {
-                            await model.Like(user.email);
-                            await model.likeado(user.email);  //todo está bien, currentLike está mal,
-                            setState(() {
-                              log("HAGO EL SET STATE");
-                            });
+                          onPressed: () {
+                            model.Like(user.email);
+                            likeado = !likeado;
+                            log("$likeado");
                           },
                           icon: Icon(
                             Icons.thumb_up,
-                            color: model.currentLike ? Colors.orange : Colors.grey,
+                            color: likeado ? Colors.orange : Colors.grey, //todo reload
                             size: 35.0,
                           ),
                         ),
@@ -867,9 +885,127 @@ class _PlayBackPageState extends State<PlayBackPage> {
       Navigator.of(context).pop();
     } else {}
   }
+//todo que esté cuando se hace build
   void esperarLikeado() async{
-    String s = user.email;
+    /*String s = user.email;
+    log("s: $s");
     likeado = await model.likeado(user.email);
-    log("likeadofuera: $likeado");
+    log("likeadofuera: $likeado");*/
+  }
+  void comprobarFavorito() async {
+
+    Canciones c = await obtenerFavoritos(username.email);
+    List<String> nombresAudio = c.nombresAudio.split('|');
+    List<String> urlsAudio = c.urlsAudio.split('|');
+    log('especial: $nombresAudio');
+    List<Song> l = new List<Song>();
+    for(int i = 0; i<nombresAudio.length; i++){
+      l.add(new Song(1,"", nombresAudio[i], "",0,0,urlsAudio[i],null));
+    }
+
+    setState(() {
+      songs = l;
+      bm.initFavorites(songs);
+    });
+
+  }
+}
+
+
+
+anyadirFavorito(String email, String nombreCancion) async {
+  log("tuk: $email");
+  Map data = {
+    'email': email,
+    'nombreCancion': nombreCancion,
+  };
+  final http.Response response = await http.post(
+    'http://34.69.44.48:8080/Espotify/anyadir_favorito_android',
+    headers: <String, String>{
+      'Content-Type': 'application/json; charset=UTF-8',
+    },
+    body: jsonEncode(data),
+
+  );
+  if (response.statusCode == 200) {
+    // If the server did return a 201 CREATED response,
+    // then parse the JSON.
+    return Canciones.fromJson(json.decode(response.body));
+  } else {
+    // If the server did not return a 201 CREATED response,
+    // then throw an exception.
+    throw Exception('Fallo al enviar petición');
+  }
+}
+
+eliminarFavorito(String email, String nombreCancion) async {
+  Map data = {
+    'email': email,
+    'nombreCancion': nombreCancion,
+  };
+  final http.Response response = await http.post(
+    'http://34.69.44.48:8080/Espotify/eliminar_favorito_android',
+    headers: <String, String>{
+      'Content-Type': 'application/json; charset=UTF-8',
+    },
+    body: jsonEncode(data),
+
+  );
+  if (response.statusCode == 200) {
+    // If the server did return a 201 CREATED response,
+    // then parse the JSON.
+    return Canciones.fromJson(json.decode(response.body));
+  } else {
+    // If the server did not return a 201 CREATED response,
+    // then throw an exception.
+    throw Exception('Fallo al enviar petición');
+  }
+}
+
+class Canciones {
+  final String respuesta;
+  final String nombresAudio;
+  final String urlsAudio;
+  final String genero;
+  final String autor;
+  Canciones({this.respuesta, this.nombresAudio,this.urlsAudio, this.genero, this.autor});
+
+  factory Canciones.fromJson(Map<String, dynamic> json) {
+    return Canciones(
+      nombresAudio: json['nombresAudio'],
+      urlsAudio: json['urlsAudio'],
+    );
+
+  }
+  String getUserId(){
+    return respuesta;
+  }
+  String getNombresAudio(){
+    return nombresAudio;
+  }
+  String getUrlsAudio(){
+    return urlsAudio;
+  }
+}
+Future<Canciones> obtenerFavoritos(String email) async {
+  Map data = {
+    'email': email,
+  };
+  final http.Response response = await http.post(
+    'http://34.69.44.48:8080/Espotify/obtener_favoritos_android',
+    headers: <String, String>{
+      'Content-Type': 'application/json; charset=UTF-8',
+    },
+    body: jsonEncode(data),
+
+  );
+  if (response.statusCode == 200) {
+    // If the server did return a 201 CREATED response,
+    // then parse the JSON.
+    return Canciones.fromJson(json.decode(response.body));
+  } else {
+    // If the server did not return a 201 CREATED response,
+    // then throw an exception.
+    throw Exception('Fallo al enviar petición');
   }
 }
