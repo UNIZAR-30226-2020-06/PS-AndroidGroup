@@ -101,7 +101,7 @@ class _LoginPageState extends State<LoginPage> {
                                   controller: nameController,
                                   style: TextStyle(fontSize: 16),
                                   decoration: InputDecoration(
-                                      hintText: "Correo electrónico",
+                                      hintText: "Nombre de usuario",
                                       hintStyle: TextStyle(fontSize: 15.0, color: Colors.grey),
                                       border: InputBorder.none
                                   ),
