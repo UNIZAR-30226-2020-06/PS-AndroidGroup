@@ -31,6 +31,8 @@ class SongsModel extends ChangeNotifier {
   bool repeat = false;
   Random rnd = new Random();
   Recents recents;
+
+  String email;
   bool currentLike = false;
 
   SongsModel(prov, rec) {
@@ -91,6 +93,7 @@ class SongsModel extends ChangeNotifier {
 
 
   updateUI() {
+    //await likeado(email);
     notifyListeners();
   }
 
@@ -293,6 +296,11 @@ class SongsModel extends ChangeNotifier {
       throw Exception('Fallo al enviar petición');
     }
   }
+
+  void setEmail(String emailVal) {
+    email=emailVal;
+  }
+
 }
 
 class respuesta {

@@ -47,6 +47,7 @@ class _DirectosState extends State<Directos> {
     b = Provider.of<BookmarkModel>(context);
     username = Provider.of<Username>(context);
     obtenerCancionesRandom(model);
+    model.setEmail(username.email);
 
 
 

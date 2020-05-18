@@ -41,7 +41,6 @@ class _PlayBackPageState extends State<PlayBackPage> {
   Username username;
   BookmarkModel bm;
   List<Song> songs;
-  SongsModel songsModel;
 
   @override
   void initState() {
@@ -53,10 +52,11 @@ class _PlayBackPageState extends State<PlayBackPage> {
   }
   @override
   void didChangeDependencies() {
-    // TODO: implement didChangeDependencies
     username = Provider.of<Username>(context);
     bm = Provider.of<BookmarkModel>(context);
-    songsModel = Provider.of<SongsModel>(context);
+    model = Provider.of<SongsModel>(context);
+    String s = model.currentSong.title;
+    log("cancion actual: $s");
     comprobarFavorito();
     super.didChangeDependencies();
   }
@@ -79,7 +79,6 @@ class _PlayBackPageState extends State<PlayBackPage> {
     model = Provider.of<SongsModel>(context);
     playScreen = Provider.of<NowPlaying>(context);
     themeChanger = Provider.of<ThemeChanger>(context);
-    esperarLikeado();
     c.obtenerListaComentarios(model.currentSong.title);
 
 
@@ -679,14 +678,16 @@ class _PlayBackPageState extends State<PlayBackPage> {
                           ),
                         ),
                         IconButton(
-                          onPressed: () {
-                            model.Like(user.email);
-                            likeado = !likeado;
-                            log("$likeado");
+                          onPressed: () async {
+                            await model.Like(user.email);
+                            await model.likeado(username.email);
+                            setState(() {
+
+                            });
                           },
                           icon: Icon(
                             Icons.thumb_up,
-                            color: likeado ? Colors.orange : Colors.grey, //todo reload
+                            color: model.currentLike ? Colors.orange : Colors.grey, //todo reload
                             size: 35.0,
                           ),
                         ),
@@ -885,13 +886,6 @@ class _PlayBackPageState extends State<PlayBackPage> {
       Navigator.of(context).pop();
     } else {}
   }
-//todo que esté cuando se hace build
-  void esperarLikeado() async{
-    /*String s = user.email;
-    log("s: $s");
-    likeado = await model.likeado(user.email);
-    log("likeadofuera: $likeado");*/
-  }
   void comprobarFavorito() async {
 
     Canciones c = await obtenerFavoritos(username.email);
@@ -902,10 +896,12 @@ class _PlayBackPageState extends State<PlayBackPage> {
     for(int i = 0; i<nombresAudio.length; i++){
       l.add(new Song(1,"", nombresAudio[i], "",0,0,urlsAudio[i],null));
     }
-
+    await model.likeado(username.email);
     setState(() {
       songs = l;
       bm.initFavorites(songs);
+      log("FAVORITOS ACTUALIZADOS");
+
     });
 
   }
