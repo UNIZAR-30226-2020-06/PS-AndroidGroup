@@ -8,6 +8,7 @@ import 'package:beats/models/Now_Playing.dart';
 import 'package:beats/screens/Register.dart';
 import 'package:beats/screens/login.dart';
 import 'package:flutter_media_notification/flutter_media_notification.dart';
+import 'models/Comentario.dart';
 import 'models/DifferentUsername.dart';
 import 'models/LocalPlaylistRepo.dart';
 import 'models/LocalSongsModel.dart';
@@ -43,6 +44,9 @@ void main(List<String> args) {
   runApp(MultiProvider(providers: [
     ChangeNotifierProvider<BookmarkModel>(
       create: (context) => BookmarkModel(),
+    ),
+    ChangeNotifierProvider<Comentario>(
+      create: (context) => Comentario(),
     ),
     ChangeNotifierProvider<PlaylistRepo>(
       create: (context) => PlaylistRepo(),

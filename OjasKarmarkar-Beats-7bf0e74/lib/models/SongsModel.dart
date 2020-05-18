@@ -232,7 +232,35 @@ class SongsModel extends ChangeNotifier {
     } on PlatformException {}
   }
 
+
   void Like(String email) async {
+    Map data = {
+      'email' : email,
+      'titulo' : this.currentSong.title,
+      'tipo' : "audio",
+    };
+
+    final http.Response response = await http.post(
+      'http://34.69.44.48:8080/Espotify/like_android',
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+      body: jsonEncode(data),
+
+    );
+    if (response.statusCode == 200) {
+      // If the server did return a 201 CREATED response,
+      // then parse the JSON.
+     log("se ha cambiado de como estaba");
+    } else {
+      // If the server did not return a 201 CREATED response,
+      // then throw an exception.
+      throw Exception('Fallo al enviar petición');
+    }
+  }
+
+
+  Future<bool> likeado(String email) async{
     Map data = {
       'email' : email,
       'titulo' : this.currentSong.title,
@@ -251,62 +279,13 @@ class SongsModel extends ChangeNotifier {
       // If the server did return a 201 CREATED response,
       // then parse the JSON.
       respuesta r = respuesta.fromJson(json.decode(response.body));
-      if(r.likeado)
-        {
-          this.quitarLike(email);
-        }else{
-        String e = r.likeado as String;
-        log("respuesta: $e");
-        this.darLike(email);
+      String s = r.getlikeado();
+      log("likeado: $s");
+      if(r.getlikeado() == "false") {
+        return(false);
+      } else if (r.getlikeado() == "true") {
+        return(true);
       }
-    } else {
-      // If the server did not return a 201 CREATED response,
-      // then throw an exception.
-      throw Exception('Fallo al enviar petición');
-    }
-  }
-  void darLike(String email) async {
-
-    Map data = {
-      'email' : email,
-      'titulo' : this.currentSong.title,
-    };
-    final http.Response response = await http.post(
-      'http://34.69.44.48:8080/Espotify/like_android',
-      headers: <String, String>{
-        'Content-Type': 'application/json; charset=UTF-8',
-      },
-      body: jsonEncode(data),
-
-    );
-    if (response.statusCode == 200) {
-      // If the server did return a 201 CREATED response,
-      // then parse the JSON.
-      log("like dado");
-    } else {
-      // If the server did not return a 201 CREATED response,
-      // then throw an exception.
-      throw Exception('Fallo al enviar petición');
-    }
-  }
-
-  void quitarLike(String email) async {
-    Map data = {
-      'email' : email,
-      'titulo' : this.currentSong.title,
-    };
-    final http.Response response = await http.post(
-      'http://34.69.44.48:8080/Espotify/tiene_like_android',
-      headers: <String, String>{
-        'Content-Type': 'application/json; charset=UTF-8',
-      },
-      body: jsonEncode(data),
-
-    );
-    if (response.statusCode == 200) {
-      // If the server did return a 201 CREATED response,
-      // then parse the JSON.
-      log("like quitado");
     } else {
       // If the server did not return a 201 CREATED response,
       // then throw an exception.
@@ -316,7 +295,7 @@ class SongsModel extends ChangeNotifier {
 }
 
 class respuesta {
-  final bool likeado;
+  final String likeado;
 
   respuesta({this.likeado});
 
@@ -325,7 +304,7 @@ class respuesta {
       likeado: json['likeado'],
     );
   }
-  bool getlikeado(){
+  String getlikeado(){
     return likeado;
   }
 }

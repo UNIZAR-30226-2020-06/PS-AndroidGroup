@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';
 import 'package:beats/models/Comentario.dart';
@@ -11,16 +10,13 @@ import 'package:beats/models/Now_Playing.dart';
 import 'package:beats/models/Username.dart';
 import 'package:beats/models/const.dart';
 import 'package:beats/screens/MusicLibrary.dart';
-import 'package:flute_music_player/flute_music_player.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_media_notification/flutter_media_notification.dart';
-import 'package:pref_dessert/generated/i18n.dart';
 import '../custom_icons.dart';
 import 'package:provider/provider.dart';
 import 'package:beats/models/ProgressModel.dart';
-import 'package:http/http.dart' as http;
 
-
+import 'ComentariosLibrary.dart';
 
 class PlayBackPage extends StatefulWidget {
   @override
@@ -34,13 +30,12 @@ class _PlayBackPageState extends State<PlayBackPage> {
   PageController pg;
   NowPlaying playScreen;
   TextEditingController comentario;
-  Comentario c;
+  Comentario c = new Comentario();
+  Username user;
   FocusNode myFocusNode;
   int currentPage = 1;
-  Username username;
-  BookmarkModel bm;
-  List<Song> songs;
-  SongsModel songsModel;
+  bool likeado = false;
+
   @override
   void initState() {
     super.initState();
@@ -63,23 +58,14 @@ class _PlayBackPageState extends State<PlayBackPage> {
   List<String> playlist = new List();
 
   @override
-  void didChangeDependencies() {
-    // TODO: implement didChangeDependencies
-    username = Provider.of<Username>(context);
-    bm = Provider.of<BookmarkModel>(context);
-    songsModel = Provider.of<SongsModel>(context);
-    comprobarFavorito();
-    super.didChangeDependencies();
-  }
-
-  @override
   Widget build(BuildContext context) {
-    log("ESTOY AQUI, CARGANDO EL PLAYER BIEN");
+    user = Provider.of<Username>(context);
     model = Provider.of<SongsModel>(context);
     playScreen = Provider.of<NowPlaying>(context);
     themeChanger = Provider.of<ThemeChanger>(context);
+    esperarLikeado();
+    c.obtenerListaComentarios(model.currentSong.title);
 
-    //c.obtenerListaComentarios(model.currentSong.title);
 
     if (playScreen.getScreen() == true) {
       return Scaffold(
@@ -302,15 +288,9 @@ class _PlayBackPageState extends State<PlayBackPage> {
                                   onPressed: () {
                                     if (!bookmark
                                         .alreadyExists(model.currentSong)) {
-                                      setState(() {
-                                        bookmark.add(model.currentSong);
-                                        anyadirFavorito(username.email, model.currentSong.title);
-                                      });
+                                      bookmark.add(model.currentSong);
                                     } else {
-                                      setState(() {
-                                        bookmark.remove(model.currentSong);
-                                        eliminarFavorito(username.email, model.currentSong.title);
-                                      });
+                                      bookmark.remove(model.currentSong);
                                     }
                                   },
                                   icon: Icon(
@@ -431,8 +411,8 @@ class _PlayBackPageState extends State<PlayBackPage> {
       );
     } else {
       //player, está aquí normalmente
+
       return Scaffold(
-          resizeToAvoidBottomInset: false,
           body: Stack(children: <Widget>[
             AppBar(
               backgroundColor: Theme.of(context).backgroundColor,
@@ -451,6 +431,7 @@ class _PlayBackPageState extends State<PlayBackPage> {
                 ),
               ),
             ),
+
             Consumer<SongsModel>(
               builder: (context, model, _) => Column(
                 children: [
@@ -649,10 +630,8 @@ class _PlayBackPageState extends State<PlayBackPage> {
                                 if (!bookmark
                                     .alreadyExists(model.currentSong)) {
                                   bookmark.add(model.currentSong);
-                                  anyadirFavorito(username.email, model.currentSong.title);
                                 } else {
                                   bookmark.remove(model.currentSong);
-                                  eliminarFavorito(username.email, model.currentSong.title);
                                 }
                               },
                               icon: Icon(
@@ -681,13 +660,34 @@ class _PlayBackPageState extends State<PlayBackPage> {
                         ),
                         IconButton(
                           onPressed: () {
-                            model.shuffle
-                                ? model.setShuffle(false)
-                                : model.setShuffle(true);
+                            model.Like(user.email);
+                            likeado = !likeado;
+                            log("$likeado");
+                          },
+                          icon: Icon(
+                            Icons.thumb_up,
+                            color: likeado ? Colors.orange : Colors.grey, //todo reload
+                            size: 35.0,
+                          ),
+                        ),
+                        IconButton(
+                          onPressed: () {
+                            model.Like(user.email);
                           },
                           icon: Icon(
                             Icons.shuffle,
                             color: model.shuffle ? Colors.orange : Colors.grey,
+                            size: 35.0,
+                          ),
+                        ),
+                        IconButton(
+                          onPressed: () {
+                            Navigator.of(context).push(new MaterialPageRoute(builder: (context) =>
+                           new ComentariosLibraryState()));
+                          },
+                          icon: Icon(
+                            Icons.comment,
+                            color: Colors.grey,
                             size: 35.0,
                           ),
                         ),
@@ -790,70 +790,6 @@ class _PlayBackPageState extends State<PlayBackPage> {
                       ],
                     ),
                   ),
-                  Padding(
-                    padding:
-                        EdgeInsets.only(left: width * 0.02, top: height * 0.03),
-                    child: TextField(
-                      focusNode: myFocusNode,
-                      controller: comentario,
-                      decoration: InputDecoration(
-                        hintText: "Escribe aquí tu comentario",
-                      ),
-                    ),
-                  ),
-                  /*Scaffold(
-                    //todo implementar la lista
-                    resizeToAvoidBottomInset: false,
-                    backgroundColor: Theme.of(context).backgroundColor,
-                    body: (c.texto == null)
-                        ? Center(
-                            child: Text(
-                              "No hay comentarios",
-                              style: Theme.of(context).textTheme.display1,
-                            ),
-                          )
-                        : Expanded(
-                      child: ListView.builder(
-                        itemCount: c.texto.length,
-                        itemBuilder: (context, pos) {
-                          return Consumer<Comentario>(builder: (context, comentario, _) {
-                            return ListTile(
-                              trailing: PopupMenuButton<String>(
-                                icon: IconButton(
-                                  icon: Icon(
-                                    Icons.delete_outline,
-                                    size: 17,
-                                    color: Colors.grey,
-                                  ),
-                                  onPressed: () { comentario.borrarComentario(
-                                      comentario.texto[pos], comentario.usuarios[pos], model.currentSong.title);}
-                                ),
-                              ),
-                              title: Text(
-                                comentario.texto[pos],
-                                maxLines: 2,
-                                style: TextStyle(
-                                    fontSize: 15,
-                                    fontWeight: FontWeight.w700,
-                                    fontFamily: 'Sans'),
-                              ),
-                              subtitle: Padding(
-                                padding: const EdgeInsets.only(top: 10.0),
-                                child: Text(
-                                  comentario.usuarios[pos],
-                                  maxLines: 1,
-                                  style: TextStyle(
-                                      color: Theme.of(context).textTheme.display1.color,
-                                      fontSize: 12,
-                                      fontFamily: 'Sans'),
-                                ),
-                              ),
-                            );
-                          });
-                        },
-                      ),
-                    ),
-                  ),*/
                 ],
               ),
             )
@@ -929,118 +865,11 @@ class _PlayBackPageState extends State<PlayBackPage> {
       Navigator.of(context).pop();
     } else {}
   }
-
-  void comprobarFavorito() async {
-
-    Canciones c = await obtenerFavoritos(username.email);
-    List<String> nombresAudio = c.nombresAudio.split('|');
-    List<String> urlsAudio = c.urlsAudio.split('|');
-    log('especial: $nombresAudio');
-    List<Song> l = new List<Song>();
-    for(int i = 0; i<nombresAudio.length; i++){
-      l.add(new Song(1,"", nombresAudio[i], "",0,0,urlsAudio[i],null));
-    }
-    songs = l;
-    bm.initFavorites(songs);
-    setState(() {
-
-    });
-
-  }
-}
-anyadirFavorito(String email, String nombreCancion) async {
-  log("tuk: $email");
-  Map data = {
-    'email': email,
-    'nombreCancion': nombreCancion,
-  };
-  final http.Response response = await http.post(
-    'http://34.69.44.48:8080/Espotify/anyadir_favorito_android',
-    headers: <String, String>{
-      'Content-Type': 'application/json; charset=UTF-8',
-    },
-    body: jsonEncode(data),
-
-  );
-  if (response.statusCode == 200) {
-    // If the server did return a 201 CREATED response,
-    // then parse the JSON.
-    return Canciones.fromJson(json.decode(response.body));
-  } else {
-    // If the server did not return a 201 CREATED response,
-    // then throw an exception.
-    throw Exception('Fallo al enviar petición');
-  }
-}
-
-eliminarFavorito(String email, String nombreCancion) async {
-  Map data = {
-    'email': email,
-    'nombreCancion': nombreCancion,
-  };
-  final http.Response response = await http.post(
-    'http://34.69.44.48:8080/Espotify/eliminar_favorito_android',
-    headers: <String, String>{
-      'Content-Type': 'application/json; charset=UTF-8',
-    },
-    body: jsonEncode(data),
-
-  );
-  if (response.statusCode == 200) {
-    // If the server did return a 201 CREATED response,
-    // then parse the JSON.
-    return Canciones.fromJson(json.decode(response.body));
-  } else {
-    // If the server did not return a 201 CREATED response,
-    // then throw an exception.
-    throw Exception('Fallo al enviar petición');
-  }
-}
-
-class Canciones {
-  final String respuesta;
-  final String nombresAudio;
-  final String urlsAudio;
-  final String genero;
-  final String autor;
-  Canciones({this.respuesta, this.nombresAudio,this.urlsAudio, this.genero, this.autor});
-
-  factory Canciones.fromJson(Map<String, dynamic> json) {
-    return Canciones(
-      nombresAudio: json['nombresAudio'],
-      urlsAudio: json['urlsAudio'],
-    );
-
-  }
-  String getUserId(){
-    return respuesta;
-  }
-  String getNombresAudio(){
-    return nombresAudio;
-  }
-  String getUrlsAudio(){
-    return urlsAudio;
-  }
-}
-Future<Canciones> obtenerFavoritos(String email) async {
-  Map data = {
-    'email': email,
-  };
-  final http.Response response = await http.post(
-    'http://34.69.44.48:8080/Espotify/obtener_favoritos_android',
-    headers: <String, String>{
-      'Content-Type': 'application/json; charset=UTF-8',
-    },
-    body: jsonEncode(data),
-
-  );
-  if (response.statusCode == 200) {
-    // If the server did return a 201 CREATED response,
-    // then parse the JSON.
-    return Canciones.fromJson(json.decode(response.body));
-  } else {
-    // If the server did not return a 201 CREATED response,
-    // then throw an exception.
-    throw Exception('Fallo al enviar petición');
+//todo que esté cuando se hace build
+  void esperarLikeado() async{
+    String s = user.email;
+    log("s: $s");
+    likeado = await model.likeado(user.email);
+    log("likeadofuera: $likeado");
   }
 }
