@@ -217,7 +217,11 @@ void esperaLogin(BuildContext context, String nombreUsuario,String contrasenya,
   Login l = await logearUsuario(nombreUsuario, contrasenya);
   if(l.respuesta!= "error"){
     username.email = l.email;
-    Navigator.push(context, MaterialPageRoute(builder: (context) => MainScreen()));
+    Navigator.pushAndRemoveUntil(
+      context,
+      MaterialPageRoute(builder: (context) => MainScreen()),
+          (Route<dynamic> route) => false,
+    );
   }else{
     controlador.text = "Contraseña o usuario incorrectos";
   }

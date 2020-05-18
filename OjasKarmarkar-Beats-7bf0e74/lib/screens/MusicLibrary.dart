@@ -624,15 +624,11 @@ class Search extends SearchDelegate<Song> {
   @override
   Widget buildSuggestions(BuildContext context) {
     model = Provider.of<SongsModel>(context);
-    modelPlaylists = Provider.of<PlaylistRepo>(context);
     buscarPlaylists();
     List<String> dummy = <String>[];
     List<String> recents = <String>[];
     for (int i = 0; i < model.songs.length; i++) {
       dummy.add(model.songs[i].title);
-    }
-    for (int i = 0; i < modelPlaylists.playlist.length; i++) {
-      dummy.add(modelPlaylists.playlist[i]);
     }
     //for (int i = 0; i < 4; i++) {
     // recents.add(model.songs[i].title);
@@ -650,17 +646,12 @@ class Search extends SearchDelegate<Song> {
           padding: const EdgeInsets.all(8.0),
           child: ListTile(
             onTap: () {
-              if(modelPlaylists.playlist.contains(suggestion[index])){
-                modelPlaylists.selected = modelPlaylists.devuelveIndexPlaylist(suggestion[index]);
-                Navigator.of(context).push(new MaterialPageRoute(
-                    builder: (context) => new PLayListScreen()));
-              }else{
                 model.player.stop();
                 //model.playURI(suggestion[index].uri);
                 model.playURI(model.devuelveCancion(suggestion[index]).uri);
                 model.playlist = false;
                 close(context, null);
-              }
+
             },
             title: Text.rich(
               TextSpan(

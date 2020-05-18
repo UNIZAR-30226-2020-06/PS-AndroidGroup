@@ -131,7 +131,7 @@ class _PLayListScreenState extends State<PLayListScreen> {
             ];
           },
           body: (songs != null)
-              ? (songs.length != 0)
+              ? (songs.length != 0 && songs[0].title != "")
                   ? Stack(children: <Widget>[
 
                       ConditionalBuilder(

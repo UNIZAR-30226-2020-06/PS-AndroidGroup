@@ -1,6 +1,7 @@
 import 'package:beats/PlayerWidget.dart';
 import 'package:beats/reproductorMusica.dart';
 import 'package:beats/screens/Bookmarks.dart';
+import 'package:beats/screens/PlaylistLibrary.dart';
 import 'package:beats/screens/PodcastLibrary.dart';
 import 'package:beats/screens/ProfileEdit.dart';
 import 'package:beats/screens/UserProfile.dart';
@@ -24,7 +25,7 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver{
 
 
   var index = 1;
-  var screens = [PodcastLibrary(), Directos(), MusicLibrary(),Social(), Bookmarks(), ProfilePage()]; //tenía añadido upload song
+  var screens = [PodcastLibrary(), Directos(), MusicLibrary(), PlaylistLibrary(), Social(), Bookmarks(), ProfilePage()]; //tenía añadido upload song
 
   @override
   Widget build(BuildContext context) {
@@ -34,7 +35,7 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver{
           bottomNavigationBar: ExpandingBottomBar(
             animationDuration: Duration(milliseconds: 500),
             backgroundColor: Theme.of(context).backgroundColor,
-              navBarHeight: 70,
+              navBarHeight: 60,
               items: [
                 ExpandingBottomBarItem(
                     icon: Icons.mic,
@@ -47,6 +48,10 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver{
                 ExpandingBottomBarItem(
                     icon: Icons.music_note,
                     text: "Canciones",
+                    selectedColor: Colors.pinkAccent),
+                ExpandingBottomBarItem(
+                    icon: Icons.headset,
+                    text: "Playlists",
                     selectedColor: Colors.pinkAccent),
                 ExpandingBottomBarItem(
                     icon: Icons.person_add,

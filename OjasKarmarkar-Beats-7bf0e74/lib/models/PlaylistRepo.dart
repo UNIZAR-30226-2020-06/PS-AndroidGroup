@@ -33,10 +33,10 @@ class PlaylistRepo extends ChangeNotifier {
   int devuelveIndexPlaylist(String nombrePlaylist){
     int i = 0;
     for(String s in playlist){
-      i++;
       if(nombrePlaylist == s){
         return i;
       }
+      i++;
     }
     return null;
   }

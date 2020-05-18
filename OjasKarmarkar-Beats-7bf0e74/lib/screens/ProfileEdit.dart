@@ -2777,6 +2777,118 @@ class _ProfilePageState extends State<ProfilePage>
       },
     );
   }
+
+  void mostrarComprobacion(String accion){
+    showDialog(
+      context: context,
+      builder: (context) {
+        return Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: AlertDialog(
+            backgroundColor:
+            Theme.of(context).backgroundColor,
+            shape: RoundedRectangleBorder(
+              side: BorderSide(),
+              borderRadius: BorderRadius.all(
+                  Radius.circular(30.0)),
+            ),
+            contentPadding: EdgeInsets.only(top: 10.0),
+            content: Container(
+              width: 50.0,
+              child: Column(
+                mainAxisAlignment:
+                MainAxisAlignment.start,
+                crossAxisAlignment:
+                CrossAxisAlignment.stretch,
+                mainAxisSize: MainAxisSize.min,
+                children: <Widget>[
+                  Row(
+                    mainAxisAlignment:
+                    MainAxisAlignment.spaceEvenly,
+                    mainAxisSize: MainAxisSize.min,
+                    children: <Widget>[
+                      Text(
+                        "¡Alto ahí!",
+                        style: TextStyle(
+                            fontSize: 24.0,
+                            fontFamily: 'Sans'),
+                      ),
+                    ],
+                  ),
+                  SizedBox(
+                    height: 5.0,
+                  ),
+                  Divider(
+                    color: Colors.grey,
+                    height: 4.0,
+                  ),
+                  Padding(
+                      padding: EdgeInsets.only(
+                          left: 30.0,
+                          right: 30.0,
+                          top: 30.0,
+                          bottom: 30.0),
+                      child: Text(accion)
+                  ),
+                  InkWell(
+                    onTap: () {
+                      if(accion == "Eliminar cuenta") {
+                        // eliminarCuenta();
+                      }else if(accion == "Cerrar sesión"){
+                        Navigator.pushAndRemoveUntil(
+                          context,
+                          MaterialPageRoute(builder: (context) => LoginPage()),
+                              (Route<dynamic> route) => false,
+                        );
+                      }
+                    },
+                    child: Container(
+                      padding: EdgeInsets.only(
+                          top: 10.0, bottom: 20.0),
+                      decoration: BoxDecoration(
+                        color: Colors.orange,
+                      ),
+                      child: Text(
+                        "Aceptar",
+                        style: TextStyle(
+                            fontFamily: 'Sans',
+                            color: Colors.white),
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                  ),
+                  InkWell(
+                    onTap: () {
+                      Navigator.pop(context);
+                    },
+                    child: Container(
+                      padding: EdgeInsets.only(
+                          top: 10.0, bottom: 20.0),
+                      decoration: BoxDecoration(
+                        color: Colors.grey,
+                        borderRadius: BorderRadius.only(
+                            bottomLeft:
+                            Radius.circular(32.0),
+                            bottomRight:
+                            Radius.circular(32.0)),
+                      ),
+                      child: Text(
+                        "Cancelar",
+                        style: TextStyle(
+                            fontFamily: 'Sans',
+                            color: Colors.white),
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
   void seleccionarImagenPlaylist(){
     showDialog(
         context: context,
@@ -3124,9 +3236,9 @@ class _ProfilePageState extends State<ProfilePage>
               actions: <Widget>[
                 Padding(padding: const EdgeInsets.all(8.0),
                 child: GestureDetector(
-                  onTap: () { Navigator.push(context, new MaterialPageRoute(
-                      builder: (context) =>
-                      new LoginPage())); },
+                  onTap: () {
+                    mostrarComprobacion("Cerrar sesión");
+                  },
 
                       child: new RaisedButton(
                         child: new Text("Cerrar sesión"),
@@ -3143,6 +3255,7 @@ class _ProfilePageState extends State<ProfilePage>
                      textColor: Colors.red,
                       color: Colors.white,
                       onPressed: () {
+                        mostrarComprobacion("Eliminar cuenta");
                       },
                   shape: new RoundedRectangleBorder(
                   borderRadius: new BorderRadius.circular(20.0)),
