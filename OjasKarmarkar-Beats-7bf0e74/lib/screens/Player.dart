@@ -63,7 +63,7 @@ class _PlayBackPageState extends State<PlayBackPage> {
     model = Provider.of<SongsModel>(context);
     playScreen = Provider.of<NowPlaying>(context);
     themeChanger = Provider.of<ThemeChanger>(context);
-    esperarLikeado();
+
     c.obtenerListaComentarios(model.currentSong.title);
 
 
@@ -659,14 +659,16 @@ class _PlayBackPageState extends State<PlayBackPage> {
                           ),
                         ),
                         IconButton(
-                          onPressed: () {
-                            model.Like(user.email);
-                            likeado = !likeado;
-                            log("$likeado");
+                          onPressed: () async {
+                            await model.Like(user.email);
+                            await model.likeado(user.email);  //todo está bien, currentLike está mal,
+                            setState(() {
+                              log("HAGO EL SET STATE");
+                            });
                           },
                           icon: Icon(
                             Icons.thumb_up,
-                            color: likeado ? Colors.orange : Colors.grey, //todo reload
+                            color: model.currentLike ? Colors.orange : Colors.grey,
                             size: 35.0,
                           ),
                         ),
@@ -865,10 +867,8 @@ class _PlayBackPageState extends State<PlayBackPage> {
       Navigator.of(context).pop();
     } else {}
   }
-//todo que esté cuando se hace build
   void esperarLikeado() async{
     String s = user.email;
-    log("s: $s");
     likeado = await model.likeado(user.email);
     log("likeadofuera: $likeado");
   }

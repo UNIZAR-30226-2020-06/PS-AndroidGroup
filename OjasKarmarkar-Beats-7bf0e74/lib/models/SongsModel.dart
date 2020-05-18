@@ -31,6 +31,7 @@ class SongsModel extends ChangeNotifier {
   bool repeat = false;
   Random rnd = new Random();
   Recents recents;
+  bool currentLike = false;
 
   SongsModel(prov, rec) {
     fetchSongs();
@@ -282,9 +283,9 @@ class SongsModel extends ChangeNotifier {
       String s = r.getlikeado();
       log("likeado: $s");
       if(r.getlikeado() == "false") {
-        return(false);
+        currentLike = false;
       } else if (r.getlikeado() == "true") {
-        return(true);
+        currentLike = true;
       }
     } else {
       // If the server did not return a 201 CREATED response,
