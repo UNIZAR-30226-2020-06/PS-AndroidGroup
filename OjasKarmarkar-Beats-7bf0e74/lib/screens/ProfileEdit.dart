@@ -302,12 +302,14 @@ class _ProfilePageState extends State<ProfilePage>
                                 child: Consumer<PlaylistRepo>(
                                   builder: (context, playlistRepo, _) => ListView.builder(
 
-                                    itemCount: playlistRepo.playlist.length + 1,
+                                    itemCount: (playlistRepo.playlist[0] != "") ? playlistRepo.playlist.length + 1 : 1,
                                     itemBuilder: (context, pos) {
                                       var padd = (pos == 0) ? width * 0.08 : 5.0;
-                                      if(playlistRepo.playlist.length == 0){
+                                      if(playlistRepo.playlist[0] == ""){
                                         return GestureDetector(
                                           onTap: () {
+                                            txt.text = "";
+                                            txtDescripcion.text = "";
                                             showDialog(
                                               context: context,
                                               builder: (context) {
@@ -398,9 +400,7 @@ class _ProfilePageState extends State<ProfilePage>
                                                                           borderSide: BorderSide(
                                                                               color: Colors
                                                                                   .deepOrange)),
-                                                                      errorText: error
-                                                                          ? "La descripción no \n puede ser nula"
-                                                                          : null,
+                                                                      errorText: null,
                                                                       errorStyle: Theme.of(
                                                                           context)
                                                                           .textTheme
@@ -487,9 +487,11 @@ class _ProfilePageState extends State<ProfilePage>
                                           ),
                                         );
                                       }else{
-                                        if (pos == (playlistRepo.playlist.length)) {
+                                        if (pos == (playlistRepo.playlist.length) && playlistRepo.playlist[0] != "") {
                                           return GestureDetector(
                                             onTap: () {
+                                              txt.text = "";
+                                              txtDescripcion.text = "";
                                               showDialog(
                                                 context: context,
                                                 builder: (context) {
@@ -580,9 +582,7 @@ class _ProfilePageState extends State<ProfilePage>
                                                                             borderSide: BorderSide(
                                                                                 color: Colors
                                                                                     .deepOrange)),
-                                                                        errorText: error
-                                                                            ? "La descripción no \n puede ser nula"
-                                                                            : null,
+                                                                        errorText: null,
                                                                         errorStyle: Theme.of(
                                                                             context)
                                                                             .textTheme
@@ -1014,9 +1014,7 @@ class _ProfilePageState extends State<ProfilePage>
                                                                                             borderSide: BorderSide(
                                                                                                 color: Colors
                                                                                                     .deepOrange)),
-                                                                                        errorText: error
-                                                                                            ? "La descripción no \n puede ser nula"
-                                                                                            : null,
+                                                                                        errorText: null,
                                                                                         errorStyle: Theme.of(
                                                                                             context)
                                                                                             .textTheme
@@ -1049,10 +1047,9 @@ class _ProfilePageState extends State<ProfilePage>
 
                                                                             ),
                                                                             InkWell(
-                                                                              onTap: () {
-                                                                                setState(() async {
-                                                                                  if(txt.text != ""){
-                                                                                    await actualizarPlaylist(username.email, playlistRepo.playlist[pos], txtDescripcion.text,txt.text);
+                                                                              onTap: () async{
+                                                                                await actualizarPlaylist(username.email, playlistRepo.playlist[pos], txtDescripcion.text,txt.text);
+                                                                                setState(()  {
                                                                                     playlistRepo.playlist[pos] = txt.text;
                                                                                     playlistRepo.descripciones[pos] = txtDescripcion.text;
                                                                                     Navigator.pop(context);
@@ -1060,7 +1057,7 @@ class _ProfilePageState extends State<ProfilePage>
                                                                                       anyadeDatosUsuario(username.email, playlistRepo, misCanciones, podcastRepo);
                                                                                       _playlistImage = null;
                                                                                     });
-                                                                                  }
+
                                                                                 });
                                                                               },
                                                                               child: Container(
@@ -1139,12 +1136,14 @@ class _ProfilePageState extends State<ProfilePage>
                                 child: Consumer<PodcastRepo>(
                                   builder: (context, podcastRepo, _) => ListView.builder(
 
-                                    itemCount: podcastRepo.podcast.length + 1,
+                                    itemCount: (podcastRepo.podcast[0] != "") ? podcastRepo.podcast.length + 1 : 1,
                                     itemBuilder: (context, pos) {
                                       var padd = (pos == 0) ? width * 0.08 : 5.0;
-                                      if(podcastRepo.podcast.length == 0){
+                                      if(podcastRepo.podcast[0] == ""){
                                         return GestureDetector(
                                           onTap: () {
+                                            txt.text = "";
+                                            txtDescripcion.text = "";
                                             showDialog(
                                               context: context,
                                               builder: (context) {
@@ -1235,9 +1234,7 @@ class _ProfilePageState extends State<ProfilePage>
                                                                           borderSide: BorderSide(
                                                                               color: Colors
                                                                                   .deepPurple)),
-                                                                      errorText: error
-                                                                          ? "La descripción no \n puede ser nula"
-                                                                          : null,
+                                                                      errorText: null,
                                                                       errorStyle: Theme.of(
                                                                           context)
                                                                           .textTheme
@@ -1328,6 +1325,8 @@ class _ProfilePageState extends State<ProfilePage>
                                         if (pos == (podcastRepo.podcast.length)) {
                                           return GestureDetector(
                                             onTap: () {
+                                              txt.text = "";
+                                              txtDescripcion.text = "";
                                               showDialog(
                                                 context: context,
                                                 builder: (context) {
@@ -1418,9 +1417,7 @@ class _ProfilePageState extends State<ProfilePage>
                                                                             borderSide: BorderSide(
                                                                                 color: Colors
                                                                                     .deepPurple)),
-                                                                        errorText: error
-                                                                            ? "La descripción no \n puede ser nula"
-                                                                            : null,
+                                                                        errorText: null,
                                                                         errorStyle: Theme.of(
                                                                             context)
                                                                             .textTheme
@@ -1854,9 +1851,7 @@ class _ProfilePageState extends State<ProfilePage>
                                                                                             borderSide: BorderSide(
                                                                                                 color: Colors
                                                                                                     .deepPurple)),
-                                                                                        errorText: error
-                                                                                            ? "La descripción no \n puede ser nula"
-                                                                                            : null,
+                                                                                        errorText: null,
                                                                                         errorStyle: Theme.of(
                                                                                             context)
                                                                                             .textTheme
@@ -2127,9 +2122,31 @@ class _ProfilePageState extends State<ProfilePage>
 
   }
 
+  eliminarCuenta() async {
+    Map data = {
+      'email': username.email,
+    };
+    final http.Response response = await http.post(
+      'http://34.69.44.48:8080/Espotify/eliminar_usuario_android',
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+      body: jsonEncode(data),
+
+    );
+    if (response.statusCode == 200) {
+      // If the server did return a 201 CREATED response,
+      // then parse the JSON.
+      return Respuesta.fromJson(json.decode(response.body));
+    } else {
+      // If the server did not return a 201 CREATED response,
+      // then throw an exception.
+      throw Exception('Fallo al enviar petición');
+    }
+  }
   Future<Respuesta> actualizarPlaylist(String email, String nombrePlaylistAntiguo,
       String descripcionPlaylist,  String nombrePlaylistNuevo) async {
-    String base64Image;
+    String base64Image = "";
     if(_playlistImage != null){
       List<int> imageBytes = _playlistImage.readAsBytesSync();
       base64Image = base64.encode(imageBytes);
@@ -2163,7 +2180,7 @@ class _ProfilePageState extends State<ProfilePage>
 
   Future<Respuesta> actualizarPodcast(String email, String nombrePodcastAntiguo,
       String descripcionPlaylist,  String nombrePodcastNuevo) async {
-    String base64Image;
+    String base64Image = "";
     if(_playlistImage != null){
       List<int> imageBytes = _playlistImage.readAsBytesSync();
       base64Image = base64.encode(imageBytes);
@@ -2222,12 +2239,10 @@ class _ProfilePageState extends State<ProfilePage>
        var rng = new Random();
        int counter;
        imageCache.clear();
-       if (playlistss[0] != "" && descripciones[0] != "") {
          playlistRepo.generateInitialPlayListImage(playlistss, descripciones, imagenesPlaylists);
-       }
-       if (podcastss[0] != "" && descripcionesPodcasts[0] != "") {
+
          podcastRepo.generateInitialPodcastImage(podcastss, descripcionesPodcasts, imagenesPodcasts);
-       }
+
        List<String> misCancionesTitle = new List();
        misCancionesTitle.add("Mis canciones");
        misCanciones.generateInitialPlayList(misCancionesTitle);
@@ -2553,7 +2568,7 @@ class _ProfilePageState extends State<ProfilePage>
   }
   Future<Respuesta> crearPlaylist(String email, String nombrePlaylist,
       String descripcionPlaylist) async {
-    String base64Image;
+    String base64Image = "";
     if(_playlistImage != null){
       List<int> imageBytes = _playlistImage.readAsBytesSync();
       base64Image = base64.encode(imageBytes);
@@ -2587,7 +2602,7 @@ class _ProfilePageState extends State<ProfilePage>
   Future<Respuesta> crearPodcast(String email, String nombrePodcast,
       String descripcionPodcast) async {
 
-    String base64Image;
+    String base64Image = "";
     if(_playlistImage != null){
       List<int> imageBytes = _playlistImage.readAsBytesSync();
       base64Image = base64.encode(imageBytes);
@@ -2833,7 +2848,12 @@ class _ProfilePageState extends State<ProfilePage>
                   InkWell(
                     onTap: () {
                       if(accion == "Eliminar cuenta") {
-                        // eliminarCuenta();
+                        eliminarCuenta();
+                        Navigator.pushAndRemoveUntil(
+                          context,
+                          MaterialPageRoute(builder: (context) => LoginPage()),
+                              (Route<dynamic> route) => false,
+                        );
                       }else if(accion == "Cerrar sesión"){
                         Navigator.pushAndRemoveUntil(
                           context,
@@ -2889,6 +2909,7 @@ class _ProfilePageState extends State<ProfilePage>
       },
     );
   }
+
   void seleccionarImagenPlaylist(){
     showDialog(
         context: context,
@@ -3312,7 +3333,7 @@ class _ProfilePageState extends State<ProfilePage>
     if(r.getUserId()=="ok"){
       playlistRepo.add(nombrePlaylist, descripcionPlaylist);
     }else{
-      mostrarError("No has seleccionado una imagen");
+      mostrarError("No ha podido crearse la playlist");
     }
     txt.clear();
     txtDescripcion.clear();
@@ -3328,7 +3349,7 @@ class _ProfilePageState extends State<ProfilePage>
     if(r.getUserId()=="ok"){
       playlistRepo.add(nombrePodcast, descripcionPodcast);
     }else{
-      mostrarError("No has seleccionado una imagen");
+      mostrarError("No ha podido crearse el podcast");
     }
     txt.clear();
     txtDescripcion.clear();
@@ -3601,6 +3622,8 @@ Future<Respuesta> actualizarUser(String nombre, String descripcion, String email
     throw Exception('Fallo al enviar petición');
   }
 }
+
+
 
 class Respuesta {
   final String creado;

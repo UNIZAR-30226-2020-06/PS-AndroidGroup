@@ -322,7 +322,7 @@ class _PLayListScreenState extends State<PLayListScreen> {
                                           );
                                         }else if(choice == Constants.de){ //borrar canciones
                                           setState(() {
-                                            borrarCancionDeMisCanciones(username.email, model.songs[pos]);
+                                            mostrarComprobacion("Quitar de Mis Canciones", model.songs[pos]);
 
                                           });
 
@@ -389,9 +389,12 @@ class _PLayListScreenState extends State<PLayListScreen> {
                                       color: Colors.grey,
                                     ),
                                     onPressed: () async {
-                                      borrarCancionDePlaylist(username.email, name, model.songs[pos]);
-                                      model.player.stop();
-                                      initDataPlaylists();
+                                      setState(() {
+                                        mostrarComprobacion("Eliminar canción", model.songs[pos]);
+                                        model.player.stop();
+                                        initDataPlaylists();
+                                      });
+
                                     },
                                   ),
                                   onTap: () {
@@ -594,9 +597,9 @@ class _PLayListScreenState extends State<PLayListScreen> {
     log("hecho $song");
     String s=song.title;
     log("data $email, $namePlaylist, $s");
-    await borrarCanciones(email, namePlaylist, song.title);
+    await borrarCancionesPlaylist(email, namePlaylist, song.title);
     log("hecho2");
-
+    initDataPlaylists();
   }
 
   void obtieneGeneros() async {
@@ -612,6 +615,116 @@ class _PLayListScreenState extends State<PLayListScreen> {
        username.setCancionesUrl(p.urls);
      });
    }
+
+  void mostrarComprobacion(String accion, Song nombreCancion){
+    showDialog(
+      context: context,
+      builder: (context) {
+        return Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: AlertDialog(
+            backgroundColor:
+            Theme.of(context).backgroundColor,
+            shape: RoundedRectangleBorder(
+              side: BorderSide(),
+              borderRadius: BorderRadius.all(
+                  Radius.circular(30.0)),
+            ),
+            contentPadding: EdgeInsets.only(top: 10.0),
+            content: Container(
+              width: 50.0,
+              child: Column(
+                mainAxisAlignment:
+                MainAxisAlignment.start,
+                crossAxisAlignment:
+                CrossAxisAlignment.stretch,
+                mainAxisSize: MainAxisSize.min,
+                children: <Widget>[
+                  Row(
+                    mainAxisAlignment:
+                    MainAxisAlignment.spaceEvenly,
+                    mainAxisSize: MainAxisSize.min,
+                    children: <Widget>[
+                      Text(
+                        "¡Alto ahí!",
+                        style: TextStyle(
+                            fontSize: 24.0,
+                            fontFamily: 'Sans'),
+                      ),
+                    ],
+                  ),
+                  SizedBox(
+                    height: 5.0,
+                  ),
+                  Divider(
+                    color: Colors.grey,
+                    height: 4.0,
+                  ),
+                  Padding(
+                      padding: EdgeInsets.only(
+                          left: 30.0,
+                          right: 30.0,
+                          top: 30.0,
+                          bottom: 30.0),
+                      child: Text(accion)
+                  ),
+                  InkWell(
+                    onTap: () {
+                      if(accion == "Eliminar canción") {
+                        borrarCancionDePlaylist(username.email, name, nombreCancion);
+                        Navigator.pop(context);
+                      }else if(accion == "Quitar de Mis Canciones"){
+                        borrarCancionDeMisCanciones(username.email, nombreCancion);
+                        Navigator.pop(context);
+                      }
+                    },
+                    child: Container(
+                      padding: EdgeInsets.only(
+                          top: 10.0, bottom: 20.0),
+                      decoration: BoxDecoration(
+                        color: Colors.orange,
+                      ),
+                      child: Text(
+                        "Aceptar",
+                        style: TextStyle(
+                            fontFamily: 'Sans',
+                            color: Colors.white),
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                  ),
+                  InkWell(
+                    onTap: () {
+                      Navigator.pop(context);
+                    },
+                    child: Container(
+                      padding: EdgeInsets.only(
+                          top: 10.0, bottom: 20.0),
+                      decoration: BoxDecoration(
+                        color: Colors.grey,
+                        borderRadius: BorderRadius.only(
+                            bottomLeft:
+                            Radius.circular(32.0),
+                            bottomRight:
+                            Radius.circular(32.0)),
+                      ),
+                      child: Text(
+                        "Cancelar",
+                        style: TextStyle(
+                            fontFamily: 'Sans',
+                            color: Colors.white),
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
 }
 
 class Canciones {
@@ -641,6 +754,7 @@ class Canciones {
     return urlsAudio;
   }
 }
+
 
 Future<Canciones> obtenerCanciones(String email, String nombrePlaylist) async {
   Map data = {
@@ -721,6 +835,30 @@ Future<Canciones> borrarCanciones(String email, String nombrePlaylist, String no
     // then throw an exception.
     throw Exception('Fallo al enviar petición');
   }
+}
 
+Future<Canciones> borrarCancionesPlaylist(String email, String nombrePlaylist, String nombreCancion) async {
+  Map data = {
+    'email': email,
+    'nombreCancion': nombreCancion,
+    'nombrePlaylist': nombrePlaylist,
+  };
+  log("debug: $email, $nombrePlaylist, $nombreCancion");
+  final http.Response response = await http.post(
+    'http://34.69.44.48:8080/Espotify/eliminar_cancionlista_android',
+    headers: <String, String>{
+      'Content-Type': 'application/json; charset=UTF-8',
+    },
+    body: jsonEncode(data),
 
+  );
+  if (response.statusCode == 200) {
+    // If the server did return a 201 CREATED response,
+    // then parse the JSON.
+    return Canciones.fromJson(json.decode(response.body));
+  } else {
+    // If the server did not return a 201 CREATED response,
+    // then throw an exception.
+    throw Exception('Fallo al enviar petición');
+  }
 }

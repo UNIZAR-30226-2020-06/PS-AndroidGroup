@@ -4,6 +4,7 @@ import 'dart:developer';
 import 'package:beats/Animations/transitions.dart';
 import 'package:beats/models/PlayListHelper.dart';
 import 'package:beats/models/PlaylistRepo.dart';
+import 'package:beats/models/PlaylistRepoGeneros.dart';
 import 'package:beats/models/ThemeModel.dart';
 import 'package:beats/models/BookmarkModel.dart';
 import 'package:beats/models/Username.dart';
@@ -31,7 +32,8 @@ class MusicLibrary extends StatefulWidget {
 class _MusicLibraryState extends State<MusicLibrary> {
   TextEditingController editingController;
 
-  PlaylistRepo playlistRepo;
+  PlaylistRepoGeneros playlistRepo;
+  PlaylistRepo miPlaylistRepo;
   SongsModel model;
 
   BookmarkModel b;
@@ -49,9 +51,10 @@ class _MusicLibraryState extends State<MusicLibrary> {
     model = Provider.of<SongsModel>(context);
     b = Provider.of<BookmarkModel>(context);
     username = Provider.of<Username>(context);
-    playlistRepo = Provider.of<PlaylistRepo>(context);
+    playlistRepo = Provider.of<PlaylistRepoGeneros>(context);
+    miPlaylistRepo = Provider.of<PlaylistRepo>(context);
       obtenerCancionesRandom(model);
-
+    anyadeDatosUsuario(username.email, miPlaylistRepo);
     height = MediaQuery.of(context).size.height;
     width = MediaQuery.of(context).size.width;
     themeChanger = Provider.of<ThemeChanger>(context);
@@ -129,7 +132,7 @@ class _MusicLibraryState extends State<MusicLibrary> {
 
                                             Flexible(child: SizedBox(
                                               height: height * 0.16,
-                                              child: Consumer<PlaylistRepo>(
+                                              child: Consumer<PlaylistRepoGeneros>(
                                                 builder: (context, playlistRepo, _) => ListView.builder(
 
                                                   itemCount: (playlistRepo.playlist.length != null)
@@ -225,6 +228,17 @@ class _MusicLibraryState extends State<MusicLibrary> {
                   ))),
       onWillPop: () {},
     );
+  }
+  anyadeDatosUsuario(String email, PlaylistRepo playlistRepo) async {
+    PerfilPlaylist p = await obtenerPerfilPlaylists(email);
+    String u = p.nombreUsuario;
+    if (p.nombreUsuario != null) {
+      var playlistss = p.playlists.split('|');
+      List<String> misCancionesTitle = new List();
+      misCancionesTitle = playlistss;
+      miPlaylistRepo.generateInitialPlayList(misCancionesTitle, misCancionesTitle);
+    }
+
   }
 
   convertirALista() async{
@@ -582,15 +596,12 @@ class _MusicLibraryState extends State<MusicLibrary> {
 
 class Search extends SearchDelegate<Song> {
   SongsModel model;
-  PlaylistRepo modelPlaylists;
   @override
   List<Widget> buildActions(BuildContext context) {
     // actions
-    buscarPlaylists();
     return [
       IconButton(
         onPressed: () {
-          buscarPlaylists();
           query = "";
         },
         icon: Icon(
@@ -617,14 +628,13 @@ class Search extends SearchDelegate<Song> {
   @override
   Widget buildResults(BuildContext context) {
     // show results
-    buscarPlaylists();
+
     return null;
   }
 
   @override
   Widget buildSuggestions(BuildContext context) {
     model = Provider.of<SongsModel>(context);
-    buscarPlaylists();
     List<String> dummy = <String>[];
     List<String> recents = <String>[];
     for (int i = 0; i < model.songs.length; i++) {
@@ -678,19 +688,81 @@ class Search extends SearchDelegate<Song> {
     );
   }
 
-  buscarPlaylists() async{
-    Playlists l = await recibePlaylists();
-    var listaNombres = l.getUserId().split('|');
-    log('capitulitos: $listaNombres');
-    List<String> listaPlaylists = new List<String>();
-    for(int i = 0; i<listaNombres.length; i++){
-      listaPlaylists.add(listaNombres[i]);
-    }
+}
 
-    List<String> songs = listaPlaylists;
-    modelPlaylists.generateInitialPlayList(songs, songs);
+
+
+class PerfilPlaylist {
+  final String respuesta;
+  final String nombreUsuario;
+  final String descripcion;
+  final String email;
+  final String contrasenya;
+  final String repetirContraseya;
+  final String playlists;
+  final String descripcionesPlay;
+  final String podcasts;
+  final String descripcionesPod;
+  final String canciones;
+  final String urls;
+  final int numSeguidores;
+  final String imagen;
+  final String imagenesPlaylists;
+  final String imagenesPodcasts;
+
+  PerfilPlaylist({this.respuesta, this.nombreUsuario, this.descripcion, this.email,
+    this.contrasenya, this.repetirContraseya, this.playlists, this.descripcionesPlay,
+    this.canciones, this.urls, this.podcasts,this.descripcionesPod,this.imagen,
+    this.numSeguidores, this.imagenesPlaylists, this.imagenesPodcasts});
+
+  factory PerfilPlaylist.fromJson(Map<String, dynamic> json) {
+    return PerfilPlaylist(
+      nombreUsuario: json['nombreUsuario'],
+      descripcion: json['descripcion'],
+      imagen: json['imagen'],
+      email: json['email'],
+      playlists: json['lista'],
+      descripcionesPlay: json['listaDescripcion'],
+      podcasts: json['podcasts'],
+      descripcionesPod: json['podcastsDescripcion'],
+      canciones: json['audiosTitulo'],
+      urls: json['audiosUrl'],
+      numSeguidores: json['numSeguidores'],
+      imagenesPlaylists: json['imagenesPlaylists'],
+      imagenesPodcasts: json['imagenesPodcasts'],
+    );
+
   }
+  String getUserId(){
+    return respuesta;
+  }
+}
 
+
+
+
+Future<PerfilPlaylist> obtenerPerfilPlaylists(String email) async {
+  Map data = {
+    'email': email,
+  };
+  final http.Response response = await http.post(
+    'http://34.69.44.48:8080/Espotify/perfil_android',
+    headers: <String, String>{
+      'Content-Type': 'application/json; charset=UTF-8',
+    },
+    body: jsonEncode(data),
+
+  );
+
+  if (response.statusCode == 200) {
+    // If the server did return a 201 CREATED response,
+    // then parse the JSON.
+    return PerfilPlaylist.fromJson(json.decode(response.body));
+  } else {
+    // If the server did not return a 201 CREATED response,
+    // then throw an exception.
+    throw Exception('Fallo al enviar petición');
+  }
 }
 class Respuesta {
   final String generos;
