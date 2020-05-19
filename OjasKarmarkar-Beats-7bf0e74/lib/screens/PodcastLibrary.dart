@@ -289,11 +289,11 @@ class _PodcastLibraryState extends State<PodcastLibrary> {
     }
   }
 
-  void likeado(String email, String playlist) async {
+  void likeado(String email, String podcast) async {
     Map data = {
       'email' : email,
-      'titulo' : playlist,
-      'tipo' : "playlist",
+      'titulo' : podcast,
+      'tipo' : "podcast",
     };
 
     final http.Response response = await http.post(
