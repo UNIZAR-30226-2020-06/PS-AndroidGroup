@@ -242,6 +242,7 @@ class SongsModel extends ChangeNotifier {
       'email' : email,
       'titulo' : this.currentSong.title,
       'tipo' : "audio",
+      'url' : this.currentSong.uri,
     };
 
     final http.Response response = await http.post(
@@ -269,6 +270,7 @@ class SongsModel extends ChangeNotifier {
       'email' : email,
       'titulo' : this.currentSong.title,
       'tipo' : "audio",
+      'url' : this.currentSong.uri,
     };
 
     final http.Response response = await http.post(

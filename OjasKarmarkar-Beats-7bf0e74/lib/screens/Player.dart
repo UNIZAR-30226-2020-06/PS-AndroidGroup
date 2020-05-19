@@ -687,7 +687,7 @@ class _PlayBackPageState extends State<PlayBackPage> {
                           },
                           icon: Icon(
                             Icons.thumb_up,
-                            color: model.currentLike ? Colors.orange : Colors.grey, //todo reload
+                            color: model.currentLike ? Colors.orange : Colors.grey,
                             size: 35.0,
                           ),
                         ),
