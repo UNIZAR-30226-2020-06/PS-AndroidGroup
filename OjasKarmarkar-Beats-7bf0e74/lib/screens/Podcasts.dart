@@ -299,7 +299,7 @@ class PodcastScreenState extends State<PodcastScreen> {
                                   },
                                 );
                               }else if(choice == Constants.dp){ //borrar canciones
-                                borrarCapituloPodcast(username.email, name, model.songs[pos]);
+                                mostrarComprobacion(model.songs[pos]);
                               }
                             },
                             itemBuilder: (BuildContext context) {
@@ -365,6 +365,110 @@ class PodcastScreenState extends State<PodcastScreen> {
               style: Theme.of(context).textTheme.display2,
             ),
           )),
+    );
+  }
+  void mostrarComprobacion(Song nombreCancion){
+    showDialog(
+      context: context,
+      builder: (context) {
+        return Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: AlertDialog(
+            backgroundColor:
+            Theme.of(context).backgroundColor,
+            shape: RoundedRectangleBorder(
+              side: BorderSide(),
+              borderRadius: BorderRadius.all(
+                  Radius.circular(30.0)),
+            ),
+            contentPadding: EdgeInsets.only(top: 10.0),
+            content: Container(
+              width: 50.0,
+              child: Column(
+                mainAxisAlignment:
+                MainAxisAlignment.start,
+                crossAxisAlignment:
+                CrossAxisAlignment.stretch,
+                mainAxisSize: MainAxisSize.min,
+                children: <Widget>[
+                  Row(
+                    mainAxisAlignment:
+                    MainAxisAlignment.spaceEvenly,
+                    mainAxisSize: MainAxisSize.min,
+                    children: <Widget>[
+                      Text(
+                        "¡Alto ahí!",
+                        style: TextStyle(
+                            fontSize: 24.0,
+                            fontFamily: 'Sans'),
+                      ),
+                    ],
+                  ),
+                  SizedBox(
+                    height: 5.0,
+                  ),
+                  Divider(
+                    color: Colors.grey,
+                    height: 4.0,
+                  ),
+                  Padding(
+                      padding: EdgeInsets.only(
+                          left: 30.0,
+                          right: 30.0,
+                          top: 30.0,
+                          bottom: 30.0),
+                      child: Text("Borrar capítulo de podcast")
+                  ),
+                  InkWell(
+                    onTap: () {
+                      borrarCapituloPodcast(username.email, name, nombreCancion);
+                      Navigator.pop(context);
+                    },
+                    child: Container(
+                      padding: EdgeInsets.only(
+                          top: 10.0, bottom: 20.0),
+                      decoration: BoxDecoration(
+                        color: Colors.orange,
+                      ),
+                      child: Text(
+                        "Aceptar",
+                        style: TextStyle(
+                            fontFamily: 'Sans',
+                            color: Colors.white),
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                  ),
+                  InkWell(
+                    onTap: () {
+                      Navigator.pop(context);
+                    },
+                    child: Container(
+                      padding: EdgeInsets.only(
+                          top: 10.0, bottom: 20.0),
+                      decoration: BoxDecoration(
+                        color: Colors.grey,
+                        borderRadius: BorderRadius.only(
+                            bottomLeft:
+                            Radius.circular(32.0),
+                            bottomRight:
+                            Radius.circular(32.0)),
+                      ),
+                      child: Text(
+                        "Cancelar",
+                        style: TextStyle(
+                            fontFamily: 'Sans',
+                            color: Colors.white),
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
     );
   }
 

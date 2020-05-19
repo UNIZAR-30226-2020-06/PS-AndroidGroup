@@ -4,7 +4,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class MisCancionesModel extends ChangeNotifier {
 
-  List<String> playlist;
+  List<String> playlist = [""];
   SharedPreferences prefList;
   int selected;
 

@@ -52,7 +52,7 @@ class _BookmarksState extends State<Bookmarks> {
                   ? Center(
                       child: CircularProgressIndicator(),
                     )
-                  : (bm.songs.length == 0 || bm.songs.length == null || canciones == null)
+                  : (bm.songs.length == 0 || bm.songs.length == null || canciones == null || bm.songs[0].title =="")
                       ? Center(
                           child: Text(
                           "No hay favoritos",
@@ -96,7 +96,7 @@ class _BookmarksState extends State<Bookmarks> {
                               ],
                             ),
                           )),
-              (bm.songs.length == 0 || bm.songs.length == null || canciones == null)
+              (bm.songs.length == 0 || bm.songs.length == null || canciones == null || bm.songs[0].title == "")
               ? Text("")
 
              : Padding(

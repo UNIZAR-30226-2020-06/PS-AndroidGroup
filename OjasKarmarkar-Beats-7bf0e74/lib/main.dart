@@ -12,6 +12,7 @@ import 'models/Comentario.dart';
 import 'models/DifferentUsername.dart';
 import 'models/LocalPlaylistRepo.dart';
 import 'models/LocalSongsModel.dart';
+import 'models/PlaylistRepoGeneros.dart';
 import 'models/PodcastRepo.dart';
 import 'models/RecentsModel.dart';
 import 'models/SongsModel.dart';
@@ -50,6 +51,9 @@ void main(List<String> args) {
     ),
     ChangeNotifierProvider<PlaylistRepo>(
       create: (context) => PlaylistRepo(),
+    ),
+    ChangeNotifierProvider<PlaylistRepoGeneros>(
+      create: (context) => PlaylistRepoGeneros(),
     ),
     ChangeNotifierProvider<PodcastRepo>(
       create: (context) => PodcastRepo(),
