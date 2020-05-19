@@ -45,6 +45,7 @@ class ComentariosLibrary extends State<ComentariosLibraryState> {
   List<Song> songs;
   Username username;
   List<String> generos = [""];
+  SongsModel songsModel;
 
   @override
   void initState() {
@@ -56,6 +57,7 @@ class ComentariosLibrary extends State<ComentariosLibraryState> {
     comentarios = Provider.of<Comentario>(context);
     b = Provider.of<BookmarkModel>(context);
     username = Provider.of<Username>(context);
+    songsModel = Provider.of<SongsModel>(context);
 
     height = MediaQuery
         .of(context)
@@ -122,84 +124,97 @@ class ComentariosLibrary extends State<ComentariosLibraryState> {
             ];
           },
           body: (comentarios.texto != null) ?
-          Flexible(child: SizedBox(
-            height: height * 0.16,
-            child: Consumer<PlaylistRepo>(
-              builder: (context, playlistRepo, _) => ListView.builder(
-
-                itemCount: (playlistRepo.playlist.length != null)
-                    ?playlistRepo.playlist.length : 0,
-                itemBuilder: (context, pos) {
-                  var padd = (pos == 0) ? width * 0.08 : 5.0;
-                  return Card(
-                    margin: EdgeInsets.only(left: padd, right: 5.0, top: 15.0),
-                    elevation: 5,
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(20)),
-                    child: GestureDetector(
-                      onTap: () {
-                        playlistRepo.selected = null;
-                        playlistRepo.selected = pos;
-                        Navigator.of(context).push(new MaterialPageRoute(
-                            builder: (context) => new PlaylistGenero()));
-                      },
-                      child: ClipRRect(
-                          borderRadius: BorderRadius.circular(20),
-                          child: Container(
-                            width: width * 0.4,
-                            decoration: BoxDecoration(
-                              // Box decoration takes a gradient
-                              gradient: LinearGradient(
-                                // Where the linear gradient begins and ends
-                                begin: Alignment.topRight,
-                                end: Alignment.bottomLeft,
-                                // Add one stop for each color. Stops should increase from 0 to 1
-                                stops: [0.1, 0.5, 0.7, 0.9],
-                                colors: pos % 2 == 0
-                                    ? [
-                                  Colors.orangeAccent,
-                                  Colors.orange,
-                                  Colors.deepOrange,
-                                  Colors.orange,
-                                ]
-                                    : [
-                                  Colors.pinkAccent,
-                                  Colors.pink,
-                                  Colors.pinkAccent,
-                                  Colors.pink,
-                                ],
-                              ),
-                            ),
-                            child: Stack(children: <Widget>[
-                              Center(
-                                child: Padding(padding: EdgeInsets.only(
-                                    left: 25.0, right: 25.0, top: 50.0, bottom: 13.0),
-                                  child: Column(children: <Widget>[
-                                    Flexible(child: Text(playlistRepo.playlist[pos],
-                                        textAlign: TextAlign.center,
-                                        style:
-                                        TextStyle(color: Colors.white),
-                                        textScaleFactor: 1.3),),
-
-                                  ]),),
-                              ),
-                            ]),
-                          )),
-                    ),
-                  );
-
-                },
-                scrollDirection: Axis.horizontal,
-              ),
+          Column(children: <Widget> [Expanded (child: buildCommentList()),
+          TextField(
+            onSubmitted: (String comment) async{
+              await comentarios.escribirComentario(comment, username.email, songsModel.currentSong.title);
+              await comentarios.obtenerListaComentarios(songsModel.currentSong.title);
+              setState(() {              });
+            },
+            decoration: InputDecoration(
+              hintText:"Escribe aquí tu comentario"
             ),
-          ),) :
-          Center(
+          )
+
+          ]):
+          Column(children: <Widget> [Expanded (child: Center(
             child: Text(
               "No hay comentarios",
               style: Theme.of(context).textTheme.display1,
             ),
-          ),
+          ),),
+            TextField(
+              onSubmitted: (String comment) async {
+                await comentarios.escribirComentario(comment, username.email, songsModel.currentSong.title);
+                await comentarios.obtenerListaComentarios(songsModel.currentSong.title);
+                setState(() {              });
+              },
+              decoration: InputDecoration(
+                  hintText:"Escribe aquí tu comentario"
+              ),
+            )
+
+          ])
+
+
       ),
     );
+  }
+
+  buildCommentList() {
+   return ListView.builder(
+        itemCount: comentarios.texto.length,
+        itemBuilder: (context, pos) {
+          return Padding(
+            padding:
+            const EdgeInsets.only(top: 0.0, left: 10.0),
+            child: comentarios.usuarios[pos] == username.name ? ListTile(
+              trailing: IconButton(
+                icon: Icon(
+                  Icons.delete_outline,
+                  color: Colors.grey,
+                ),
+                onPressed: () async {
+                  await comentarios.borrarComentario(comentarios.texto[pos], comentarios.usuarios[pos], songsModel.currentSong.title);
+                  await comentarios.obtenerListaComentarios(songsModel.currentSong.title);
+                  setState(() {
+                  });
+
+                },
+              ),
+              title: Text(
+                comentarios.usuarios[pos],
+                maxLines: 1,
+                style: Theme.of(context).textTheme.display3,
+              ),
+              subtitle: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Text(
+                  comentarios.texto[pos],
+                  maxLines: 1,
+                  style: Theme.of(context).textTheme.display2,
+                ),
+              ),
+            ):
+            ListTile(
+              title: Text(
+                comentarios.usuarios[pos],
+                maxLines: 1,
+                style: Theme.of(context).textTheme.display3,
+              ),
+              subtitle: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Text(
+                  comentarios.texto[pos],
+                  maxLines: 1,
+                  style: Theme.of(context).textTheme.display2,
+                ),
+              ),
+            ),
+          );
+        }
+    );
+
+
   }
 }
