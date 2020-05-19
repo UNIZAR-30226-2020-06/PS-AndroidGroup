@@ -704,6 +704,7 @@ class _PlayBackPageState extends State<PlayBackPage> {
                         ),
                         IconButton(
                           onPressed: () {
+                            model.player.stop();
                             Navigator.of(context).push(new MaterialPageRoute(builder: (context) =>
                            new ComentariosLibraryState()));
                           },

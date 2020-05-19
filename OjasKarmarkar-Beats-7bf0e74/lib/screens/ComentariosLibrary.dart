@@ -166,15 +166,15 @@ class ComentariosLibrary extends State<ComentariosLibraryState> {
           return Padding(
             padding:
             const EdgeInsets.only(top: 0.0, left: 10.0),
-            child: comentarios.usuarios[pos] == username.name ? ListTile(
+            child: comentarios.usuarios[pos] == "Kifixooo" ? ListTile( //todo Kifixoo debe ser == User.name
               trailing: IconButton(
                 icon: Icon(
                   Icons.delete_outline,
-                  color: Colors.grey,
+                  color: Colors.black54,
                 ),
                 onPressed: () async {
                   await comentarios.borrarComentario(comentarios.texto[pos], comentarios.usuarios[pos], songsModel.currentSong.title);
-                  setState(() {                  });
+                  actualizarComentarios();
                 },
               ),
               title: Text(
