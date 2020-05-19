@@ -54,10 +54,11 @@ class ComentariosLibrary extends State<ComentariosLibraryState> {
 
   @override
   void didChangeDependencies() {
-    comentarios = Provider.of<Comentario>(context);
     b = Provider.of<BookmarkModel>(context);
     username = Provider.of<Username>(context);
     songsModel = Provider.of<SongsModel>(context);
+    actualizarComentarios();
+
 
     height = MediaQuery
         .of(context)
@@ -68,7 +69,6 @@ class ComentariosLibrary extends State<ComentariosLibraryState> {
         .size
         .width;
     themeChanger = Provider.of<ThemeChanger>(context);
-
     super.didChangeDependencies();
   }
 
@@ -128,7 +128,6 @@ class ComentariosLibrary extends State<ComentariosLibraryState> {
           TextField(
             onSubmitted: (String comment) async{
               await comentarios.escribirComentario(comment, username.email, songsModel.currentSong.title);
-              await comentarios.obtenerListaComentarios(songsModel.currentSong.title);
               setState(() {              });
             },
             decoration: InputDecoration(
@@ -146,8 +145,7 @@ class ComentariosLibrary extends State<ComentariosLibraryState> {
             TextField(
               onSubmitted: (String comment) async {
                 await comentarios.escribirComentario(comment, username.email, songsModel.currentSong.title);
-                await comentarios.obtenerListaComentarios(songsModel.currentSong.title);
-                setState(() {              });
+                actualizarComentarios();
               },
               decoration: InputDecoration(
                   hintText:"Escribe aquí tu comentario"
@@ -176,10 +174,7 @@ class ComentariosLibrary extends State<ComentariosLibraryState> {
                 ),
                 onPressed: () async {
                   await comentarios.borrarComentario(comentarios.texto[pos], comentarios.usuarios[pos], songsModel.currentSong.title);
-                  await comentarios.obtenerListaComentarios(songsModel.currentSong.title);
-                  setState(() {
-                  });
-
+                  setState(() {                  });
                 },
               ),
               title: Text(
@@ -216,5 +211,15 @@ class ComentariosLibrary extends State<ComentariosLibraryState> {
     );
 
 
+  }
+
+  void actualizarComentarios() async{
+
+    await comentarios.obtenerListaComentarios(songsModel.currentSong.title);
+    List<String> ss = comentarios.getUsuarios();
+    log("comentarios actualizados: $ss");
+    setState(() {
+
+    });
   }
 }

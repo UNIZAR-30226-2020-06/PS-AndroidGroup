@@ -56,6 +56,7 @@ class _PlayBackPageState extends State<PlayBackPage> {
     bm = Provider.of<BookmarkModel>(context);
     model = Provider.of<SongsModel>(context);
     String s = model.currentSong.title;
+    c.obtenerListaComentarios(model.currentSong.title);
     log("cancion actual: $s");
     comprobarFavorito();
     super.didChangeDependencies();
