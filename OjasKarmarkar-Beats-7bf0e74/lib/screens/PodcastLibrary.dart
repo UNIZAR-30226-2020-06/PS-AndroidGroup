@@ -5,10 +5,12 @@ import 'package:beats/Animations/transitions.dart';
 import 'package:beats/models/PodcastRepo.dart';
 import 'package:beats/models/SongsModel.dart';
 import 'package:beats/models/ThemeModel.dart';
+import 'package:beats/models/Username.dart';
 import 'package:flute_music_player/flute_music_player.dart';
 import 'package:flutter/material.dart';
 import 'dart:io';
 import 'package:beats/models/CapPodcastsModel.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import '../custom_icons.dart';
 import 'package:provider/provider.dart';
 import 'Player.dart';
@@ -35,7 +37,7 @@ class _PodcastLibraryState extends State<PodcastLibrary> {
 
   List<String> podcasts;
   PodcastRepo podcastRepo;
-
+  Username user;
   @override
   void initState() {
     super.initState();
@@ -130,6 +132,7 @@ class _PodcastLibraryState extends State<PodcastLibrary> {
   }
 
   getLoading(PodcastRepo model) {
+    Username user = Provider.of<Username>(context);
     if (model.podcast.length == 0) {
       return Flexible(
           child: Center(
@@ -150,6 +153,10 @@ class _PodcastLibraryState extends State<PodcastLibrary> {
                       shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(20)),
                       child: GestureDetector(
+                        onDoubleTap: () async{
+                          await Like(user.email, podcastRepo.podcast[pos], "podcast");
+                          await likeado(user.email, podcastRepo.podcast[pos]);
+                        },
                         onTap: () {
                           podcastRepo.selected = pos;
                           Navigator.of(context).push(new MaterialPageRoute(
@@ -257,9 +264,77 @@ class _PodcastLibraryState extends State<PodcastLibrary> {
       throw Exception('Fallo al enviar petición');
     }
   }
+  void Like(String email, String titulo, String tipo) async {
+    Map data = {
+      'email' : email,
+      'titulo' : titulo,
+      'tipo' : tipo,
+    };
+
+    final http.Response response = await http.post(
+      'http://34.69.44.48:8080/Espotify/like_android',
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+      body: jsonEncode(data),
+    );
+    if (response.statusCode == 200) {
+      // If the server did return a 201 CREATED response,
+      // then parse the JSON.
+      log("se ha cambiado de como estaba");
+    } else {
+      // If the server did not return a 201 CREATED response,
+      // then throw an exception.
+      throw Exception('Fallo al enviar petición');
+    }
+  }
+
+  void likeado(String email, String playlist) async {
+    Map data = {
+      'email' : email,
+      'titulo' : playlist,
+      'tipo' : "playlist",
+    };
+
+    final http.Response response = await http.post(
+      'http://34.69.44.48:8080/Espotify/tiene_like_android',
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+      body: jsonEncode(data),
+
+    );
+    if (response.statusCode == 200) {
+      // If the server did return a 201 CREATED response,
+      // then parse the JSON.
+      respuesta r = respuesta.fromJson(json.decode(response.body));
+      String s = r.getlikeado();
+      log("likeado: $s");
+      if(r.getlikeado() == "false") {
+        log("estoy aqui");
+        Fluttertoast.showToast(
+          msg: "Le has quitado el like",
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.CENTER,
+        );
+      } else if (r.getlikeado() == "true") {
+        log("estoy alla");
+        Fluttertoast.showToast(
+          msg: "¡Le has dado a like!",
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.CENTER,
+        ); ;
+      }
+    } else {
+      // If the server did not return a 201 CREATED response,
+      // then throw an exception.
+      throw Exception('Fallo al enviar petición');
+    }
+  }
 
 
 }
+
 
 class Search extends SearchDelegate<Song> {
   PodcastRepo model;

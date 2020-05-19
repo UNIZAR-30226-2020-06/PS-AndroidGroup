@@ -6,7 +6,10 @@ import 'package:beats/models/PlaylistRepo.dart';
 import 'package:beats/models/PodcastRepo.dart';
 import 'package:beats/models/SongsModel.dart';
 import 'package:beats/models/ThemeModel.dart';
+import 'package:beats/models/Username.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:flute_music_player/flute_music_player.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'dart:io';
 import 'package:beats/models/CapPodcastsModel.dart';
@@ -37,6 +40,7 @@ class _PlaylistLibraryState extends State<PlaylistLibrary> {
 
   List<String> playlists;
   PlaylistRepo playlistRepo;
+  Username user;
 
   @override
   void initState() {
@@ -45,6 +49,7 @@ class _PlaylistLibraryState extends State<PlaylistLibrary> {
   }
   @override
   void didChangeDependencies() {
+    user = Provider.of<Username>(context);
     height = MediaQuery.of(context).size.height;
     playlistRepo = Provider.of<PlaylistRepo>(context);
 
@@ -115,6 +120,7 @@ class _PlaylistLibraryState extends State<PlaylistLibrary> {
                                             .display1
                                             .color),
                                   ),
+
                                 ],
                               ),
                             ),
@@ -152,6 +158,10 @@ class _PlaylistLibraryState extends State<PlaylistLibrary> {
                     shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(20)),
                     child: GestureDetector(
+                      onDoubleTap: () async{
+                        await Like(user.email, playlistRepo.playlist[pos], "playlist");
+                        await likeado(user.email, playlistRepo.playlist[pos]);
+                      },
                       onTap: () {
                         playlistRepo.selected = pos;
                         Navigator.of(context).push(new MaterialPageRoute(
@@ -260,6 +270,74 @@ class _PlaylistLibraryState extends State<PlaylistLibrary> {
       throw Exception('Fallo al enviar petición');
     }
   }
+
+  void Like(String email, String titulo, String tipo) async {
+    Map data = {
+      'email' : email,
+      'titulo' : titulo,
+      'tipo' : tipo,
+    };
+
+    final http.Response response = await http.post(
+      'http://34.69.44.48:8080/Espotify/like_android',
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+      body: jsonEncode(data),
+    );
+    if (response.statusCode == 200) {
+      // If the server did return a 201 CREATED response,
+      // then parse the JSON.
+      log("se ha cambiado de como estaba");
+    } else {
+      // If the server did not return a 201 CREATED response,
+      // then throw an exception.
+      throw Exception('Fallo al enviar petición');
+    }
+  }
+
+  void likeado(String email, String playlist) async {
+    Map data = {
+      'email' : email,
+      'titulo' : playlist,
+      'tipo' : "playlist",
+    };
+
+    final http.Response response = await http.post(
+      'http://34.69.44.48:8080/Espotify/tiene_like_android',
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+      body: jsonEncode(data),
+
+    );
+    if (response.statusCode == 200) {
+      // If the server did return a 201 CREATED response,
+      // then parse the JSON.
+      respuesta r = respuesta.fromJson(json.decode(response.body));
+      String s = r.getlikeado();
+      log("likeado: $s");
+      if(r.getlikeado() == "false") {
+        log("estoy aqui");
+        Fluttertoast.showToast(
+          msg: "Le has quitado el like",
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.CENTER,
+        );
+      } else if (r.getlikeado() == "true") {
+        log("estoy alla");
+        Fluttertoast.showToast(
+          msg: "¡Le has dado a like!",
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.CENTER,
+        ); ;
+      }
+    } else {
+      // If the server did not return a 201 CREATED response,
+      // then throw an exception.
+      throw Exception('Fallo al enviar petición');
+    }
+  }
 }
 
 class Search extends SearchDelegate<Song> {
@@ -301,6 +379,7 @@ class Search extends SearchDelegate<Song> {
 
   @override
   Widget buildSuggestions(BuildContext context) {
+    Username user = Provider.of<Username>(context);
     model = Provider.of<PlaylistRepo>(context);
     List<String> dummy = <String>[];
     List<String> recents = <String>[];
@@ -319,6 +398,16 @@ class Search extends SearchDelegate<Song> {
         return Padding(
           padding: const EdgeInsets.all(8.0),
           child: ListTile(
+            trailing: IconButton(
+                icon: Icon(
+                  Icons.thumb_up,
+                  size: 17,
+                  color: Colors.white,
+                ),
+                onPressed: () async {
+                  Like(user.email, model.playlist[index], "playlist");
+                }
+            ),
             onTap: () {
                 model.selected = model.devuelveIndexPlaylist(suggestion[index]);
                 Navigator.of(context).push(new MaterialPageRoute(
@@ -349,6 +438,31 @@ class Search extends SearchDelegate<Song> {
       },
     );
 
+  }
+
+  void Like(String email, String titulo, String tipo) async {
+    Map data = {
+      'email' : email,
+      'titulo' : titulo,
+      'tipo' : tipo,
+    };
+
+    final http.Response response = await http.post(
+      'http://34.69.44.48:8080/Espotify/like_android',
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+      body: jsonEncode(data),
+    );
+    if (response.statusCode == 200) {
+      // If the server did return a 201 CREATED response,
+      // then parse the JSON.
+      log("se ha cambiado de como estaba");
+    } else {
+      // If the server did not return a 201 CREATED response,
+      // then throw an exception.
+      throw Exception('Fallo al enviar petición');
+    }
   }
 
 }

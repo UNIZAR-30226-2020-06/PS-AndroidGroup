@@ -1,5 +1,5 @@
 import 'dart:convert';
-import 'dart:developer';
+import 'dart:developer' as info;
 import 'dart:io';
 import 'dart:math';
 import 'dart:typed_data';
@@ -2546,7 +2546,7 @@ class _ProfilePageState extends State<ProfilePage>
             ),
             flex: 2,
           ),
-          SizedBox(height: 40,child: Text(controlador.text))  //todo hacerlo bien (como en el login)
+          SizedBox(height: 40,child: Text(controlador.text))
         ],
       ),
     );
@@ -3618,6 +3618,4 @@ class Respuesta {
     return creado;
   }
 }
-
-
 
