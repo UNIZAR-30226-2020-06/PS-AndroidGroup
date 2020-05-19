@@ -88,7 +88,7 @@ class ComentariosLibrary extends State<ComentariosLibraryState> {
                   snap: false,
                   flexibleSpace: Container(
                     height: 200,
-                    color: Colors.purpleAccent,
+                    color: Colors.white,
                     child: Stack(children: <Widget>[
                       Padding(
                           padding: EdgeInsets.only(
@@ -100,7 +100,7 @@ class ComentariosLibrary extends State<ComentariosLibraryState> {
                               iconSize: 35.0,
                               icon: Icon(
                                 CustomIcons.arrow_circle_o_left,
-                                color: Colors.white,
+                                color: Colors.black,
                               ),
                               onPressed: () {
                                 Navigator.pop(context);
@@ -115,7 +115,7 @@ class ComentariosLibrary extends State<ComentariosLibraryState> {
                           child: Text(
                             "Comentarios",
                             style:
-                            TextStyle(fontSize: 40.0, color: Colors.white),
+                            TextStyle(fontSize: 40.0, color: Colors.black),
                           ),
                         ),
                       ),
