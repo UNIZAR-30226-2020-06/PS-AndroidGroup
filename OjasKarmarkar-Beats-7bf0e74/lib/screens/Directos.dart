@@ -209,7 +209,7 @@ class _DirectosState extends State<Directos> {
 
 
                   //Reset the list. So we can change to next song.
-                  //model.play();
+                  model.play();
                   FlutterRadio.playOrPause(url: model.songs[pos].uri);
                 },
                 leading: CircleAvatar(child: getImage(model, pos)),
@@ -373,12 +373,12 @@ class _DirectosState extends State<Directos> {
                           onPressed: () {
                             if (model.currentState == PlayerState.PAUSED ||
                                 model.currentState == PlayerState.STOPPED) {
-                              //model.play();
+                              model.play();
                               FlutterRadio.playOrPause(url: model.songs[pos].uri);
 
                             } else {
                               FlutterRadio.playOrPause(url: model.songs[pos].uri);
-                              //model.pause();
+                              model.pause();
                             }
                           },
                         ),
@@ -461,7 +461,6 @@ class Search extends SearchDelegate<Song> {
           child: ListTile(
             onTap: () {
               model.player.stop();
-              //model.playURI(suggestion[index].uri);
               model.playURI(suggestion[index].uri);
               model.playlist = false;
               close(context, null);
