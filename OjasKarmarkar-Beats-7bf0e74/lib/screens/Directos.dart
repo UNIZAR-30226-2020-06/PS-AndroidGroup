@@ -14,6 +14,7 @@ import 'dart:io';
 import 'package:beats/models/SongsModel.dart';
 import 'package:provider/provider.dart';
 import 'package:http/http.dart' as http;
+import 'package:flutter_radio/flutter_radio.dart';
 
 import '../custom_icons.dart';
 import 'Player.dart';
@@ -37,10 +38,27 @@ class _DirectosState extends State<Directos> {
   ThemeChanger themeChanger;
 
   TextEditingController txt = TextEditingController();
-
+  bool isPlaying;
   bool error = false;
   List<Song> songs;
   Username username;
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    audioStart();
+    playingStatus();
+  }
+  Future playingStatus() async {
+    bool isP = await FlutterRadio.isPlaying();
+    setState(() {
+      isPlaying = isP;
+    });
+  }
+  Future<void> audioStart() async {
+    await FlutterRadio.audioStart();
+    print('Audio Start OK');
+  }
   @override
   void didChangeDependencies() {
     model = Provider.of<SongsModel>(context);
@@ -48,7 +66,8 @@ class _DirectosState extends State<Directos> {
     username = Provider.of<Username>(context);
     obtenerCancionesRandom(model);
     model.setEmail(username.email);
-
+    audioStart();
+    playingStatus();
 
 
     height = MediaQuery.of(context).size.height;
@@ -155,7 +174,7 @@ class _DirectosState extends State<Directos> {
     List<String> listaUrls = c.getUrlsAudio().split('|');
     List<String> usuarios = c.getUsuariosAudio().split('|');
 
-
+    log("urls: $listaUrls");
     setState(() {
       songs = new List<Song>();
       for(int i = 0; i<listaNombres.length; i++){
@@ -190,7 +209,8 @@ class _DirectosState extends State<Directos> {
 
 
                   //Reset the list. So we can change to next song.
-                  model.play();
+                  //model.play();
+                  FlutterRadio.playOrPause(url: model.songs[pos].uri);
                 },
                 leading: CircleAvatar(child: getImage(model, pos)),
                 title: Text(
@@ -353,12 +373,12 @@ class _DirectosState extends State<Directos> {
                           onPressed: () {
                             if (model.currentState == PlayerState.PAUSED ||
                                 model.currentState == PlayerState.STOPPED) {
-                              model.play();
-
+                              //model.play();
+                              FlutterRadio.playOrPause(url: model.songs[pos].uri);
 
                             } else {
-
-                              model.pause();
+                              FlutterRadio.playOrPause(url: model.songs[pos].uri);
+                              //model.pause();
                             }
                           },
                         ),
