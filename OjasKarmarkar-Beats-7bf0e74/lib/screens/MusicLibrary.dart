@@ -13,6 +13,7 @@ import 'package:flute_music_player/flute_music_player.dart';
 import 'package:flutter/material.dart';
 import 'dart:io';
 import 'package:beats/models/SongsModel.dart';
+import 'package:flutter_radio/flutter_radio.dart';
 import '../custom_icons.dart';
 import 'package:provider/provider.dart';
 import 'PlayList.dart';
@@ -47,6 +48,12 @@ class _MusicLibraryState extends State<MusicLibrary> {
   Username username;
   List<String> generos = [""];
   @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+
+  }
+  @override
   void didChangeDependencies() {
     model = Provider.of<SongsModel>(context);
     b = Provider.of<BookmarkModel>(context);
@@ -58,7 +65,6 @@ class _MusicLibraryState extends State<MusicLibrary> {
     height = MediaQuery.of(context).size.height;
     width = MediaQuery.of(context).size.width;
     themeChanger = Provider.of<ThemeChanger>(context);
-
     convertirALista();
     for(int i=0; i<model.getSongs().length;i++){
       String s = model.getSongs().elementAt(i).title;
@@ -146,7 +152,6 @@ class _MusicLibraryState extends State<MusicLibrary> {
                                                             borderRadius: BorderRadius.circular(20)),
                                                         child: GestureDetector(
                                                           onTap: () {
-                                                            playlistRepo.selected = null;
                                                             playlistRepo.selected = pos;
                                                             Navigator.of(context).push(new MaterialPageRoute(
                                                                 builder: (context) => new PlaylistGenero()));

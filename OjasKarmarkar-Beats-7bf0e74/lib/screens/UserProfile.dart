@@ -12,6 +12,7 @@ import 'package:beats/models/PodcastRepo.dart';
 import 'package:beats/models/SongsModel.dart';
 import 'package:beats/models/Username.dart';
 import 'package:beats/models/const.dart';
+import 'package:beats/screens/MisCancionesOtroUsuario.dart';
 import 'package:beats/screens/PlayList.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
@@ -43,6 +44,7 @@ class _UserProfileState extends State<UserProfile>
   String descriptionController = "";
   String emailController = "";
   String passwordController = "";
+  String imagenPerfil;
 
   PlaylistRepo playlistRepo = new PlaylistRepo();
   PodcastRepo podcastRepo = new PodcastRepo();
@@ -64,11 +66,11 @@ class _UserProfileState extends State<UserProfile>
     misCanciones = Provider.of<MisCancionesModel>(context);
     height = MediaQuery.of(context).size.height;
     width = MediaQuery.of(context).size.width;
-
+    recibirDatos();
     setState(() {
-      recibirDatos();
+
       comprobarFollow();
-      anyadeDatosUsuario(differentUsername.email, playlistRepo, misCanciones, podcastRepo);
+      anyadeDatosUsuario(differentUsername.email, playlistRepo, podcastRepo);
 
     });
     super.didChangeDependencies();
@@ -107,18 +109,14 @@ class _UserProfileState extends State<UserProfile>
                               crossAxisAlignment: CrossAxisAlignment.center,
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: <Widget>[
-                                GestureDetector(onTap: ampliarImagen,child: new Container(
-                                    width: 140.0,
-                                    height: 140.0,
-                                    decoration: new BoxDecoration(
-                                      shape: BoxShape.circle,
-                                      image: new DecorationImage(
-                                        image: new ExactAssetImage(
-                                            'assets/prof.png'),
-                                        fit: BoxFit.cover,
-                                      ),
-                                    )),)
-
+                                new GestureDetector(onTap: ampliarImagen,child: CircleAvatar(
+                                  radius: 75.0,
+                                  backgroundImage: imagenPerfil == null
+                                      ? new ExactAssetImage(
+                                      'assets/prof.png')
+                                      : NetworkImage(imagenPerfil),
+                                  backgroundColor: Colors.transparent,
+                                )),
                               ],
                             ),
                           ]),
@@ -317,30 +315,13 @@ class _UserProfileState extends State<UserProfile>
                               child: SizedBox(
                                 height: height * 0.23,
                                 child: Consumer<PlaylistRepo>(
-                                  builder: (context, playlistRepo, _) => ListView.builder(
+                                  builder: (context, playlistRepo, _) => (playlistRepo.playlist[0] != "")
+                                    ?ListView.builder(
 
-                                    itemCount: playlistRepo.playlist.length + 1,
+                                    itemCount: (playlistRepo.playlist[0] != "") ? playlistRepo.playlist.length : 0,
                                     itemBuilder: (context, pos) {
                                       var padd = (pos == 0) ? width * 0.08 : 5.0;
-                                      if (pos == (playlistRepo.playlist.length)) {
-                                        return GestureDetector(
-                                          onTap: () {
-                                          },
-                                          child: Card(
-                                            margin: EdgeInsets.only(left: padd, right: 5.0),
-                                            elevation: 5,
-                                            shape: RoundedRectangleBorder(
-                                                side: BorderSide(color: Colors.orangeAccent),
-                                                borderRadius: BorderRadius.circular(20)),
-                                            child: ClipRRect(
-                                                borderRadius: BorderRadius.circular(20),
-                                                child: Container(
-                                                    width: width * 0.4,
-                                                    )),
-                                          ),
-                                        );
-                                      } else {
-                                        return Card(
+                                      return Card(
                                           margin: EdgeInsets.only(left: padd, right: 5.0),
                                           elevation: 20,
                                           shape: RoundedRectangleBorder(
@@ -355,7 +336,8 @@ class _UserProfileState extends State<UserProfile>
                                                 borderRadius: BorderRadius.circular(20),
                                                 child: Container(
                                                   width: width * 0.4,
-                                                  decoration: BoxDecoration(
+                                                  decoration: playlistRepo.imagenes[pos] == ""
+                                                      ? BoxDecoration(
                                                     // Box decoration takes a gradient
                                                     gradient: LinearGradient(
                                                       // Where the linear gradient begins and ends
@@ -377,47 +359,175 @@ class _UserProfileState extends State<UserProfile>
                                                         Colors.pink,
                                                       ],
                                                     ),
+                                                  )
+                                                      : BoxDecoration(
+                                                      image: DecorationImage(
+                                                        image: NetworkImage(playlistRepo.imagenes[pos]),
+                                                        fit: BoxFit.cover,
+                                                      )
                                                   ),
                                                   child: Stack(children: <Widget>[
-                                                    Align(
-                                                      alignment: Alignment.topRight,
-                                                      child: Padding(
-                                                        padding: const EdgeInsets.only(
-                                                            right: 10.0, top: 8.0),
-                                                        child: IconButton(
-                                                          icon: Icon(
-                                                            Icons.add_circle,
-                                                            size: 19,
-                                                            color: Colors.white,
-                                                          ),
-                                                          onPressed: () {
-                                                            showDialog(
-                                                              context: context,
-                                                              builder: (context) {
-                                                                return AlertDialog(
-                                                                  // Retrieve the text the that user has entered by using the
-                                                                  // TextEditingController.
-                                                                  content: Text("Añadir a mis playlists"),
-
-                                                                );
-                                                              },
-                                                            );
-                                                          },
-                                                        ),
-                                                      ),
-                                                    ),
                                                     Center(
-                                                        child: Text(playlistRepo.playlist[pos],
-                                                            style:
-                                                            TextStyle(color: Colors.white)))
+                                                      child: Padding(padding: EdgeInsets.only(
+                                                          left: 25.0, right: 25.0, top: 50.0, bottom: 13.0),
+                                                        child: Column(children: <Widget>[
+                                                          Text(playlistRepo.playlist[pos],
+                                                              textAlign: TextAlign.center,
+                                                              style:
+                                                              TextStyle(color: Colors.white),
+                                                              textScaleFactor: 1.3),
+                                                          Text(playlistRepo.descripciones[pos],
+                                                              style:
+                                                              TextStyle(color: Colors.white)),
+                                                        ]),),
+                                                    ),
                                                   ]),
                                                 )),
                                           ),
                                         );
-                                      }
                                     },
                                     scrollDirection: Axis.horizontal,
+                                  )
+                                    : Padding(
+                                      padding: EdgeInsets.only(
+                                          left: 25.0, right: 25.0, top: 2.0),
+                                      child: new Row(
+                                        mainAxisSize: MainAxisSize.max,
+                                        children: <Widget>[
+                                          new Column(
+                                            mainAxisAlignment: MainAxisAlignment.start,
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: <Widget>[
+                                              new Text(
+                                                "No hay playlists",
+                                                style: TextStyle(
+                                                  fontSize: 16.0,),
+                                              ),
+                                            ],
+                                          ),
+                                        ],
+                                      )),
+                                ),
+                              )),
+
+                          Padding(
+                              padding: EdgeInsets.only(
+                                  left: 25.0, right: 25.0, top: 25.0),
+                              child: new Row(
+                                mainAxisSize: MainAxisSize.max,
+                                children: <Widget>[
+                                  new Column(
+                                    mainAxisAlignment: MainAxisAlignment.start,
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: <Widget>[
+                                      new Text(
+                                        'Podcasts',
+                                        style: TextStyle(
+                                            fontSize: 16.0,
+                                            fontWeight: FontWeight.bold),
+                                      ),
+                                    ],
                                   ),
+                                ],
+                              )),
+
+                          Padding(
+                              padding: EdgeInsets.only(top: height * 0.04),
+                              child: SizedBox(
+                                height: height * 0.23,
+                                child: Consumer<PodcastRepo>(
+                                  builder: (context, podcastRepo, _) => (podcastRepo.podcast[0] != "")
+                                      ?ListView.builder(
+
+                                    itemCount: (podcastRepo.podcast[0] != "") ? podcastRepo.podcast.length : 0,
+                                    itemBuilder: (context, pos) {
+                                      var padd = (pos == 0) ? width * 0.08 : 5.0;
+                                        return Card(
+                                          margin: EdgeInsets.only(left: padd, right: 5.0),
+                                          elevation: 20,
+                                          shape: RoundedRectangleBorder(
+                                              borderRadius: BorderRadius.circular(20)),
+                                          child: GestureDetector(
+                                            onTap: () {
+                                              podcastRepo.selected = pos;
+                                              Navigator.of(context).push(new MaterialPageRoute(
+                                                  builder: (context) => new PLayListScreen()));
+                                            },
+                                            child: ClipRRect(
+                                                borderRadius: BorderRadius.circular(20),
+                                                child: Container(
+                                                  width: width * 0.4,
+                                                  decoration: podcastRepo.imagenes[pos] == ""
+                                                  ? BoxDecoration(
+                                                  // Box decoration takes a gradient
+                                                  gradient: LinearGradient(
+                                                  // Where the linear gradient begins and ends
+                                                  begin: Alignment.topRight,
+                                                  end: Alignment.bottomLeft,
+                                                  // Add one stop for each color. Stops should increase from 0 to 1
+                                                  stops: [0.1, 0.5, 0.7, 0.9],
+                                                  colors: pos % 2 == 0
+                                                  ? [
+                                                    Colors.purpleAccent,
+                                                    Colors.purple,
+                                                    Colors.purple,
+                                                    Colors.purpleAccent,
+                                                  ]
+                                                      : [
+                                                    Colors.lightBlueAccent,
+                                                    Colors.indigoAccent,
+                                                    Colors.indigoAccent,
+                                                    Colors.lightBlueAccent,
+                                                  ],
+                                                  ),
+                                                  )
+                                                      : BoxDecoration(
+                                                  image: DecorationImage(
+                                                  image: NetworkImage(podcastRepo.imagenes[pos]),
+                                                  fit: BoxFit.cover,
+                                                  )
+                                                  ),
+                                                  child: Stack(children: <Widget>[
+                                                    Center(
+                                                      child: Padding(padding: EdgeInsets.only(
+                                                          left: 25.0, right: 25.0, top: 50.0, bottom: 13.0),
+                                                        child: Column(children: <Widget>[
+                                                          Text(podcastRepo.podcast[pos],
+                                                              textAlign: TextAlign.center,
+                                                              style:
+                                                              TextStyle(color: Colors.white),
+                                                              textScaleFactor: 1.3),
+                                                          Text(podcastRepo.descripciones[pos],
+                                                              style:
+                                                              TextStyle(color: Colors.white)),
+                                                        ]),),
+                                                    ),
+                                                  ]),),
+                                          ),
+                                        ));
+
+                                    },
+                                    scrollDirection: Axis.horizontal,
+                                  ): Padding(
+                                      padding: EdgeInsets.only(
+                                          left: 25.0, right: 25.0, top: 2.0),
+                                      child: new Row(
+                                        mainAxisSize: MainAxisSize.max,
+                                        children: <Widget>[
+                                          new Column(
+                                            mainAxisAlignment: MainAxisAlignment.start,
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: <Widget>[
+                                              new Text(
+                                                "No hay podcasts",
+                                                style: TextStyle(
+                                                  fontSize: 16.0,),
+                                              ),
+                                            ],
+                                          ),
+                                        ],
+                                      )),
+
                                 ),
                               )),
 
@@ -440,6 +550,76 @@ class _UserProfileState extends State<UserProfile>
                                     ],
                                   ),
                                 ],
+                              )),
+
+                          Padding(
+                              padding: EdgeInsets.only(top: height * 0.04),
+                              child: SizedBox(
+                                height: height * 0.23,
+                                child: Consumer<PodcastRepo>(
+                                  builder: (context, podcastRepo, _) => ListView.builder(
+
+                                    itemCount: 1,
+                                    itemBuilder: (context, pos) {
+                                      var padd = (pos == 0) ? width * 0.08 : 5.0;
+                                      return Card(
+                                          margin: EdgeInsets.only(left: padd, right: 5.0),
+                                          elevation: 20,
+                                          shape: RoundedRectangleBorder(
+                                              borderRadius: BorderRadius.circular(20)),
+                                          child: GestureDetector(
+                                            onTap: () {
+                                              Navigator.of(context).push(new MaterialPageRoute(
+                                                  builder: (context) => new MisCancionesOtroUsuario()));
+                                            },
+                                            child: ClipRRect(
+                                              borderRadius: BorderRadius.circular(20),
+                                              child: Container(
+                                                width: width * 0.4,
+                                                decoration:
+                                                     BoxDecoration(
+                                                  // Box decoration takes a gradient
+                                                  gradient: LinearGradient(
+                                                    // Where the linear gradient begins and ends
+                                                    begin: Alignment.topRight,
+                                                    end: Alignment.bottomLeft,
+                                                    // Add one stop for each color. Stops should increase from 0 to 1
+                                                    stops: [0.1, 0.5, 0.7, 0.9],
+                                                    colors: pos % 2 == 0
+                                                        ? [
+                                                      Colors.orangeAccent,
+                                                      Colors.orange,
+                                                      Colors.deepOrange,
+                                                      Colors.orange,
+                                                    ]
+                                                        : [
+                                                      Colors.pinkAccent,
+                                                      Colors.pink,
+                                                      Colors.pinkAccent,
+                                                      Colors.pink,
+                                                    ],
+                                                  ),
+                                                ),
+                                                child: Stack(children: <Widget>[
+                                                  Center(
+                                                    child: Padding(padding: EdgeInsets.only(
+                                                        left: 25.0, right: 25.0, top: 50.0, bottom: 13.0),
+                                                      child: Column(children: <Widget>[
+                                                        Text("Canciones de " +differentUsername.name,
+                                                            textAlign: TextAlign.center,
+                                                            style:
+                                                            TextStyle(color: Colors.white),
+                                                            textScaleFactor: 1.3),
+                                                      ]),),
+                                                  ),
+                                                ]),),
+                                            ),
+                                          ));
+
+                                    },
+                                    scrollDirection: Axis.horizontal,
+                                  ),
+                                ),
                               )),
 
 
@@ -471,18 +651,17 @@ class _UserProfileState extends State<UserProfile>
             backgroundColor:
             Theme.of(context).backgroundColor,
             content: new GestureDetector(onTap: desampliarImagen,child: new Container(
-                width: 400.0,
-                height: 450.0,
-                decoration: new BoxDecoration(
-                  shape: BoxShape.rectangle,
-                  image: new DecorationImage(
-                    image: _profileImage == null
-                        ? new ExactAssetImage(
-                        'assets/prof.png')
-                        : FileImage(_profileImage),
-                    fit: BoxFit.cover,
-                  ),
-                )),),
+              width: 400.0,
+              height: 450.0,
+              child: CircleAvatar(
+                radius: 75.0,
+                backgroundImage: imagenPerfil == null
+                    ? new ExactAssetImage(
+                    'assets/prof.png')
+                    : NetworkImage(imagenPerfil),
+                backgroundColor: Colors.transparent,
+              ),
+            ),),
 
           ),
         );
@@ -624,6 +803,7 @@ class _UserProfileState extends State<UserProfile>
   void recibirDatos() async{
     Perfil p = await obtenerPerfil(differentUsername.name);
     if(p.nombreUsuario != null){
+      imagenPerfil = p.imagen;
       usernameController = p.nombreUsuario;
       descriptionController = p.descripcion;
       emailController = p.email;
@@ -639,7 +819,7 @@ class _UserProfileState extends State<UserProfile>
   }
 
 
-  anyadeDatosUsuario(String email, PlaylistRepo playlistRepo, MisCancionesModel misCanciones, PodcastRepo podcastRepo) async {
+  anyadeDatosUsuario(String email, PlaylistRepo playlistRepo, PodcastRepo podcastRepo) async {
     Perfil p = await obtenerPerfil(differentUsername.name);
     String u = p.nombreUsuario;
     log("user: $u");
@@ -648,16 +828,16 @@ class _UserProfileState extends State<UserProfile>
       var descripciones = p.descripcionesPlay.split('|');
       var podcastss = p.podcasts.split('|');
       var descripcionesPodcasts = p.descripcionesPod.split('|');
-      log('data: $playlistss');
-      if (playlistss[0] != "" && descripciones[0] != "") {
-        playlistRepo.generateInitialPlayList(playlistss, descripciones);
-      }
-      if (podcastss[0] != "" && descripcionesPodcasts[0] != "") {
-        podcastRepo.generateInitialPodcast(podcastss, descripcionesPodcasts);
-      }
-      List<String> misCancionesTitle = new List();
-      misCancionesTitle.add("Mis canciones");
-      misCanciones.generateInitialPlayList(misCancionesTitle);
+      var imagenesPlaylists = p.imagenesPlaylists.split('|');
+      var imagenesPodcasts = p.imagenesPodcasts.split('|');
+      log('playlists: $playlistss');
+      log('podcasts: $podcastss');
+      log('descripsiones: $descripciones');
+
+      imageCache.clear();
+      playlistRepo.generateInitialPlayListImage(playlistss, descripciones, imagenesPlaylists);
+      podcastRepo.generateInitialPodcastImage(podcastss, descripcionesPodcasts, imagenesPodcasts);
+
       setState(() {
         username.setCanciones(p.canciones);
         username.setCancionesUrl(p.urls);
@@ -719,19 +899,20 @@ class Perfil {
   final String canciones;
   final String urls;
   final int numSeguidores;
-  final imagen;
+  final String imagen;
+  final String imagenesPlaylists;
+  final String imagenesPodcasts;
 
   Perfil({this.respuesta, this.nombreUsuario, this.descripcion, this.email,
     this.contrasenya, this.repetirContraseya, this.playlists, this.descripcionesPlay,
     this.canciones, this.urls, this.podcasts,this.descripcionesPod,this.imagen,
-    this.numSeguidores});
+    this.numSeguidores, this.imagenesPlaylists, this.imagenesPodcasts});
 
   factory Perfil.fromJson(Map<String, dynamic> json) {
     return Perfil(
       nombreUsuario: json['nombreUsuario'],
       descripcion: json['descripcion'],
-      //imagen: json['imagen'],
-      email: json['email'],
+      imagen: json['imagenUsuario'],
       playlists: json['lista'],
       descripcionesPlay: json['listaDescripcion'],
       podcasts: json['podcasts'],
@@ -739,6 +920,8 @@ class Perfil {
       canciones: json['audiosTitulo'],
       urls: json['audiosUrl'],
       numSeguidores: json['numSeguidores'],
+      imagenesPlaylists: json['imagenesPlaylists'],
+      imagenesPodcasts: json['imagenesPodcasts'],
     );
 
   }

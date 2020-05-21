@@ -32,7 +32,39 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver{
     return Scaffold(
        resizeToAvoidBottomInset: false,
           body: screens[index],
-          bottomNavigationBar: ExpandingBottomBar(
+          bottomNavigationBar: BottomNavigationBar(type: BottomNavigationBarType.fixed,
+            backgroundColor: Theme.of(context).backgroundColor,
+            items: [
+              BottomNavigationBarItem(
+                  icon: Icon(Icons.mic),
+                  title: Text("Podcasts"),),
+              BottomNavigationBarItem(
+                  icon: Icon(Icons.radio),
+                  title: Text("Directos"),),
+              BottomNavigationBarItem(
+                  icon: Icon(Icons.music_note),
+                  title: Text("Canciones"),),
+              BottomNavigationBarItem(
+                  icon: Icon(Icons.headset),
+                  title: Text("Playlists"),),
+              BottomNavigationBarItem(
+                  icon: Icon(Icons.person_add),
+                  title: Text("Social"),),
+              // ExpandingBottomBarItem(
+              //     icon: Icons.backup,
+              //     text: "Agregar",
+              //     selectedColor: Colors.orange),
+              BottomNavigationBarItem(
+                  icon: Icon(Icons.star_border),
+                  title: Text("Favoritos"),),
+              BottomNavigationBarItem(
+                  icon: Icon(Icons.supervised_user_circle),
+                  title: Text("Perfil"),),
+            ],
+            selectedItemColor: Colors.amber[800],
+            currentIndex: index,
+            onTap: _onItemTapped,
+          ),/*ExpandingBottomBar(
             animationDuration: Duration(milliseconds: 500),
             backgroundColor: Theme.of(context).backgroundColor,
               navBarHeight: 60,
@@ -77,7 +109,13 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver{
                 });
 
 
-              })
+              })*/
     );
+  }
+
+  void _onItemTapped(int i) {
+    setState(() {
+      index = i;
+    });
   }
 }

@@ -55,6 +55,7 @@ class Comentario extends ChangeNotifier {
     }
   }
   void escribirComentario(String texto, String usuario, String title) async {  //se utiliza con referencia a objetos cometario.obtenerListaComentarios lo llena
+    log("Autor del comentario: $usuario");
     Map data = {
       'comentario' : texto,
       'usuario' : usuario,

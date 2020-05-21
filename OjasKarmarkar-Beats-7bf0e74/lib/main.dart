@@ -10,6 +10,7 @@ import 'package:beats/screens/login.dart';
 import 'package:flutter_media_notification/flutter_media_notification.dart';
 import 'models/Comentario.dart';
 import 'models/DifferentUsername.dart';
+import 'models/DirectosModel.dart';
 import 'models/LocalPlaylistRepo.dart';
 import 'models/LocalSongsModel.dart';
 import 'models/PlaylistRepoGeneros.dart';
@@ -78,6 +79,9 @@ void main(List<String> args) {
     ),
     ChangeNotifierProvider<SongsModel>(
       create: (context) => SongsModel(prov, rec),
+    ),
+    ChangeNotifierProvider<DirectosModel>(
+      create: (context) => DirectosModel(),
     ),
     ChangeNotifierProvider<CapPodcastsModel>(
       create: (context) => CapPodcastsModel(prov, rec),

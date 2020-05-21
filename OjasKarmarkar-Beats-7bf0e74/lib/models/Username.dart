@@ -9,6 +9,7 @@ String name;
 String email;
 String canciones;
 String cancionesUrl;
+String urlDirecto;
 SharedPreferences prefs;
 String archivoPodcast;
 List<String> listaGenerosPodcasts;

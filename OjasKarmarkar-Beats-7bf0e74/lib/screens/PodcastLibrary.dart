@@ -34,7 +34,7 @@ class _PodcastLibraryState extends State<PodcastLibrary> {
   TextEditingController txt = TextEditingController();
 
   bool error = false;
-
+  bool iniciado = false;
   List<String> podcasts;
   PodcastRepo podcastRepo;
   Username user;
@@ -63,7 +63,7 @@ class _PodcastLibraryState extends State<PodcastLibrary> {
       child: Scaffold(
           resizeToAvoidBottomInset: false,
           backgroundColor: Theme.of(context).backgroundColor,
-          body: (podcastRepo.podcast == null)
+          body: (!iniciado)
               ? Center(
             child: Text(
               "No hay podcasts",
@@ -240,6 +240,7 @@ class _PodcastLibraryState extends State<PodcastLibrary> {
 
     setState(() {
        podcastRepo.generateInitialPodcastImage(listaNombres, listaDescripciones, listaImagenes);
+       iniciado = true;
     });
   }
 

@@ -47,6 +47,8 @@ class _PLayListNoEditableScreenState extends State<PLayListNoEditableScreen> {
     username = Provider.of<Username>(context);
     playlistRepo = Provider.of<PlaylistRepo>(context);
     model = Provider.of<SongsModel>(context);
+    height = MediaQuery.of(context).size.height;
+    width = MediaQuery.of(context).size.width;
     int stringerr = playlistRepo.selected;
     obtieneGeneros();
 
@@ -60,7 +62,8 @@ class _PLayListNoEditableScreenState extends State<PLayListNoEditableScreen> {
 
   @override
   Widget build(BuildContext context) {
-
+    height = MediaQuery.of(context).size.height;
+    width = MediaQuery.of(context).size.width;
     return Scaffold(
       backgroundColor: Theme.of(context).backgroundColor,
       body: NestedScrollView(

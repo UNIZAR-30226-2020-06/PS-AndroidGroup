@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';
 import 'package:beats/models/Comentario.dart';
-import 'package:beats/models/SongsModel.dart';
+import 'package:beats/models/DirectosModel.dart';
 import 'package:beats/models/ThemeModel.dart';
 import 'package:beats/models/PlaylistRepo.dart';
 import 'package:beats/models/BookmarkModel.dart';
@@ -22,13 +22,13 @@ import 'package:http/http.dart' as http;
 
 import 'ComentariosLibrary.dart';
 
-class PlayBackPage extends StatefulWidget {
+class PlayerDirectos extends StatefulWidget {
   @override
-  _PlayBackPageState createState() => _PlayBackPageState();
+  _PlayerDirectosState createState() => _PlayerDirectosState();
 }
 
-class _PlayBackPageState extends State<PlayBackPage> {
-  SongsModel model;
+class _PlayerDirectosState extends State<PlayerDirectos> {
+  DirectosModel model;
   ThemeChanger themeChanger;
   MusicLibrary x;
   PageController pg;
@@ -56,7 +56,7 @@ class _PlayBackPageState extends State<PlayBackPage> {
   void didChangeDependencies() {
     username = Provider.of<Username>(context);
     bm = Provider.of<BookmarkModel>(context);
-    model = Provider.of<SongsModel>(context);
+    model = Provider.of<DirectosModel>(context);
     String s = model.currentSong.title;
     c.obtenerListaComentarios(model.currentSong.title);
     log("cancion actual: $s");
@@ -80,11 +80,12 @@ class _PlayBackPageState extends State<PlayBackPage> {
   @override
   Widget build(BuildContext context) {
     user = Provider.of<Username>(context);
-    model = Provider.of<SongsModel>(context);
+    model = Provider.of<DirectosModel>(context);
     playScreen = Provider.of<NowPlaying>(context);
     themeChanger = Provider.of<ThemeChanger>(context);
     c.obtenerListaComentarios(model.currentSong.title);
-
+    height = MediaQuery.of(context).size.height;
+    width = MediaQuery.of(context).size.width;
 
     if (playScreen.getScreen() == true) {
       return Scaffold(
@@ -92,341 +93,341 @@ class _PlayBackPageState extends State<PlayBackPage> {
         backgroundColor: Theme.of(context).backgroundColor,
         body: Stack(
           children: <Widget>[
-            Consumer<SongsModel>(
+            Consumer<DirectosModel>(
                 builder: (context, model, _) => (cargado)?Column(children: [
-                      SizedBox(
-                        height: height * 0.63,
-                        width: width,
-                        child: (model.currentSong.albumArt != null)
-                            ? Image.file(
-                                File.fromUri(
-                                    Uri.parse(model.currentSong.albumArt)),
-                                fit: BoxFit.fill,
-                                width: width,
-                                height: height * 0.63,
-                              )
-                            : Image.asset(
-                                "assets/headphone.png",
-                                alignment: Alignment.center,
-                              ),
+                  SizedBox(
+                    height: height * 0.63,
+                    width: width,
+                    child: (model.currentSong.albumArt != null)
+                        ? Image.file(
+                      File.fromUri(
+                          Uri.parse(model.currentSong.albumArt)),
+                      fit: BoxFit.fill,
+                      width: width,
+                      height: height * 0.63,
+                    )
+                        : Image.asset(
+                      "assets/headphone.png",
+                      alignment: Alignment.center,
+                    ),
+                  ),
+                  Consumer<ProgressModel>(builder: (context, a, _) {
+                    return SliderTheme(
+                        child: Slider(
+                          max: a.duration.toDouble(),
+                          onChanged: (double value) {
+                            if (value.toDouble() == a.duration.toDouble()) {
+                              model.player.stop();
+                              model.next();
+                              model.playURI(username.urlDirecto);
+                            } else {
+                              a.setPosition(value);
+                              model.seek(value);
+                            }
+                          },
+                          value: a.position.toDouble(),
+                        ),
+                        data: SliderTheme.of(context).copyWith(
+                            thumbColor: Color(0xfff1f2f6),
+                            activeTrackColor: themeChanger.accentColor));
+                  }),
+                  Container(
+                    height: height * 0.035,
+                    child: Padding(
+                      padding: EdgeInsets.only(top: 0.1),
+                      child: Align(
+                        alignment: Alignment.center,
+                        child: Text(
+                          model.currentSong.title,
+                          maxLines: 1,
+                          textAlign: TextAlign.center,
+                          softWrap: true,
+                          overflow: TextOverflow.fade,
+                          style: TextStyle(
+                              fontSize: 20,
+                              color: Theme.of(context)
+                                  .textTheme
+                                  .display1
+                                  .color,
+                              fontWeight: FontWeight.bold),
+                        ),
                       ),
-                      Consumer<ProgressModel>(builder: (context, a, _) {
-                        return SliderTheme(
-                            child: Slider(
-                              max: a.duration.toDouble(),
-                              onChanged: (double value) {
-                                if (value.toDouble() == a.duration.toDouble()) {
-                                  model.player.stop();
-                                  model.next();
-                                  model.play();
-                                } else {
-                                  a.setPosition(value);
-                                  model.seek(value);
-                                }
-                              },
-                              value: a.position.toDouble(),
-                            ),
-                            data: SliderTheme.of(context).copyWith(
-                                thumbColor: Color(0xfff1f2f6),
-                                activeTrackColor: themeChanger.accentColor));
-                      }),
-                      Container(
-                        height: height * 0.035,
-                        child: Padding(
-                          padding: EdgeInsets.only(top: 0.1),
-                          child: Align(
-                            alignment: Alignment.center,
-                            child: Text(
-                              model.currentSong.title,
-                              maxLines: 1,
-                              textAlign: TextAlign.center,
-                              softWrap: true,
-                              overflow: TextOverflow.fade,
-                              style: TextStyle(
-                                  fontSize: 20,
-                                  color: Theme.of(context)
-                                      .textTheme
-                                      .display1
-                                      .color,
-                                  fontWeight: FontWeight.bold),
-                            ),
+                    ),
+                  ),
+                  Container(
+                    height: height * 0.035,
+                    child: Padding(
+                      padding: EdgeInsets.only(top: 0.02),
+                      child: Center(
+                        child: Text(
+                          model.currentSong.artist.toString(),
+                          maxLines: 1,
+                          softWrap: true,
+                          overflow: TextOverflow.fade,
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontSize: 20,
+                            color: Colors.grey,
                           ),
                         ),
                       ),
-                      Container(
-                        height: height * 0.035,
-                        child: Padding(
-                          padding: EdgeInsets.only(top: 0.02),
-                          child: Center(
-                            child: Text(
-                              model.currentSong.artist.toString(),
-                              maxLines: 1,
-                              softWrap: true,
-                              overflow: TextOverflow.fade,
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                fontSize: 20,
-                                color: Colors.grey,
-                              ),
-                            ),
+                    ),
+                  ),
+                  Padding(
+                    padding: EdgeInsets.only(top: height * 0.015),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: <Widget>[
+                        IconButton(
+                          onPressed: () {
+                            model.repeat
+                                ? model.setRepeat(false)
+                                : model.setRepeat(true);
+                          },
+                          icon: Icon(
+                            Icons.loop,
+                            color:
+                            model.repeat ? Colors.orange : Colors.grey,
+                            size: 35.0,
                           ),
                         ),
-                      ),
-                      Padding(
-                        padding: EdgeInsets.only(top: height * 0.015),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                          children: <Widget>[
-                            IconButton(
+                        IconButton(
+                          onPressed: () {
+                            model.player.stop();
+                            model.previous();
+
+                            model.playURI(username.urlDirecto);
+                          },
+                          icon: Icon(
+                            CustomIcons.step_backward,
+                            color:
+                            Theme.of(context).textTheme.display1.color,
+                            size: 40.0,
+                          ),
+                        ),
+                        InkWell(
+                            onTap: () {
+                              if (model.currentState ==
+                                  PlayerState.PAUSED ||
+                                  model.currentState ==
+                                      PlayerState.STOPPED) {
+                                model.playURI(username.urlDirecto);
+                              } else {
+                                model.pause();
+                              }
+                            },
+                            child: MaterialButton(
+                              elevation: 30,
+                              shape: RoundedRectangleBorder(
+                                  borderRadius:
+                                  BorderRadius.circular(100.0)),
+                              child: Container(
+                                decoration: BoxDecoration(
+                                    gradient: LinearGradient(
+                                      colors: <Color>[
+                                        themeChanger.accentColor,
+                                        Color(0xFF996000),
+                                        Color(0xFF996500),
+                                      ],
+                                    ),
+                                    borderRadius: BorderRadius.all(
+                                        Radius.circular(100.0))),
+                                padding: const EdgeInsets.fromLTRB(
+                                    20, 10, 20, 10),
+                                child: (model.currentState ==
+                                    PlayerState.PAUSED ||
+                                    model.currentState ==
+                                        PlayerState.STOPPED)
+                                    ? Icon(
+                                  CustomIcons.play,
+                                  color: Colors.white,
+                                  size: 30.0,
+                                )
+                                    : Icon(CustomIcons.pause,
+                                    size: 30, color: Colors.white),
+                              ),
+                            )),
+                        IconButton(
+                          onPressed: () {
+                            model.player.stop();
+                            model.next();
+                            model.playURI(username.urlDirecto);
+                          },
+                          icon: Icon(
+                            CustomIcons.step_forward,
+                            color:
+                            Theme.of(context).textTheme.display1.color,
+                            size: 40.0,
+                          ),
+                        ),
+                        Padding(
+                          padding: EdgeInsets.only(left: width * 0.01),
+                          child: IconButton(
                               onPressed: () {
-                                model.repeat
-                                    ? model.setRepeat(false)
-                                    : model.setRepeat(true);
+                                model.shuffle
+                                    ? model.setShuffle(false)
+                                    : model.setShuffle(true);
                               },
                               icon: Icon(
-                                Icons.loop,
-                                color:
-                                    model.repeat ? Colors.orange : Colors.grey,
+                                Icons.shuffle,
+                                color: model.shuffle
+                                    ? Colors.orange
+                                    : Colors.grey,
+                                size: 35.0,
+                              )),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Padding(
+                    //bloque fav y add
+                    padding: EdgeInsets.only(top: height * 0.02),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: <Widget>[
+                        Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: IconButton(
+                            iconSize: 35.0,
+                            icon: Icon(
+                              Icons.cancel,
+                              color: Theme.of(context)
+                                  .textTheme
+                                  .display1
+                                  .color,
+                            ),
+                            onPressed: () {
+                              Navigator.pop(context);
+                            },
+                          ),
+                        ),
+                        Padding(
+                          padding: EdgeInsets.only(left: 2.0),
+                          child: Consumer<BookmarkModel>(
+                            builder: (context, bookmark, _) => IconButton(
+                              onPressed: () {
+                                if (!bookmark
+                                    .alreadyExists(model.currentSong)) {
+                                  bookmark.add(model.currentSong);
+                                  anyadirFavorito(username.email, model.currentSong.title);
+                                } else {
+                                  bookmark.remove(model.currentSong);
+                                  eliminarFavorito(username.email, model.currentSong.title);
+                                }
+                              },
+                              icon: Icon(
+                                bookmark.alreadyExists(model.currentSong)
+                                    ? Icons.star //star
+                                    : Icons.star_border, //star_border
+                                color: bookmark
+                                    .alreadyExists(model.currentSong)
+                                    ? Colors.orange
+                                    : Colors.grey,
                                 size: 35.0,
                               ),
                             ),
-                            IconButton(
-                              onPressed: () {
-                                model.player.stop();
-                                model.previous();
-
-                                model.play();
-                              },
-                              icon: Icon(
-                                CustomIcons.step_backward,
-                                color:
-                                    Theme.of(context).textTheme.display1.color,
-                                size: 40.0,
-                              ),
-                            ),
-                            InkWell(
-                                onTap: () {
-                                  if (model.currentState ==
-                                          PlayerState.PAUSED ||
-                                      model.currentState ==
-                                          PlayerState.STOPPED) {
-                                    model.play();
-                                  } else {
-                                    model.pause();
-                                  }
-                                },
-                                child: MaterialButton(
-                                  elevation: 30,
-                                  shape: RoundedRectangleBorder(
-                                      borderRadius:
-                                          BorderRadius.circular(100.0)),
-                                  child: Container(
-                                    decoration: BoxDecoration(
-                                        gradient: LinearGradient(
-                                          colors: <Color>[
-                                            themeChanger.accentColor,
-                                            Color(0xFF996000),
-                                            Color(0xFF996500),
-                                          ],
-                                        ),
-                                        borderRadius: BorderRadius.all(
-                                            Radius.circular(100.0))),
-                                    padding: const EdgeInsets.fromLTRB(
-                                        20, 10, 20, 10),
-                                    child: (model.currentState ==
-                                                PlayerState.PAUSED ||
-                                            model.currentState ==
-                                                PlayerState.STOPPED)
-                                        ? Icon(
-                                            CustomIcons.play,
-                                            color: Colors.white,
-                                            size: 30.0,
-                                          )
-                                        : Icon(CustomIcons.pause,
-                                            size: 30, color: Colors.white),
-                                  ),
-                                )),
-                            IconButton(
-                              onPressed: () {
-                                model.player.stop();
-                                model.next();
-                                model.play();
-                              },
-                              icon: Icon(
-                                CustomIcons.step_forward,
-                                color:
-                                    Theme.of(context).textTheme.display1.color,
-                                size: 40.0,
-                              ),
-                            ),
-                            Padding(
-                              padding: EdgeInsets.only(left: width * 0.01),
-                              child: IconButton(
-                                  onPressed: () {
-                                    model.shuffle
-                                        ? model.setShuffle(false)
-                                        : model.setShuffle(true);
-                                  },
-                                  icon: Icon(
-                                    Icons.shuffle,
-                                    color: model.shuffle
-                                        ? Colors.orange
-                                        : Colors.grey,
-                                    size: 35.0,
-                                  )),
-                            ),
-                          ],
+                          ),
                         ),
-                      ),
-                      Padding(
-                        //bloque fav y add
-                        padding: EdgeInsets.only(top: height * 0.02),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                          children: <Widget>[
-                            Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: IconButton(
-                                iconSize: 35.0,
-                                icon: Icon(
-                                  Icons.cancel,
-                                  color: Theme.of(context)
-                                      .textTheme
-                                      .display1
-                                      .color,
-                                ),
-                                onPressed: () {
-                                  Navigator.pop(context);
-                                },
-                              ),
-                            ),
-                            Padding(
-                              padding: EdgeInsets.only(left: 2.0),
-                              child: Consumer<BookmarkModel>(
-                                builder: (context, bookmark, _) => IconButton(
-                                  onPressed: () {
-                                    if (!bookmark
-                                        .alreadyExists(model.currentSong)) {
-                                      bookmark.add(model.currentSong);
-                                      anyadirFavorito(username.email, model.currentSong.title);
-                                    } else {
-                                      bookmark.remove(model.currentSong);
-                                      eliminarFavorito(username.email, model.currentSong.title);
-                                    }
-                                  },
-                                  icon: Icon(
-                                    bookmark.alreadyExists(model.currentSong)
-                                        ? Icons.star //star
-                                        : Icons.star_border, //star_border
-                                    color: bookmark
-                                            .alreadyExists(model.currentSong)
-                                        ? Colors.orange
-                                        : Colors.grey,
-                                    size: 35.0,
-                                  ),
-                                ),
-                              ),
-                            ),
-                            Consumer<PlaylistRepo>(
-                              builder: (context, repo, _) {
-                                return IconButton(
-                                  onPressed: () {
-                                    showDialog(
-                                        context: context,
-                                        builder: (context) {
-                                          return SimpleDialog(
-                                            backgroundColor: Theme.of(context)
-                                                .backgroundColor,
+                        Consumer<PlaylistRepo>(
+                          builder: (context, repo, _) {
+                            return IconButton(
+                              onPressed: () {
+                                showDialog(
+                                    context: context,
+                                    builder: (context) {
+                                      return SimpleDialog(
+                                        backgroundColor: Theme.of(context)
+                                            .backgroundColor,
+                                        children: <Widget>[
+                                          Row(
+                                            mainAxisAlignment:
+                                            MainAxisAlignment
+                                                .spaceEvenly,
                                             children: <Widget>[
-                                              Row(
-                                                mainAxisAlignment:
-                                                    MainAxisAlignment
-                                                        .spaceEvenly,
-                                                children: <Widget>[
-                                                  Text(
-                                                    "Add to Playlist",
-                                                    style: Theme.of(context)
-                                                        .textTheme
-                                                        .display1,
-                                                  ),
-                                                  Container(
-                                                    height: 25,
-                                                    width: 25,
-                                                    child: FloatingActionButton(
-                                                      backgroundColor:
-                                                          Theme.of(context)
-                                                              .backgroundColor,
-                                                      onPressed: () {
-                                                        _displayDialog(
-                                                            context, repo);
-                                                      },
-                                                      child: Icon(
-                                                        Icons
-                                                            .add_circle_outline,
-                                                        color:
-                                                            Colors.orangeAccent,
-                                                      ),
-                                                    ),
-                                                  )
-                                                ],
+                                              Text(
+                                                "Add to Playlist",
+                                                style: Theme.of(context)
+                                                    .textTheme
+                                                    .display1,
                                               ),
                                               Container(
-                                                width: double.maxFinite,
-                                                child: (repo.playlist.length !=
-                                                        0)
-                                                    ? ListView.builder(
-                                                        shrinkWrap: true,
-                                                        itemCount: repo
-                                                            .playlist.length,
-                                                        itemBuilder:
-                                                            (context, index) {
-                                                          return Padding(
-                                                            padding:
-                                                                EdgeInsets.only(
-                                                                    left: 10.0),
-                                                            child: ListTile(
-                                                              onTap: () {
-                                                                PlaylistHelper(
-                                                                        repo.playlist[
-                                                                            index])
-                                                                    .add(model
-                                                                        .currentSong);
-                                                                Navigator.pop(
-                                                                    context);
-                                                              },
-                                                              title: Text(
-                                                                repo.playlist[
-                                                                    index],
-                                                                style: Theme.of(
-                                                                        context)
-                                                                    .textTheme
-                                                                    .display2,
-                                                              ),
-                                                            ),
-                                                          );
-                                                        },
-                                                      )
-                                                    : Center(
-                                                        child:
-                                                            Text("No Playlist"),
-                                                      ),
+                                                height: 25,
+                                                width: 25,
+                                                child: FloatingActionButton(
+                                                  backgroundColor:
+                                                  Theme.of(context)
+                                                      .backgroundColor,
+                                                  onPressed: () {
+                                                    _displayDialog(
+                                                        context, repo);
+                                                  },
+                                                  child: Icon(
+                                                    Icons
+                                                        .add_circle_outline,
+                                                    color:
+                                                    Colors.orangeAccent,
+                                                  ),
+                                                ),
                                               )
                                             ],
-                                          );
-                                        });
-                                  },
-                                  icon: Icon(
-                                    Icons.playlist_add,
-                                    color: Colors.grey,
-                                    size: 35.0,
-                                  ),
-                                );
+                                          ),
+                                          Container(
+                                            width: double.maxFinite,
+                                            child: (repo.playlist.length !=
+                                                0)
+                                                ? ListView.builder(
+                                              shrinkWrap: true,
+                                              itemCount: repo
+                                                  .playlist.length,
+                                              itemBuilder:
+                                                  (context, index) {
+                                                return Padding(
+                                                  padding:
+                                                  EdgeInsets.only(
+                                                      left: 10.0),
+                                                  child: ListTile(
+                                                    onTap: () {
+                                                      PlaylistHelper(
+                                                          repo.playlist[
+                                                          index])
+                                                          .add(model
+                                                          .currentSong);
+                                                      Navigator.pop(
+                                                          context);
+                                                    },
+                                                    title: Text(
+                                                      repo.playlist[
+                                                      index],
+                                                      style: Theme.of(
+                                                          context)
+                                                          .textTheme
+                                                          .display2,
+                                                    ),
+                                                  ),
+                                                );
+                                              },
+                                            )
+                                                : Center(
+                                              child:
+                                              Text("No Playlist"),
+                                            ),
+                                          )
+                                        ],
+                                      );
+                                    });
                               },
-                            ),
-                          ],
+                              icon: Icon(
+                                Icons.playlist_add,
+                                color: Colors.grey,
+                                size: 35.0,
+                              ),
+                            );
+                          },
                         ),
-                      ),
-                    ]) : Text("Cargando..."))
+                      ],
+                    ),
+                  ),
+                ]) : Text("Cargando..."))
           ],
         ),
       );
@@ -440,7 +441,7 @@ class _PlayBackPageState extends State<PlayBackPage> {
               backgroundColor: Theme.of(context).backgroundColor,
               leading: Padding(
                 padding:
-                    EdgeInsets.only(top: height * 0.012, left: width * 0.03),
+                EdgeInsets.only(top: height * 0.012, left: width * 0.03),
                 child: IconButton(
                   iconSize: 35.0,
                   icon: Icon(
@@ -454,7 +455,7 @@ class _PlayBackPageState extends State<PlayBackPage> {
               ),
             ),
 
-            Consumer<SongsModel>(
+            Consumer<DirectosModel>(
               builder: (context, model, _) => Column(
                 children: [
                   Padding(
@@ -478,19 +479,19 @@ class _PlayBackPageState extends State<PlayBackPage> {
                                       (BuildContext context, int index) {
                                     return ClipOval(
                                       child: (model.currentSong.albumArt !=
-                                              null)
+                                          null)
                                           ? Image.file(
-                                              File.fromUri(Uri.parse(
-                                                  model.currentSong.albumArt)),
-                                              width: 100,
-                                              height: 100,
-                                            )
+                                        File.fromUri(Uri.parse(
+                                            model.currentSong.albumArt)),
+                                        width: 100,
+                                        height: 100,
+                                      )
                                           : Padding(
-                                              padding: EdgeInsets.symmetric(
-                                                  horizontal: 10.0,
-                                                  vertical: 30.0),
-                                              child: Image.asset(
-                                                  "assets/headphone.png")),
+                                          padding: EdgeInsets.symmetric(
+                                              horizontal: 10.0,
+                                              vertical: 30.0),
+                                          child: Image.asset(
+                                              "assets/headphone.png")),
                                     );
                                   },
                                 ),
@@ -498,8 +499,8 @@ class _PlayBackPageState extends State<PlayBackPage> {
                             )),
                         //)
                       ) //;},
-                      //),
-                      ),
+                    //),
+                  ),
                   Container(
                     height: height * 0.09,
                     child: Padding(
@@ -535,30 +536,10 @@ class _PlayBackPageState extends State<PlayBackPage> {
                       ),
                     ),
                   ),
-                  Consumer<ProgressModel>(builder: (context, a, _) {
-                     return SliderTheme(
-                        child: Slider(
-                          max: a.duration.toDouble(),
-                          onChanged: (double value) {
-                            if (value.toDouble() == a.duration.toDouble()) {
-                              model.player.stop();
-                              model.next();
 
-                              model.play();
-                            } else {
-                              a.setPosition(value);
-                              model.seek(value);
-                            }
-                          },
-                          value: a.position.toDouble(),
-                        ),
-                        data: SliderTheme.of(context).copyWith(
-                            thumbColor: Color(0xFF996000),
-                            activeTrackColor: themeChanger.accentColor));
-                  }),
                   Padding(
                     padding:
-                        EdgeInsets.only(left: width * 0.1, top: height * 0.02),
+                    EdgeInsets.only(left: width * 0.1, top: height * 0.02),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: <Widget>[
@@ -567,7 +548,7 @@ class _PlayBackPageState extends State<PlayBackPage> {
                             model.player.stop();
                             model.previous();
 
-                            model.play();
+                            model.playURI(username.urlDirecto);
                           },
                           icon: Icon(
                             CustomIcons.step_backward,
@@ -581,7 +562,7 @@ class _PlayBackPageState extends State<PlayBackPage> {
                               onTap: () {
                                 if (model.currentState == PlayerState.PAUSED ||
                                     model.currentState == PlayerState.STOPPED) {
-                                  model.play();
+                                  model.playURI(username.urlDirecto);
                                 } else {
                                   model.pause();
                                 }
@@ -604,18 +585,18 @@ class _PlayBackPageState extends State<PlayBackPage> {
                                       borderRadius: BorderRadius.all(
                                           Radius.circular(100.0))),
                                   padding:
-                                      const EdgeInsets.fromLTRB(20, 10, 20, 10),
+                                  const EdgeInsets.fromLTRB(20, 10, 20, 10),
                                   child: (model.currentState ==
-                                              PlayerState.PAUSED ||
-                                          model.currentState ==
-                                              PlayerState.STOPPED)
+                                      PlayerState.PAUSED ||
+                                      model.currentState ==
+                                          PlayerState.STOPPED)
                                       ? Icon(
-                                          CustomIcons.play,
-                                          color: Colors.white,
-                                          size: 30.0,
-                                        )
+                                    CustomIcons.play,
+                                    color: Colors.white,
+                                    size: 30.0,
+                                  )
                                       : Icon(CustomIcons.pause,
-                                          size: 30, color: Colors.white),
+                                      size: 30, color: Colors.white),
                                 ),
                               )),
                         ),
@@ -626,7 +607,7 @@ class _PlayBackPageState extends State<PlayBackPage> {
                               model.player.stop();
                               model.next();
 
-                              model.play();
+                              model.playURI(username.urlDirecto);
                             },
                             icon: Icon(
                               CustomIcons.step_forward,
@@ -710,7 +691,7 @@ class _PlayBackPageState extends State<PlayBackPage> {
                           onPressed: () {
                             model.player.stop();
                             Navigator.of(context).push(new MaterialPageRoute(builder: (context) =>
-                           new ComentariosLibrary()));
+                            new ComentariosLibrary()));
                           },
                           icon: Icon(
                             Icons.comment,
@@ -732,11 +713,11 @@ class _PlayBackPageState extends State<PlayBackPage> {
                                               Radius.circular(30.0)),
                                         ),
                                         backgroundColor:
-                                            Theme.of(context).backgroundColor,
+                                        Theme.of(context).backgroundColor,
                                         children: <Widget>[
                                           Row(
                                             mainAxisAlignment:
-                                                MainAxisAlignment.spaceEvenly,
+                                            MainAxisAlignment.spaceEvenly,
                                             children: <Widget>[
                                               Text(
                                                 "Añadir a Playlist",
@@ -749,8 +730,8 @@ class _PlayBackPageState extends State<PlayBackPage> {
                                                 width: 25,
                                                 child: FloatingActionButton(
                                                   backgroundColor:
-                                                      Theme.of(context)
-                                                          .backgroundColor,
+                                                  Theme.of(context)
+                                                      .backgroundColor,
                                                   onPressed: () {
                                                     _displayDialog(
                                                         context, repo);
@@ -767,40 +748,40 @@ class _PlayBackPageState extends State<PlayBackPage> {
                                             width: double.maxFinite,
                                             child: (repo.playlist.length != 0)
                                                 ? ListView.builder(
-                                                    shrinkWrap: true,
-                                                    itemCount:
-                                                        repo.playlist.length,
-                                                    itemBuilder:
-                                                        (context, index) {
-                                                      return Padding(
-                                                        padding:
-                                                            EdgeInsets.only(
-                                                                left: 10.0),
-                                                        child: ListTile(
-                                                          onTap: () {
-                                                            PlaylistHelper(
-                                                                    repo.playlist[
-                                                                        index])
-                                                                .add(model
-                                                                    .currentSong);
-                                                            Navigator.pop(
-                                                                context);
-                                                          },
-                                                          title: Text(
-                                                            repo.playlist[
-                                                                index],
-                                                            style: Theme.of(
-                                                                    context)
-                                                                .textTheme
-                                                                .display2,
-                                                          ),
-                                                        ),
-                                                      );
+                                              shrinkWrap: true,
+                                              itemCount:
+                                              repo.playlist.length,
+                                              itemBuilder:
+                                                  (context, index) {
+                                                return Padding(
+                                                  padding:
+                                                  EdgeInsets.only(
+                                                      left: 10.0),
+                                                  child: ListTile(
+                                                    onTap: () {
+                                                      PlaylistHelper(
+                                                          repo.playlist[
+                                                          index])
+                                                          .add(model
+                                                          .currentSong);
+                                                      Navigator.pop(
+                                                          context);
                                                     },
-                                                  )
-                                                : Center(
-                                                    child: Text("No Playlist"),
+                                                    title: Text(
+                                                      repo.playlist[
+                                                      index],
+                                                      style: Theme.of(
+                                                          context)
+                                                          .textTheme
+                                                          .display2,
+                                                    ),
                                                   ),
+                                                );
+                                              },
+                                            )
+                                                : Center(
+                                              child: Text("No Playlist"),
+                                            ),
                                           )
                                         ],
                                       );
@@ -831,13 +812,13 @@ class _PlayBackPageState extends State<PlayBackPage> {
         model.player.stop();
         model.previous();
 
-        model.play();
+        model.playURI(username.urlDirecto);
       } else if (currentPage < index) {
         currentPage = index;
         model.player.stop();
         model.next();
 
-        model.play();
+        model.playURI(username.urlDirecto);
       }
     });
   }

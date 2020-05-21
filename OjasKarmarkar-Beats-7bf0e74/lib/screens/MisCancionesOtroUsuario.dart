@@ -3,12 +3,13 @@ import 'dart:developer';
 import 'dart:io';
 
 import 'package:beats/Animations/transitions.dart';
+import 'package:beats/models/DifferentUsername.dart';
+import 'package:beats/models/MisCancionesModel.dart';
 import 'package:beats/models/PlaylistRepo.dart';
-import 'package:beats/models/PlaylistRepoGeneros.dart';
-import 'package:beats/models/PodcastRepo.dart';
 import 'package:beats/models/SongsModel.dart';
 import 'package:beats/models/PlayListHelper.dart';
 import 'package:beats/models/Username.dart';
+import 'package:beats/screens/UploadSong.dart';
 import 'package:beats/models/const.dart';
 import 'package:beats/reproductorMusica.dart';
 import 'package:conditional_builder/conditional_builder.dart';
@@ -16,6 +17,7 @@ import 'package:flute_music_player/flute_music_player.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_media_notification/flutter_media_notification.dart';
 import 'package:provider/provider.dart';
+import 'package:beats/screens/ProfileEdit.dart';
 import '../custom_icons.dart';
 import 'MusicLibrary.dart';
 import 'package:http/http.dart' as http;
@@ -23,13 +25,13 @@ import 'package:http/http.dart' as http;
 import 'Player.dart';
 import 'ProfileEdit.dart';
 
-class PlaylistGenero extends StatefulWidget {
+class MisCancionesOtroUsuario extends StatefulWidget {
   @override
-  _PlaylistGeneroState createState() => _PlaylistGeneroState();
+  _MisCancionesOtroUsuarioState createState() => _MisCancionesOtroUsuarioState();
 }
 
-class _PlaylistGeneroState extends State<PlaylistGenero> {
-  PlaylistRepoGeneros playlistRepo;
+class _MisCancionesOtroUsuarioState extends State<MisCancionesOtroUsuario> {
+  PlaylistRepo playlistRepo;
   SongsModel model;
   String name;
   TextEditingController editingController;
@@ -38,33 +40,32 @@ class _PlaylistGeneroState extends State<PlaylistGenero> {
   List<Song> songs;
   Username username;
   List<String> generos; // Option 2
+  DifferentUsername differentUsername;
   String genero;
   //final String email;
-
-  //_PLayListScreenState({Key key, @required this.email}) : super(key: key);
-
-
 
   @override
   void didChangeDependencies() {
     username = Provider.of<Username>(context);
-    playlistRepo = Provider.of<PlaylistRepoGeneros>(context);
+    playlistRepo = Provider.of<PlaylistRepo>(context);
     model = Provider.of<SongsModel>(context);
+    differentUsername = Provider.of<DifferentUsername>(context);
+    height = MediaQuery.of(context).size.height;
+    width = MediaQuery.of(context).size.width;
     int stringerr = playlistRepo.selected;
 
     log("playlistrepo: $stringerr");
-    name = playlistRepo.playlist[playlistRepo.selected];
-    playlistRepo.selected = null;
-    log("nameee: $name");
-    initDataPlaylistGenero();
-
+    name = "Canciones de "+ differentUsername.name;
+    //playlistRepo.selected = null;
+    initDataPlaylists();
 
     super.didChangeDependencies();
   }
 
   @override
   Widget build(BuildContext context) {
-
+    height = MediaQuery.of(context).size.height;
+    width = MediaQuery.of(context).size.width;
     return Scaffold(
       backgroundColor: Theme.of(context).backgroundColor,
       body: NestedScrollView(
@@ -115,11 +116,11 @@ class _PlaylistGeneroState extends State<PlaylistGenero> {
             ];
           },
           body: (songs != null)
-              ? (songs[0].title != "")
+              ? (songs.length != 0 && songs[0].title != "")
               ? Stack(children: <Widget>[
 
             ConditionalBuilder(
-                condition: true,
+                condition: true, //vista de una playlist de canciones
                 builder: (context) => ListView.builder(
                     itemCount: songs.length,
                     itemBuilder: (context, pos) {
@@ -138,7 +139,7 @@ class _PlaylistGeneroState extends State<PlaylistGenero> {
                             model.play();
 
                           },
-                          leading: CircleAvatar(backgroundColor: Colors.orange,child: getImage(pos)),
+                          leading: CircleAvatar(child: getImage(pos)),
                           title: Text(
                             songs[pos].title,
                             maxLines: 1,
@@ -177,19 +178,36 @@ class _PlaylistGeneroState extends State<PlaylistGenero> {
           )),
     );
   }
-
-  void initDataPlaylistGenero() async {
-    Canciones l = await obtenerCancionesGenero(name);
-    log("nameeee: $name");
+  void initDataPlaylists() async {
+    Canciones l = await obtenerCanciones(differentUsername.name);
     var listaNombres = l.getNombresAudio().split('|');
     var listaUrls = l.getUrlsAudio().split('|');
     log('initData2: $listaNombres');
-    List<Song> listaPodcasts = new List<Song>();
+    List<Song> listaCanciones = new List<Song>();
     for(int i = 0; i<listaNombres.length; i++){
-      listaPodcasts.add(new Song(1,"", listaNombres[i], "",0,0,listaUrls[i],null));
+      listaCanciones.add(new Song(1,"", listaNombres[i], "",0,0,listaUrls[i],null));
     }
 
-    songs = listaPodcasts;
+    songs = listaCanciones;
+    model.fetchSongsManual(songs);
+    setState(() {});
+  }
+
+  void initDataMisCanciones() async{
+    var listaNombres = username.getCanciones().split('|');
+    var listaUrls = username.getCancionesUrl().split('|');
+    log('initData3: $listaNombres');
+    List<Song> listaCanciones = new List<Song>();
+    Song aux = new Song(0,"","","",0,0,"",null);
+
+    for(int i = 0; i<listaNombres.length; i++){
+      if(listaNombres[i] != ""){
+        listaCanciones.add(new Song(1,"", listaNombres[i], "",0,0,listaUrls[i],null));
+      }
+
+    }
+
+    songs = listaCanciones;
     model.fetchSongsManual(songs);
     setState(() {});
   }
@@ -200,7 +218,7 @@ class _PlaylistGeneroState extends State<PlaylistGenero> {
           borderRadius: BorderRadius.circular(20),
           child: Image.file(File.fromUri(Uri.parse(songs[pos].albumArt))));
     } else {
-      return Icon(Icons.mic, color: Colors.white,);
+      return Icon(Icons.music_note, color: Colors.white,);
     }
   }
 
@@ -209,7 +227,7 @@ class _PlaylistGeneroState extends State<PlaylistGenero> {
       return Container(
         decoration: BoxDecoration(
           color: Colors.orange[400],
-          border: Border.all(color: Colors.orange),
+          border: Border.all(color: Colors.orangeAccent),
           borderRadius: BorderRadius.only(
               topLeft: Radius.circular(40.0),
               topRight: Radius.circular(10.0),
@@ -283,14 +301,25 @@ class _PlaylistGeneroState extends State<PlaylistGenero> {
     } else {}
   }
 
+
+  actualizarUsername(String email) async{
+    Perfil p = await obtenerPerfil(email);
+    String s = p.canciones;
+    log("actualizarUsername: $s");
+    setState(() {
+      username.setCanciones(p.canciones);
+      username.setCancionesUrl(p.urls);
+    });
+  }
 }
 
 class Canciones {
   final String respuesta;
   final String nombresAudio;
   final String urlsAudio;
-
-  Canciones({this.respuesta, this.nombresAudio,this.urlsAudio});
+  final String genero;
+  final String autor;
+  Canciones({this.respuesta, this.nombresAudio,this.urlsAudio, this.genero, this.autor});
 
   factory Canciones.fromJson(Map<String, dynamic> json) {
     return Canciones(
@@ -309,13 +338,13 @@ class Canciones {
   }
 }
 
-Future<Canciones> obtenerCancionesGenero(String genero) async {
+Future<Canciones> obtenerCanciones(String nombreUsuario) async {
   Map data = {
-    'genero': genero,
+    'nombreUsuario': nombreUsuario,
   };
-  log("servlet: $genero");
+  log("data $nombreUsuario");
   final http.Response response = await http.post(
-    'http://34.69.44.48:8080/Espotify/audios_genero_android',
+    'http://34.69.44.48:8080/Espotify/otros_cancion_android',
     headers: <String, String>{
       'Content-Type': 'application/json; charset=UTF-8',
     },
@@ -325,31 +354,10 @@ Future<Canciones> obtenerCancionesGenero(String genero) async {
   if (response.statusCode == 200) {
     // If the server did return a 201 CREATED response,
     // then parse the JSON.
-    Canciones c = Canciones.fromJson(json.decode(response.body));
-    String s = c.getNombresAudio();
-    log("nombresAudio: $s");
-    return c;
+    return Canciones.fromJson(json.decode(response.body));
   } else {
     // If the server did not return a 201 CREATED response,
     // then throw an exception.
     throw Exception('Fallo al enviar petición');
   }
 }
-
-
-class Respuesta {
-  final String generos;
-
-  Respuesta({this.generos});
-
-  factory Respuesta.fromJson(Map<String, dynamic> json) {
-    return Respuesta(
-      generos: json['generos'],
-    );
-
-  }
-  String getUserId(){
-    return generos;
-  }
-}
-

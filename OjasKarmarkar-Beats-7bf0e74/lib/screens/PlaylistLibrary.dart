@@ -37,7 +37,7 @@ class _PlaylistLibraryState extends State<PlaylistLibrary> {
   TextEditingController txt = TextEditingController();
 
   bool error = false;
-
+  bool iniciado = false;
   List<String> playlists;
   PlaylistRepo playlistRepo;
   Username user;
@@ -53,10 +53,7 @@ class _PlaylistLibraryState extends State<PlaylistLibrary> {
     height = MediaQuery.of(context).size.height;
     playlistRepo = Provider.of<PlaylistRepo>(context);
 
-
     anyadePlaylists(playlistRepo);
-
-
     width = MediaQuery.of(context).size.width;
     themeChanger = Provider.of<ThemeChanger>(context);
     super.didChangeDependencies();
@@ -68,7 +65,7 @@ class _PlaylistLibraryState extends State<PlaylistLibrary> {
       child: Scaffold(
           resizeToAvoidBottomInset: false,
           backgroundColor: Theme.of(context).backgroundColor,
-          body: (playlistRepo.playlist == null)
+          body: (!iniciado)
               ? Center(
             child: Text(
               "No hay playlists",
@@ -138,7 +135,7 @@ class _PlaylistLibraryState extends State<PlaylistLibrary> {
   }
 
   getLoading(PlaylistRepo model) {
-    if (model.playlist.length == 0) {
+    if (model.playlist == null || model.playlist.length == 0) {
       return Flexible(
           child: Center(
             child: Text("No hay playlists..."),
@@ -246,6 +243,7 @@ class _PlaylistLibraryState extends State<PlaylistLibrary> {
 
     setState(() {
       playlistRepo.generateInitialPlayListImage(listaNombres, listaDescripciones, listaImagenes);
+      iniciado = true;
     });
   }
 

@@ -23,12 +23,12 @@ import 'PlaylistGenero.dart';
 import 'ProfileEdit.dart';
 
 
-class ComentariosLibraryState extends StatefulWidget {
+class ComentariosLibrary extends StatefulWidget {
   @override
-  ComentariosLibrary createState() => ComentariosLibrary();
+  _ComentariosLibraryState createState() => _ComentariosLibraryState();
 }
 
-class ComentariosLibrary extends State<ComentariosLibraryState> {
+class _ComentariosLibraryState extends State<ComentariosLibrary> {
 
   double width, height;
   TextEditingController comentarioController;
@@ -38,7 +38,7 @@ class ComentariosLibrary extends State<ComentariosLibraryState> {
   BookmarkModel b;
 
   ThemeChanger themeChanger;
-
+  TextEditingController txtController;
   TextEditingController txt = TextEditingController();
 
   bool error = false;
@@ -50,6 +50,7 @@ class ComentariosLibrary extends State<ComentariosLibraryState> {
   @override
   void initState() {
     super.initState();
+    txtController = new TextEditingController();
   }
 
   @override
@@ -57,17 +58,16 @@ class ComentariosLibrary extends State<ComentariosLibraryState> {
     b = Provider.of<BookmarkModel>(context);
     username = Provider.of<Username>(context);
     songsModel = Provider.of<SongsModel>(context);
+    String a = username.email;
+    establecerNombre();
+    log("Esta $a");
+    obtenerPerfil(username.email);
+    String s = username.name;
+    log("Esteeeee $s");
     actualizarComentarios();
 
-
-    height = MediaQuery
-        .of(context)
-        .size
-        .height;
-    width = MediaQuery
-        .of(context)
-        .size
-        .width;
+    height = MediaQuery.of(context).size.height;
+    width = MediaQuery.of(context).size.width;
     themeChanger = Provider.of<ThemeChanger>(context);
     super.didChangeDependencies();
   }
@@ -126,9 +126,12 @@ class ComentariosLibrary extends State<ComentariosLibraryState> {
           body: (comentarios.texto != null) ?
           Column(children: <Widget> [Expanded (child: buildCommentList()),
           TextField(
+            controller: txtController,
             onSubmitted: (String comment) async{
               await comentarios.escribirComentario(comment, username.email, songsModel.currentSong.title);
-              setState(() {              });
+              setState(() {
+                txtController.clear();
+              });
             },
             decoration: InputDecoration(
               hintText:"Escribe aquí tu comentario"
@@ -143,9 +146,14 @@ class ComentariosLibrary extends State<ComentariosLibraryState> {
             ),
           ),),
             TextField(
+              controller: txtController,
               onSubmitted: (String comment) async {
                 await comentarios.escribirComentario(comment, username.email, songsModel.currentSong.title);
                 actualizarComentarios();
+                setState(() {
+                  txtController.clear();
+                });
+
               },
               decoration: InputDecoration(
                   hintText:"Escribe aquí tu comentario"
@@ -159,14 +167,26 @@ class ComentariosLibrary extends State<ComentariosLibraryState> {
     );
   }
 
+  establecerNombre() async{
+    Perfil p = await obtenerPerfil(username.email);
+    username.name = p.nombreUsuario;
+    String s = p.nombreUsuario;
+    log("Sdvcsc $s");
+  }
+
   buildCommentList() {
+    username = Provider.of<Username>(context);
    return ListView.builder(
         itemCount: comentarios.texto.length,
         itemBuilder: (context, pos) {
+          String s = comentarios.usuarios[pos];
+          String e = username.name;
+          log("Comen $s");
+          log("Comen $e");
           return Padding(
             padding:
             const EdgeInsets.only(top: 0.0, left: 10.0),
-            child: comentarios.usuarios[pos] == "Kifixooo" ? ListTile( //todo Kifixoo debe ser == User.name
+            child: comentarios.usuarios[pos] == username.name ? ListTile(
               trailing: IconButton(
                 icon: Icon(
                   Icons.delete_outline,

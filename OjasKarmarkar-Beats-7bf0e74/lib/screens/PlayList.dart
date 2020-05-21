@@ -53,6 +53,8 @@ class _PLayListScreenState extends State<PLayListScreen> {
     playlistRepo = Provider.of<PlaylistRepo>(context);
     misCanciones = Provider.of<MisCancionesModel>(context);
     model = Provider.of<SongsModel>(context);
+    height = MediaQuery.of(context).size.height;
+    width = MediaQuery.of(context).size.width;
     int stringer = misCanciones.selected;
     int stringerr = playlistRepo.selected;
     obtieneGeneros();
@@ -80,7 +82,8 @@ class _PLayListScreenState extends State<PLayListScreen> {
 
   @override
   Widget build(BuildContext context) {
-
+    height = MediaQuery.of(context).size.height;
+    width = MediaQuery.of(context).size.width;
     return Scaffold(
       backgroundColor: Theme.of(context).backgroundColor,
       body: NestedScrollView(

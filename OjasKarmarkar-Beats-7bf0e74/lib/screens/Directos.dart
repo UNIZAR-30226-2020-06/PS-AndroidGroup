@@ -2,16 +2,17 @@ import 'dart:convert';
 import 'dart:developer';
 
 import 'package:beats/Animations/transitions.dart';
+import 'package:beats/models/DirectosModel.dart';
 import 'package:beats/models/PlayListHelper.dart';
 import 'package:beats/models/PlaylistRepo.dart';
 import 'package:beats/models/ThemeModel.dart';
 import 'package:beats/models/BookmarkModel.dart';
 import 'package:beats/models/Username.dart';
 import 'package:beats/models/const.dart';
+import 'package:beats/screens/PlayerDirectos.dart';
 import 'package:flute_music_player/flute_music_player.dart';
 import 'package:flutter/material.dart';
 import 'dart:io';
-import 'package:beats/models/SongsModel.dart';
 import 'package:provider/provider.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_radio/flutter_radio.dart';
@@ -31,7 +32,7 @@ class Directos extends StatefulWidget {
 class _DirectosState extends State<Directos> {
   TextEditingController editingController;
 
-  SongsModel model;
+  DirectosModel model;
 
   BookmarkModel b;
 
@@ -47,7 +48,7 @@ class _DirectosState extends State<Directos> {
     // TODO: implement initState
     super.initState();
     audioStart();
-    playingStatus();
+
   }
   Future playingStatus() async {
     bool isP = await FlutterRadio.isPlaying();
@@ -61,14 +62,14 @@ class _DirectosState extends State<Directos> {
   }
   @override
   void didChangeDependencies() {
-    model = Provider.of<SongsModel>(context);
+    model = Provider.of<DirectosModel>(context);
     b = Provider.of<BookmarkModel>(context);
     username = Provider.of<Username>(context);
+
     obtenerCancionesRandom(model);
     model.setEmail(username.email);
-    audioStart();
-    playingStatus();
 
+    playingStatus();
 
     height = MediaQuery.of(context).size.height;
     width = MediaQuery.of(context).size.width;
@@ -164,10 +165,11 @@ class _DirectosState extends State<Directos> {
                 ],
               ))),
       onWillPop: () {},
+
     );
   }
 
-  obtenerCancionesRandom(SongsModel model) async {
+  obtenerCancionesRandom(DirectosModel model) async {
 
     ListaDirectos c = await obtenerListaDirectos();
     List<String> listaNombres = c.getNombresAudio().split('|');
@@ -188,7 +190,7 @@ class _DirectosState extends State<Directos> {
 
   }
 
-  getLoading(SongsModel model) {
+  getLoading(DirectosModel model) {
     if (model.songs.length == 0) {
       return Expanded(
           child: Center(
@@ -206,11 +208,13 @@ class _DirectosState extends State<Directos> {
                   model.playlist = true;
                   model.playlistSongs = songs;
                   model.currentSong = model.songs[pos];
-
+                  username.urlDirecto = model.songs[pos].uri;
 
                   //Reset the list. So we can change to next song.
-                  model.play();
-                  FlutterRadio.playOrPause(url: model.songs[pos].uri);
+                  model.playURI(username.urlDirecto);
+
+                  playingStatus();
+
                 },
                 leading: CircleAvatar(child: getImage(model, pos)),
                 title: Text(
@@ -304,7 +308,7 @@ class _DirectosState extends State<Directos> {
 
 
   push(context) {
-    Navigator.push(context, SlideRightRoute(page: PlayBackPage()));
+    Navigator.push(context, SlideRightRoute(page: PlayerDirectos()));
   }
 
   showStatus(model, BuildContext context) {
@@ -325,7 +329,7 @@ class _DirectosState extends State<Directos> {
           itemBuilder: (context, pos) {
             return GestureDetector(
               onTap: () {
-                Navigator.push(context, Scale(page: PlayBackPage()));
+                Navigator.push(context, Scale(page: PlayerDirectos()));
               },
               child: Stack(
                 children: <Widget>[
@@ -335,7 +339,7 @@ class _DirectosState extends State<Directos> {
                         color: Theme.of(context).textTheme.display1.color,
                         icon: Icon(Icons.arrow_drop_up),
                         onPressed: () {
-                          Navigator.push(context, Scale(page: PlayBackPage()));
+                          Navigator.push(context, Scale(page: PlayerDirectos()));
                         },
                       ),
                       Container(
@@ -352,10 +356,9 @@ class _DirectosState extends State<Directos> {
                       Padding(
                         padding: EdgeInsets.only(right: 20),
                         child: IconButton(
-                          icon: model.currentState == PlayerState.PAUSED ||
-                              model.currentState == PlayerState.STOPPED
+                          icon: model.currentState == PlayerState.PLAYING
                               ? Icon(
-                            CustomIcons.play,
+                            CustomIcons.pause,
                             color: Theme.of(context)
                                 .textTheme
                                 .display1
@@ -363,7 +366,7 @@ class _DirectosState extends State<Directos> {
                             size: 20.0,
                           )
                               : Icon(
-                            CustomIcons.pause,
+                            CustomIcons.play,
                             color: Theme.of(context)
                                 .textTheme
                                 .display1
@@ -373,11 +376,13 @@ class _DirectosState extends State<Directos> {
                           onPressed: () {
                             if (model.currentState == PlayerState.PAUSED ||
                                 model.currentState == PlayerState.STOPPED) {
+                              username.urlDirecto = model.songs[pos].uri;
                               model.play();
-                              FlutterRadio.playOrPause(url: model.songs[pos].uri);
+
+                              playingStatus();
 
                             } else {
-                              FlutterRadio.playOrPause(url: model.songs[pos].uri);
+                              playingStatus();
                               model.pause();
                             }
                           },
@@ -400,7 +405,7 @@ class _DirectosState extends State<Directos> {
 
 
 class Search extends SearchDelegate<Song> {
-  SongsModel model;
+  DirectosModel model;
   @override
   List<Widget> buildActions(BuildContext context) {
     // actions
@@ -438,7 +443,7 @@ class Search extends SearchDelegate<Song> {
 
   @override
   Widget buildSuggestions(BuildContext context) {
-    model = Provider.of<SongsModel>(context);
+    model = Provider.of<DirectosModel>(context);
     List<Song> dummy = <Song>[];
     List<Song> recents = <Song>[];
     for (int i = 0; i < model.songs.length; i++) {
@@ -461,7 +466,7 @@ class Search extends SearchDelegate<Song> {
           child: ListTile(
             onTap: () {
               model.player.stop();
-              model.playURI(suggestion[index].uri);
+              model.play();
               model.playlist = false;
               close(context, null);
             },
