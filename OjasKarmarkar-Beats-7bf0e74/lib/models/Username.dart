@@ -9,7 +9,10 @@ String name;
 String email;
 String canciones;
 String cancionesUrl;
+String idsCanciones;
 String urlDirecto;
+bool esCancion;
+String idPodcast;
 SharedPreferences prefs;
 String archivoPodcast;
 List<String> listaGenerosPodcasts;
@@ -61,6 +64,14 @@ setCancionesUrl(String x){
 
 getCancionesUrl(){
   return cancionesUrl;
+}
+
+setIdsCanciones(String x){
+  idsCanciones = x;
+}
+
+getIdsCanciones(){
+  return idsCanciones;
 }
 
 }

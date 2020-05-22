@@ -2249,6 +2249,7 @@ class _ProfilePageState extends State<ProfilePage>
        setState(() {
          username.setCanciones(p.canciones);
          username.setCancionesUrl(p.urls);
+         username.setIdsCanciones(p.idsCanciones);
        });
      }
 
@@ -3494,11 +3495,12 @@ class Perfil {
   final String imagen;
   final String imagenesPlaylists;
   final String imagenesPodcasts;
+  final String idsCanciones;
 
   Perfil({this.respuesta, this.nombreUsuario, this.descripcion, this.email,
     this.contrasenya, this.repetirContraseya, this.playlists, this.descripcionesPlay,
     this.canciones, this.urls, this.podcasts,this.descripcionesPod,this.imagen,
-    this.numSeguidores, this.imagenesPlaylists, this.imagenesPodcasts});
+    this.numSeguidores, this.imagenesPlaylists, this.imagenesPodcasts, this.idsCanciones});
 
   factory Perfil.fromJson(Map<String, dynamic> json) {
     return Perfil(
@@ -3515,6 +3517,7 @@ class Perfil {
       numSeguidores: json['numSeguidores'],
       imagenesPlaylists: json['imagenesPlaylists'],
       imagenesPodcasts: json['imagenesPodcasts'],
+      idsCanciones: json['idsAudio'],
     );
 
   }

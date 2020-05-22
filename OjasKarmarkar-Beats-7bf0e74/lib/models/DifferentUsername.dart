@@ -11,6 +11,7 @@ class DifferentUsername with ChangeNotifier{
   String cancionesUrl;
   SharedPreferences prefs;
   String archivoPodcast;
+  String idsCanciones;
   List<String> listaGenerosPodcasts;
   List<String> listaGenerosCanciones;
   String archivoCancion;
@@ -61,4 +62,11 @@ class DifferentUsername with ChangeNotifier{
     return cancionesUrl;
   }
 
+  setIdsCanciones(String x){
+    idsCanciones = x;
+  }
+
+  getIdsCanciones(){
+    return idsCanciones;
+  }
 }

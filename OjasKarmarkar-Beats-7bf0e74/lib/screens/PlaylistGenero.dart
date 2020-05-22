@@ -183,10 +183,11 @@ class _PlaylistGeneroState extends State<PlaylistGenero> {
     log("nameeee: $name");
     var listaNombres = l.getNombresAudio().split('|');
     var listaUrls = l.getUrlsAudio().split('|');
+    var listaIds = l.listaIds.split('|');
     log('initData2: $listaNombres');
     List<Song> listaPodcasts = new List<Song>();
     for(int i = 0; i<listaNombres.length; i++){
-      listaPodcasts.add(new Song(1,"", listaNombres[i], "",0,0,listaUrls[i],null));
+      listaPodcasts.add(new Song(listaIds[i],"", listaNombres[i], "",0,0,listaUrls[i],null));
     }
 
     songs = listaPodcasts;
@@ -217,6 +218,7 @@ class _PlaylistGeneroState extends State<PlaylistGenero> {
         ),
         child: GestureDetector(
           onTap: () {
+            username.esCancion = true;
             Navigator.push(context, Scale(page: PlayBackPage()));
           },
           child:Padding(
@@ -289,13 +291,15 @@ class Canciones {
   final String respuesta;
   final String nombresAudio;
   final String urlsAudio;
+  final String listaIds;
 
-  Canciones({this.respuesta, this.nombresAudio,this.urlsAudio});
+  Canciones({this.respuesta, this.nombresAudio,this.urlsAudio, this.listaIds});
 
   factory Canciones.fromJson(Map<String, dynamic> json) {
     return Canciones(
       nombresAudio: json['nombresAudio'],
       urlsAudio: json['urlsAudio'],
+      listaIds: json['idsAudio'],
     );
   }
   String getUserId(){

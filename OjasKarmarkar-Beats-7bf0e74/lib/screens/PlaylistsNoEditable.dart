@@ -41,6 +41,9 @@ class _PLayListNoEditableScreenState extends State<PLayListNoEditableScreen> {
   List<String> generos; // Option 2
   String genero;
   //final String email;
+  String imagen = "";
+  String autor = "";
+  String descripcion = "";
 
   @override
   void didChangeDependencies() {
@@ -78,7 +81,12 @@ class _PLayListNoEditableScreenState extends State<PLayListNoEditableScreen> {
                   snap: false,
                   flexibleSpace: Container(
                     height: 200,
+                    decoration: BoxDecoration(
                     color: Colors.orange,
+                        image: DecorationImage(
+                          image: NetworkImage(imagen),
+                          fit: BoxFit.cover,
+                        ),),
                     child: Stack(children: <Widget>[
                       Padding(
                           padding: EdgeInsets.only(
@@ -98,17 +106,14 @@ class _PLayListNoEditableScreenState extends State<PLayListNoEditableScreen> {
                               },
                             ),
                           )),
-                      Align(
-                        alignment: Alignment.center,
-                        child: Padding(
-                          padding: EdgeInsets.only(top: height * 0.02),
-                          child: Text(
-                            name,
-                            style:
-                            TextStyle(fontSize: 40.0, color: Colors.white),
-                          ),
+                        Align(alignment: Alignment.center,child:
+                          Text(name +"\n" +descripcion +"\n" +"Autor: "+autor,
+                              textAlign: TextAlign.center,
+                              style:
+                              TextStyle(color: Colors.white),
+                              textScaleFactor: 1.5),
                         ),
-                      ),
+
                     ]),
                   )),
             ];
@@ -185,12 +190,16 @@ class _PLayListNoEditableScreenState extends State<PLayListNoEditableScreen> {
 
   void initDataPlaylists() async {
     Canciones l = await obtenerCanciones(username.email, name);
+    imagen = l.imagen;
+    autor = l.autor;
+    descripcion = l.descripcion;
     var listaNombres = l.getNombresAudio().split('|');
     var listaUrls = l.getUrlsAudio().split('|');
+    var listaIds = l.listaIds.split('|');
     log('initData2: $listaNombres');
     List<Song> listaCanciones = new List<Song>();
     for(int i = 0; i<listaNombres.length; i++){
-      listaCanciones.add(new Song(1,"", listaNombres[i], "",0,0,listaUrls[i],null));
+      listaCanciones.add(new Song(listaIds[i],"", listaNombres[i], "",0,0,listaUrls[i],null));
     }
 
     songs = listaCanciones;
@@ -201,13 +210,13 @@ class _PLayListNoEditableScreenState extends State<PLayListNoEditableScreen> {
   void initDataMisCanciones() async{
     var listaNombres = username.getCanciones().split('|');
     var listaUrls = username.getCancionesUrl().split('|');
+    var listaIds = username.getIdsCanciones().split('|');
     log('initData3: $listaNombres');
     List<Song> listaCanciones = new List<Song>();
-    Song aux = new Song(0,"","","",0,0,"",null);
 
     for(int i = 0; i<listaNombres.length; i++){
       if(listaNombres[i] != ""){
-        listaCanciones.add(new Song(1,"", listaNombres[i], "",0,0,listaUrls[i],null));
+        listaCanciones.add(new Song(listaIds[i],"", listaNombres[i], "",0,0,listaUrls[i],null));
       }
 
     }
@@ -240,6 +249,7 @@ class _PLayListNoEditableScreenState extends State<PLayListNoEditableScreen> {
         ),
         child: GestureDetector(
           onTap: () {
+            username.esCancion = true;
             Navigator.push(context, Scale(page: PlayBackPage()));
           },
           child:Padding(
@@ -327,14 +337,19 @@ class Canciones {
   final String urlsAudio;
   final String genero;
   final String autor;
-  Canciones({this.respuesta, this.nombresAudio,this.urlsAudio, this.genero, this.autor});
+  final String descripcion;
+  final String imagen;
+  final String listaIds;
+  Canciones({this.respuesta, this.nombresAudio,this.urlsAudio, this.genero, this.autor, this.descripcion, this.imagen, this.listaIds});
 
   factory Canciones.fromJson(Map<String, dynamic> json) {
     return Canciones(
       nombresAudio: json['nombresAudio'],
       urlsAudio: json['urlsAudio'],
-
-
+      imagen: json['imagen'],
+      descripcion: json['descripcion'],
+      autor: json['autor'],
+      listaIds: json['idsAudio'],
     );
 
   }

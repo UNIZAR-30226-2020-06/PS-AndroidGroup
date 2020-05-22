@@ -10,14 +10,14 @@ class Recents extends ChangeNotifier{
 
   Recents(){
     db = RecentsHelper();
-    fetchRecents();
+    //fetchRecents();
   }
 
   add(Song song)async {
     if (!alreadyExists(song)){
       if (recently.length > 1) await db.deleteLast();
       await db.add(song);
-      fetchRecents();
+     // fetchRecents();
     }
   }
 
@@ -28,9 +28,9 @@ class Recents extends ChangeNotifier{
     return false;
   }
 
-  fetchRecents() async {
+  /*fetchRecents() async {
     recently = await db.getRecents();
     notifyListeners();
-  }
+  }*/
 
 }

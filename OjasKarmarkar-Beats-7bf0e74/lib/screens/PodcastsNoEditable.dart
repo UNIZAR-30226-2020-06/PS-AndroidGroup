@@ -38,6 +38,10 @@ class PodcastNoEditableScreenState extends State<PodcastNoEditableScreen> {
   Username username;
   List<String> generos; // Option 2
   String genero;
+  String imagen = "";
+  String descripcion = "";
+  String autor = "";
+
   //final String email;
 
   //_PLayListScreenState({Key key, @required this.email}) : super(key: key);
@@ -53,6 +57,7 @@ class PodcastNoEditableScreenState extends State<PodcastNoEditableScreen> {
     width = MediaQuery.of(context).size.width;
     int stringerr = podcastRepo.selected;
     convertirALista();
+
 
     log("playlistrepo: $stringerr");
     if(podcastRepo.selected != null)
@@ -83,7 +88,12 @@ class PodcastNoEditableScreenState extends State<PodcastNoEditableScreen> {
                   snap: false,
                   flexibleSpace: Container(
                     height: 200,
-                    color: Colors.purpleAccent,
+                    decoration: BoxDecoration(
+                      color: Colors.purpleAccent,
+                        image: DecorationImage(
+                          image: NetworkImage(imagen),
+                          fit: BoxFit.cover,
+                        ),),
                     child: Stack(children: <Widget>[
                       Padding(
                           padding: EdgeInsets.only(
@@ -103,16 +113,12 @@ class PodcastNoEditableScreenState extends State<PodcastNoEditableScreen> {
                               },
                             ),
                           )),
-                      Align(
-                        alignment: Alignment.center,
-                        child: Padding(
-                          padding: EdgeInsets.only(top: height * 0.02),
-                          child: Text(
-                            name,
-                            style:
-                            TextStyle(fontSize: 40.0, color: Colors.white),
-                          ),
-                        ),
+                      Align(alignment: Alignment.center,child:
+                      Text(name +"\n" +descripcion +"\n" +"Autor: "+autor,
+                          textAlign: TextAlign.center,
+                          style:
+                          TextStyle(color: Colors.white),
+                          textScaleFactor: 1.5),
                       ),
                     ]),
                   )),
@@ -184,12 +190,16 @@ class PodcastNoEditableScreenState extends State<PodcastNoEditableScreen> {
 
   void initDataPodcasts() async {
     Canciones l = await obtenerCapitulos(name);
+    imagen = l.imagen;
+    autor = l.autor;
+    descripcion = l.descripcion;
     var listaNombres = l.getNombresAudio().split('|');
     var listaUrls = l.getUrlsAudio().split('|');
+    var listaIds = l.listaIds.split('|');
     log('initData2: $listaNombres');
     List<Song> listaPodcasts = new List<Song>();
     for(int i = 0; i<listaNombres.length; i++){
-      listaPodcasts.add(new Song(1,"", listaNombres[i], "",0,0,listaUrls[i],null));
+      listaPodcasts.add(new Song(listaIds[i],"", listaNombres[i], "",0,0,listaUrls[i],null));
     }
 
     songs = listaPodcasts;
@@ -291,6 +301,7 @@ class PodcastNoEditableScreenState extends State<PodcastNoEditableScreen> {
         ),
         child: GestureDetector(
           onTap: () {
+            username.esCancion = false;
             Navigator.push(context, Scale(page: PlayBackPage()));
           },
           child:Padding(
@@ -367,14 +378,21 @@ class Canciones {
   final String respuesta;
   final String nombresAudio;
   final String urlsAudio;
+  final String autor;
+  final String descripcion;
+  final String imagen;
+  final String listaIds;
+  Canciones({this.respuesta, this.nombresAudio,this.urlsAudio, this.autor, this.descripcion, this.imagen, this.listaIds});
 
-  Canciones({this.respuesta, this.nombresAudio,this.urlsAudio});
 
   factory Canciones.fromJson(Map<String, dynamic> json) {
     return Canciones(
       nombresAudio: json['nombresPodcast'],
       urlsAudio: json['urlsPodcast'],
-
+      imagen: json['imagen'],
+      descripcion: json['descripcion'],
+      autor: json['autor'],
+      listaIds: json['idsPodcast'],
 
     );
 

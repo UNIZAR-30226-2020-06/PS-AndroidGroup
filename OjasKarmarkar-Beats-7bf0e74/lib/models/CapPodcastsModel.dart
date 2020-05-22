@@ -39,9 +39,9 @@ class CapPodcastsModel extends ChangeNotifier {
     ListaCancionesDefault c = await obtenerListaPodcasts();
     List<String> listaNombres = c.getNombresAudio().split('|');
     List<String> listaUrls = c.getUrlsAudio().split('|');
-
+    List<String> listaIds = c.listaIds.split('|');
     for(int i = 0; i<listaNombres.length; i++){
-      podcasts.add(new Song(1,"", listaNombres[i], "",0,0,listaUrls[i],null));
+      podcasts.add(new Song(listaIds[i],"", listaNombres[i], "",0,0,listaUrls[i],null));
       String yy = podcasts[i].title;
       debugPrint('data: $yy');
     }
@@ -235,14 +235,15 @@ class CapPodcastsModel extends ChangeNotifier {
 class ListaCancionesDefault {
   final String nombresAudio;
   final String urlsAudio;
+  final String listaIds;
 
-
-  ListaCancionesDefault({this.nombresAudio, this.urlsAudio});
+  ListaCancionesDefault({this.nombresAudio, this.urlsAudio, this.listaIds});
 
   factory ListaCancionesDefault.fromJson(Map<String, dynamic> json) {
     return ListaCancionesDefault(
       nombresAudio: json['nombresAudio'],
       urlsAudio: json['urlsAudio'],
+      listaIds: json['idsAudio'],
     );
   }
   String getNombresAudio(){

@@ -257,12 +257,12 @@ class _MusicLibraryState extends State<MusicLibrary> {
     ListaCancionesDefault c = await obtenerListaCanciones();
     List<String> listaNombres = c.getNombresAudio().split('|');
     List<String> listaUrls = c.getUrlsAudio().split('|');
-
+    List<String> listaIds = c.listaIds.split('|');
 
     setState(() {
       songs = new List<Song>();
       for(int i = 0; i<listaNombres.length; i++){
-        songs.add(new Song(1,"", listaNombres[i], "",0,0,listaUrls[i],null));
+        songs.add(new Song(listaIds[i],"", listaNombres[i], "",0,0,listaUrls[i],null));
       }
       for(String s in listaNombres){
         log('initData2: $s');
@@ -482,6 +482,7 @@ class _MusicLibraryState extends State<MusicLibrary> {
   }
 
   push(context) {
+    username.esCancion = true;
     Navigator.push(context, SlideRightRoute(page: PlayBackPage()));
   }
 
@@ -503,6 +504,7 @@ class _MusicLibraryState extends State<MusicLibrary> {
           itemBuilder: (context, pos) {
             return GestureDetector(
               onTap: () {
+                username.esCancion = true;
                 Navigator.push(context, Scale(page: PlayBackPage()));
               },
               child: Stack(
@@ -513,6 +515,7 @@ class _MusicLibraryState extends State<MusicLibrary> {
                         color: Theme.of(context).textTheme.display1.color,
                         icon: Icon(Icons.arrow_drop_up),
                         onPressed: () {
+                          username.esCancion = true;
                           Navigator.push(context, Scale(page: PlayBackPage()));
                         },
                       ),

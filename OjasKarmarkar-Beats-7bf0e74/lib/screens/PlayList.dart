@@ -41,6 +41,9 @@ class _PLayListScreenState extends State<PLayListScreen> {
   Username username;
   List<String> generos; // Option 2
   String genero;
+  String imagen = "";
+  String autor = "";
+  String descripcion = "";
   //final String email;
 
   //_PLayListScreenState({Key key, @required this.email}) : super(key: key);
@@ -98,7 +101,12 @@ class _PLayListScreenState extends State<PLayListScreen> {
                   snap: false,
                   flexibleSpace: Container(
                     height: 200,
-                    color: Colors.orange,
+                    decoration: BoxDecoration(
+                      color: Colors.orange,
+                      image: DecorationImage(
+                        image: NetworkImage(imagen),
+                        fit: BoxFit.cover,
+                      ),),
                     child: Stack(children: <Widget>[
                       Padding(
                           padding: EdgeInsets.only(
@@ -118,16 +126,18 @@ class _PLayListScreenState extends State<PLayListScreen> {
                               },
                             ),
                           )),
-                      Align(
-                        alignment: Alignment.center,
-                        child: Padding(
-                          padding: EdgeInsets.only(top: height * 0.02),
-                          child: Text(
-                            name,
-                            style:
-                                TextStyle(fontSize: 40.0, color: Colors.white),
-                          ),
-                        ),
+                      (misCanciones.selected != null)?Align(alignment: Alignment.center,child:
+                      Text(name,
+                      textAlign: TextAlign.center,
+                      style:
+                      TextStyle(color: Colors.white),
+                      textScaleFactor: 1.5),
+                      ):Align(alignment: Alignment.center,child:
+                      Text(name +"\n" +descripcion +"\n" +"Autor: "+autor,
+                          textAlign: TextAlign.center,
+                          style:
+                          TextStyle(color: Colors.white),
+                          textScaleFactor: 1.5),
                       ),
                     ]),
                   )),
@@ -461,10 +471,14 @@ class _PLayListScreenState extends State<PLayListScreen> {
     Canciones l = await obtenerCanciones(username.email, name);
     var listaNombres = l.getNombresAudio().split('|');
     var listaUrls = l.getUrlsAudio().split('|');
+    var listaIds = l.listaIds.split('|');
     log('initData2: $listaNombres');
+    imagen = l.imagen;
+    autor = l.autor;
+    descripcion = l.descripcion;
     List<Song> listaCanciones = new List<Song>();
     for(int i = 0; i<listaNombres.length; i++){
-      listaCanciones.add(new Song(1,"", listaNombres[i], "",0,0,listaUrls[i],null));
+      listaCanciones.add(new Song(listaIds[i],"", listaNombres[i], "",0,0,listaUrls[i],null));
     }
 
     songs = listaCanciones;
@@ -475,13 +489,13 @@ class _PLayListScreenState extends State<PLayListScreen> {
   void initDataMisCanciones() async{
     var listaNombres = username.getCanciones().split('|');
     var listaUrls = username.getCancionesUrl().split('|');
+    var listaIds = username.getIdsCanciones().split('|');
     log('initData3: $listaNombres');
     List<Song> listaCanciones = new List<Song>();
-    Song aux = new Song(0,"","","",0,0,"",null);
 
     for(int i = 0; i<listaNombres.length; i++){
       if(listaNombres[i] != ""){
-        listaCanciones.add(new Song(1,"", listaNombres[i], "",0,0,listaUrls[i],null));
+        listaCanciones.add(new Song(listaIds[i],"", listaNombres[i], "",0,0,listaUrls[i],null));
       }
 
     }
@@ -516,6 +530,7 @@ class _PLayListScreenState extends State<PLayListScreen> {
         ),
         child: GestureDetector(
             onTap: () {
+              username.esCancion = true;
             Navigator.push(context, Scale(page: PlayBackPage()));
             },
           child:Padding(
@@ -736,14 +751,19 @@ class Canciones {
   final String urlsAudio;
   final String genero;
   final String autor;
-  Canciones({this.respuesta, this.nombresAudio,this.urlsAudio, this.genero, this.autor});
+  final String descripcion;
+  final String imagen;
+  final String listaIds;
+  Canciones({this.respuesta, this.nombresAudio,this.urlsAudio, this.genero, this.autor, this.descripcion, this.imagen, this.listaIds});
 
   factory Canciones.fromJson(Map<String, dynamic> json) {
     return Canciones(
       nombresAudio: json['nombresAudio'],
       urlsAudio: json['urlsAudio'],
-
-
+      imagen: json['imagen'],
+      descripcion: json['descripcion'],
+      autor: json['autor'],
+      listaIds: json['idsAudio'],
     );
 
   }

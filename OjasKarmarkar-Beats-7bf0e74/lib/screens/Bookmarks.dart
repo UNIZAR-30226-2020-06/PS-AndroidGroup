@@ -158,9 +158,10 @@ class _BookmarksState extends State<Bookmarks> {
     Canciones l = await obtenerFavoritos(username.email);
     var listaNombres = l.getNombresAudio().split('|');
     var listaUrls = l.getUrlsAudio().split('|');
+    var listaIds = l.listaIds.split('|');
     List<Song> listaCanciones = new List<Song>();
     for(int i = 0; i<listaNombres.length; i++){
-      listaCanciones.add(new Song(1,"", listaNombres[i], "",0,0,listaUrls[i],null));
+      listaCanciones.add(new Song(listaIds[i],"", listaNombres[i], "",0,0,listaUrls[i],null));
     }
     songs = listaCanciones;
     model.fetchSongsManual(songs);
@@ -198,6 +199,7 @@ class _BookmarksState extends State<Bookmarks> {
           itemBuilder: (context, pos) {
             return GestureDetector(
               onTap: () {
+                username.esCancion = true;
                 Navigator.push(context, Scale(page: PlayBackPage()));
               },
               child: Stack(
@@ -208,6 +210,7 @@ class _BookmarksState extends State<Bookmarks> {
                         color: Theme.of(context).textTheme.display1.color,
                         icon: Icon(Icons.arrow_drop_up),
                         onPressed: () {
+                          username.esCancion = true;
                           Navigator.push(context, Scale(page: PlayBackPage()));
                         },
                       ),
@@ -270,12 +273,14 @@ class Canciones {
   final String urlsAudio;
   final String genero;
   final String autor;
-  Canciones({this.respuesta, this.nombresAudio,this.urlsAudio, this.genero, this.autor});
+  final String listaIds;
+  Canciones({this.respuesta, this.nombresAudio,this.urlsAudio, this.genero, this.autor, this.listaIds});
 
   factory Canciones.fromJson(Map<String, dynamic> json) {
     return Canciones(
       nombresAudio: json['nombresAudio'],
       urlsAudio: json['urlsAudio'],
+      listaIds: json['idsAudio'],
 
     );
 

@@ -877,16 +877,8 @@ class _PlayerDirectosState extends State<PlayerDirectos> {
   void comprobarFavorito() async {
 
     Canciones c = await obtenerFavoritos(username.email);
-    List<String> nombresAudio = c.nombresAudio.split('|');
-    List<String> urlsAudio = c.urlsAudio.split('|');
-    log('especial: $nombresAudio');
-    List<Song> l = new List<Song>();
-    for(int i = 0; i<nombresAudio.length; i++){
-      l.add(new Song(1,"", nombresAudio[i], "",0,0,urlsAudio[i],null));
-    }
     await model.likeado(username.email);
     setState(() {
-      songs = l;
       bm.initFavorites(songs);
       log("FAVORITOS ACTUALIZADOS");
 

@@ -48,7 +48,6 @@ class _PodcastLibraryState extends State<PodcastLibrary> {
     height = MediaQuery.of(context).size.height;
     podcastRepo = Provider.of<PodcastRepo>(context);
 
-
     anyadePodcasts(podcastRepo);
 
 
@@ -130,7 +129,10 @@ class _PodcastLibraryState extends State<PodcastLibrary> {
       onWillPop: () {},
     );
   }
-
+  push(context) {
+    user.esCancion = false;
+    Navigator.push(context, SlideRightRoute(page: PlayBackPage()));
+  }
   getLoading(PodcastRepo model) {
     Username user = Provider.of<Username>(context);
     if (model.podcast.length == 0) {
@@ -224,11 +226,10 @@ class _PodcastLibraryState extends State<PodcastLibrary> {
             ),
           ));
     }
+
   }
 
-  push(context) {
-    Navigator.push(context, SlideRightRoute(page: PlayBackPage()));
-  }
+
 
   void anyadePodcasts(PodcastRepo podcastRepo) async{
     Podcasts p = await obtenerPodcasts();
@@ -427,6 +428,7 @@ class Search extends SearchDelegate<Song> {
                     builder: (context) => new PodcastNoEditableScreen()));
               }else{
                 modelCapitulos.currentSong = modelCapitulos.devuelveCancion(suggestion[index]);
+                user.esCancion = false;
                 Navigator.push(context, Scale(page: PlayBackPage()));
               }
 
@@ -461,10 +463,11 @@ class Search extends SearchDelegate<Song> {
     CapitulosPodcasts l = await obtenerCapitulosPodcasts();
     var listaNombres = l.getNombresAudio().split('|');
     var listaUrls = l.getUrlsAudio().split('|');
+    var listaIds = l.listaIds.split('|');
     log('capitulitos: $listaNombres');
     List<Song> listaPodcasts = new List<Song>();
     for(int i = 0; i<listaNombres.length; i++){
-      listaPodcasts.add(new Song(1,"", listaNombres[i], "",0,0,listaUrls[i],null));
+      listaPodcasts.add(new Song(listaIds[i],"", listaNombres[i], "",0,0,listaUrls[i],null));
     }
 
     List<Song> songs = listaPodcasts;
@@ -565,13 +568,15 @@ class Podcasts {
 class CapitulosPodcasts {
   final String nombresPodcast;
   final String urlsPodcast;
+  final String listaIds;
 
-  CapitulosPodcasts({this.nombresPodcast, this.urlsPodcast});
+  CapitulosPodcasts({this.nombresPodcast, this.urlsPodcast, this.listaIds});
 
   factory CapitulosPodcasts.fromJson(Map<String, dynamic> json) {
     return CapitulosPodcasts(
       nombresPodcast: json['nombresPodcast'],
       urlsPodcast: json['urlsPodcast'],
+      listaIds: json['idsPodcast'],
     );
 
   }

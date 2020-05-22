@@ -182,10 +182,11 @@ class _MisCancionesOtroUsuarioState extends State<MisCancionesOtroUsuario> {
     Canciones l = await obtenerCanciones(differentUsername.name);
     var listaNombres = l.getNombresAudio().split('|');
     var listaUrls = l.getUrlsAudio().split('|');
+    var listaIds = l.listaIds.split('|');
     log('initData2: $listaNombres');
     List<Song> listaCanciones = new List<Song>();
     for(int i = 0; i<listaNombres.length; i++){
-      listaCanciones.add(new Song(1,"", listaNombres[i], "",0,0,listaUrls[i],null));
+      listaCanciones.add(new Song(listaIds[i],"", listaNombres[i], "",0,0,listaUrls[i],null));
     }
 
     songs = listaCanciones;
@@ -193,24 +194,6 @@ class _MisCancionesOtroUsuarioState extends State<MisCancionesOtroUsuario> {
     setState(() {});
   }
 
-  void initDataMisCanciones() async{
-    var listaNombres = username.getCanciones().split('|');
-    var listaUrls = username.getCancionesUrl().split('|');
-    log('initData3: $listaNombres');
-    List<Song> listaCanciones = new List<Song>();
-    Song aux = new Song(0,"","","",0,0,"",null);
-
-    for(int i = 0; i<listaNombres.length; i++){
-      if(listaNombres[i] != ""){
-        listaCanciones.add(new Song(1,"", listaNombres[i], "",0,0,listaUrls[i],null));
-      }
-
-    }
-
-    songs = listaCanciones;
-    model.fetchSongsManual(songs);
-    setState(() {});
-  }
 
   getImage(pos) {
     if (songs[pos].albumArt != null) {
@@ -235,6 +218,7 @@ class _MisCancionesOtroUsuarioState extends State<MisCancionesOtroUsuario> {
         ),
         child: GestureDetector(
           onTap: () {
+            username.esCancion = true;
             Navigator.push(context, Scale(page: PlayBackPage()));
           },
           child:Padding(
@@ -319,12 +303,14 @@ class Canciones {
   final String urlsAudio;
   final String genero;
   final String autor;
-  Canciones({this.respuesta, this.nombresAudio,this.urlsAudio, this.genero, this.autor});
+  final String listaIds;
+  Canciones({this.respuesta, this.nombresAudio,this.urlsAudio, this.genero, this.autor, this.listaIds});
 
   factory Canciones.fromJson(Map<String, dynamic> json) {
     return Canciones(
       nombresAudio: json['nombresAudio'],
       urlsAudio: json['urlsAudio'],
+      listaIds: json['idsAudio'],
     );
   }
   String getUserId(){

@@ -14,11 +14,13 @@ import 'package:beats/models/Username.dart';
 import 'package:beats/models/const.dart';
 import 'package:beats/screens/MisCancionesOtroUsuario.dart';
 import 'package:beats/screens/PlayList.dart';
+import 'package:beats/screens/PlaylistsNoEditable.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:provider/provider.dart';
 import 'MusicLibrary.dart';
 import 'package:http/http.dart' as http;
+import 'PodcastsNoEditable.dart';
 import 'login.dart';
 
 class UserProfile extends StatefulWidget {
@@ -330,7 +332,7 @@ class _UserProfileState extends State<UserProfile>
                                             onTap: () {
                                               playlistRepo.selected = pos;
                                               Navigator.of(context).push(new MaterialPageRoute(
-                                                  builder: (context) => new PLayListScreen()));
+                                                  builder: (context) => new PLayListNoEditableScreen()));
                                             },
                                             child: ClipRRect(
                                                 borderRadius: BorderRadius.circular(20),
@@ -451,7 +453,7 @@ class _UserProfileState extends State<UserProfile>
                                             onTap: () {
                                               podcastRepo.selected = pos;
                                               Navigator.of(context).push(new MaterialPageRoute(
-                                                  builder: (context) => new PLayListScreen()));
+                                                  builder: (context) => new PodcastNoEditableScreen()));
                                             },
                                             child: ClipRRect(
                                                 borderRadius: BorderRadius.circular(20),
@@ -839,8 +841,9 @@ class _UserProfileState extends State<UserProfile>
       podcastRepo.generateInitialPodcastImage(podcastss, descripcionesPodcasts, imagenesPodcasts);
 
       setState(() {
-        username.setCanciones(p.canciones);
-        username.setCancionesUrl(p.urls);
+        differentUsername.setCanciones(p.canciones);
+        differentUsername.setCancionesUrl(p.urls);
+        differentUsername.setIdsCanciones(p.listaIds);
       });
     }
 
@@ -902,11 +905,12 @@ class Perfil {
   final String imagen;
   final String imagenesPlaylists;
   final String imagenesPodcasts;
+  final String listaIds;
 
   Perfil({this.respuesta, this.nombreUsuario, this.descripcion, this.email,
     this.contrasenya, this.repetirContraseya, this.playlists, this.descripcionesPlay,
     this.canciones, this.urls, this.podcasts,this.descripcionesPod,this.imagen,
-    this.numSeguidores, this.imagenesPlaylists, this.imagenesPodcasts});
+    this.numSeguidores, this.imagenesPlaylists, this.imagenesPodcasts, this.listaIds});
 
   factory Perfil.fromJson(Map<String, dynamic> json) {
     return Perfil(
@@ -922,6 +926,7 @@ class Perfil {
       numSeguidores: json['numSeguidores'],
       imagenesPlaylists: json['imagenesPlaylists'],
       imagenesPodcasts: json['imagenesPodcasts'],
+      listaIds: json['idsAudio'],
     );
 
   }

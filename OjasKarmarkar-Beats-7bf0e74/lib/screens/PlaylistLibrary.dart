@@ -229,6 +229,7 @@ class _PlaylistLibraryState extends State<PlaylistLibrary> {
   }
 
   push(context) {
+    user.esCancion = true;
     Navigator.push(context, SlideRightRoute(page: PlayBackPage()));
   }
 

@@ -42,7 +42,11 @@ class _PlayBackPageState extends State<PlayBackPage> {
   Username username;
   BookmarkModel bm;
   List<Song> songs;
-  bool cargado;
+  bool cargado = false;
+  String autor;
+  String numLikes;
+  String genero;
+  String tipo = "podcast";
 
   @override
   void initState() {
@@ -61,7 +65,7 @@ class _PlayBackPageState extends State<PlayBackPage> {
     c.obtenerListaComentarios(model.currentSong.title);
     log("cancion actual: $s");
     comprobarFavorito();
-    cargado = true;
+
     super.didChangeDependencies();
   }
 
@@ -159,7 +163,7 @@ class _PlayBackPageState extends State<PlayBackPage> {
                           padding: EdgeInsets.only(top: 0.02),
                           child: Center(
                             child: Text(
-                              model.currentSong.artist.toString(),
+                              "Autor: "+autor+"\nGénero: " +genero+"\nLikes: " +numLikes,
                               maxLines: 1,
                               softWrap: true,
                               overflow: TextOverflow.fade,
@@ -172,6 +176,7 @@ class _PlayBackPageState extends State<PlayBackPage> {
                           ),
                         ),
                       ),
+
                       Padding(
                         padding: EdgeInsets.only(top: height * 0.015),
                         child: Row(
@@ -327,6 +332,7 @@ class _PlayBackPageState extends State<PlayBackPage> {
                                 ),
                               ),
                             ),
+                            (tipo == "cancion")?
                             Consumer<PlaylistRepo>(
                               builder: (context, repo, _) {
                                 return IconButton(
@@ -422,7 +428,7 @@ class _PlayBackPageState extends State<PlayBackPage> {
                                   ),
                                 );
                               },
-                            ),
+                            ) :Text(""),
                           ],
                         ),
                       ),
@@ -520,13 +526,16 @@ class _PlayBackPageState extends State<PlayBackPage> {
                     ),
                   ),
                   Container(
-                    height: height * 0.04,
+                    height: height * 0.095,
                     child: Padding(
-                      padding: EdgeInsets.only(top: 1.0),
+                      padding: EdgeInsets.only(top: 0.02),
                       child: Center(
                         child: Text(
-                          model.currentSong.artist.toString(),
-                          maxLines: 1,
+                          (!cargado)? "Cargando...":"Autor: "+autor+"\nGénero: " +genero+"\nLikes: " +numLikes,
+                          maxLines: 5,
+                          softWrap: true,
+                          overflow: TextOverflow.fade,
+                          textAlign: TextAlign.center,
                           style: TextStyle(
                             fontSize: 20,
                             color: Colors.grey,
@@ -558,7 +567,7 @@ class _PlayBackPageState extends State<PlayBackPage> {
                   }),
                   Padding(
                     padding:
-                        EdgeInsets.only(left: width * 0.1, top: height * 0.02),
+                        EdgeInsets.only(left: width * 0.1, top: height * 0.04),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: <Widget>[
@@ -683,12 +692,8 @@ class _PlayBackPageState extends State<PlayBackPage> {
                           ),
                         ),
                         IconButton(
-                          onPressed: () async {
-                            await model.Like(user.email);
-                            await model.likeado(username.email);
-                            setState(() {
-
-                            });
+                          onPressed: () {
+                            darLike();
                           },
                           icon: Icon(
                             Icons.thumb_up,
@@ -698,7 +703,9 @@ class _PlayBackPageState extends State<PlayBackPage> {
                         ),
                         IconButton(
                           onPressed: () {
-                            model.Like(user.email);
+                            model.shuffle
+                                ? model.setShuffle(false)
+                                : model.setShuffle(true);
                           },
                           icon: Icon(
                             Icons.shuffle,
@@ -718,6 +725,7 @@ class _PlayBackPageState extends State<PlayBackPage> {
                             size: 35.0,
                           ),
                         ),
+                        (tipo=="cancion")?
                         Consumer<PlaylistRepo>(
                           builder: (context, repo, _) {
                             return IconButton(
@@ -813,7 +821,7 @@ class _PlayBackPageState extends State<PlayBackPage> {
                               ),
                             );
                           },
-                        ),
+                        ): Text(""),
                       ],
                     ),
                   ),
@@ -824,6 +832,14 @@ class _PlayBackPageState extends State<PlayBackPage> {
     }
   }
 
+  darLike() async{
+    await model.Like(user.email);
+    await model.likeado(username.email);
+    InfoCancion i = await obtenerInfoCancion(model.currentSong.id);
+    setState(() {
+      numLikes = i.numLikes;
+    });
+  }
   onPageChanged(int index) {
     setState(() {
       if (currentPage > index) {
@@ -896,19 +912,24 @@ class _PlayBackPageState extends State<PlayBackPage> {
   void comprobarFavorito() async {
 
     Canciones c = await obtenerFavoritos(username.email);
+    InfoCancion i =await obtenerInfoCancion(model.currentSong.id);
     List<String> nombresAudio = c.nombresAudio.split('|');
     List<String> urlsAudio = c.urlsAudio.split('|');
-    log('especial: $nombresAudio');
+    List<String> listaIds = c.listaIds.split('|');
+    autor = i.autor;
+    numLikes = i.numLikes;
+    genero = i.genero;
+    tipo = i.tipo;
     List<Song> l = new List<Song>();
     for(int i = 0; i<nombresAudio.length; i++){
-      l.add(new Song(1,"", nombresAudio[i], "",0,0,urlsAudio[i],null));
+      l.add(new Song(listaIds[i],"", nombresAudio[i], "",0,0,urlsAudio[i],null));
     }
     await model.likeado(username.email);
     setState(() {
       songs = l;
       bm.initFavorites(songs);
       log("FAVORITOS ACTUALIZADOS");
-
+      cargado = true;
     });
 
   }
@@ -971,12 +992,14 @@ class Canciones {
   final String urlsAudio;
   final String genero;
   final String autor;
-  Canciones({this.respuesta, this.nombresAudio,this.urlsAudio, this.genero, this.autor});
+  final String listaIds;
+  Canciones({this.respuesta, this.nombresAudio,this.urlsAudio, this.genero, this.autor, this.listaIds});
 
   factory Canciones.fromJson(Map<String, dynamic> json) {
     return Canciones(
       nombresAudio: json['nombresAudio'],
       urlsAudio: json['urlsAudio'],
+      listaIds: json['idsAudio'],
     );
 
   }
@@ -1006,6 +1029,46 @@ Future<Canciones> obtenerFavoritos(String email) async {
     // If the server did return a 201 CREATED response,
     // then parse the JSON.
     return Canciones.fromJson(json.decode(response.body));
+  } else {
+    // If the server did not return a 201 CREATED response,
+    // then throw an exception.
+    throw Exception('Fallo al enviar petición');
+  }
+}
+class InfoCancion {
+  final String respuesta;
+  final String genero;
+  final String autor;
+  final String numLikes;
+  final String tipo;
+  InfoCancion({this.respuesta,this.genero, this.autor, this.numLikes, this.tipo});
+
+  factory InfoCancion.fromJson(Map<String, dynamic> json) {
+    return InfoCancion(
+      genero: json['genero'],
+      autor: json['autor'],
+      numLikes: json['numLikes'],
+      tipo: json['tipo'],
+    );
+
+  }
+}
+Future<InfoCancion> obtenerInfoCancion(String idCancion) async {
+  Map data = {
+    'idCancion': idCancion,
+  };
+  final http.Response response = await http.post(
+    'http://34.69.44.48:8080/Espotify/info_audio_android',
+    headers: <String, String>{
+      'Content-Type': 'application/json; charset=UTF-8',
+    },
+    body: jsonEncode(data),
+
+  );
+  if (response.statusCode == 200) {
+    // If the server did return a 201 CREATED response,
+    // then parse the JSON.
+    return InfoCancion.fromJson(json.decode(response.body));
   } else {
     // If the server did not return a 201 CREATED response,
     // then throw an exception.

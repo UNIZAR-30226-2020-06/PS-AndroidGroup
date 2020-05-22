@@ -47,9 +47,9 @@ class SongsModel extends ChangeNotifier {
     ListaCancionesDefault c = await obtenerListaCanciones();
     List<String> listaNombres = c.getNombresAudio().split('|');
     List<String> listaUrls = c.getUrlsAudio().split('|');
-
+    List<String> listaIds = c.listaIds.split('|');
     for(int i = 0; i<listaNombres.length; i++){
-      songs.add(new Song(1,"", listaNombres[i], "",0,0,listaUrls[i],null));
+      songs.add(new Song(listaIds[0],"", listaNombres[i], "",0,0,listaUrls[i],null));
       String yy = songs[i].title;
       debugPrint('data: $yy');
     }
@@ -323,14 +323,15 @@ class respuesta {
 class ListaCancionesDefault {
   final String nombresAudio;
   final String urlsAudio;
+  final String listaIds;
 
-
-  ListaCancionesDefault({this.nombresAudio, this.urlsAudio});
+  ListaCancionesDefault({this.nombresAudio, this.urlsAudio, this.listaIds});
 
   factory ListaCancionesDefault.fromJson(Map<String, dynamic> json) {
     return ListaCancionesDefault(
       nombresAudio: json['nombresAudio'],
       urlsAudio: json['urlsAudio'],
+      listaIds: json['idsAudio'],
     );
   }
   String getNombresAudio(){

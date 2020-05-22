@@ -38,6 +38,9 @@ class PodcastScreenState extends State<PodcastScreen> {
   Username username;
   List<String> generos; // Option 2
   String genero;
+  String imagen = "";
+  String autor = "";
+  String descripcion = "";
   //final String email;
 
   //_PLayListScreenState({Key key, @required this.email}) : super(key: key);
@@ -80,7 +83,12 @@ class PodcastScreenState extends State<PodcastScreen> {
                   snap: false,
                   flexibleSpace: Container(
                     height: 200,
-                    color: Colors.purpleAccent,
+                    decoration: BoxDecoration(
+                      color: Colors.purpleAccent,
+                      image: DecorationImage(
+                        image: NetworkImage(imagen),
+                        fit: BoxFit.cover,
+                      ),),
                     child: Stack(children: <Widget>[
                       Padding(
                           padding: EdgeInsets.only(
@@ -100,16 +108,12 @@ class PodcastScreenState extends State<PodcastScreen> {
                               },
                             ),
                           )),
-                      Align(
-                        alignment: Alignment.center,
-                        child: Padding(
-                          padding: EdgeInsets.only(top: height * 0.02),
-                          child: Text(
-                            name,
-                            style:
-                            TextStyle(fontSize: 40.0, color: Colors.white),
-                          ),
-                        ),
+                      Align(alignment: Alignment.center,child:
+                      Text(name +"\n" +descripcion +"\n" +"Autor: "+autor,
+                          textAlign: TextAlign.center,
+                          style:
+                          TextStyle(color: Colors.white),
+                          textScaleFactor: 1.5),
                       ),
                     ]),
                   )),
@@ -476,10 +480,14 @@ class PodcastScreenState extends State<PodcastScreen> {
     Canciones l = await obtenerCapitulos(name);
     var listaNombres = l.getNombresAudio().split('|');
     var listaUrls = l.getUrlsAudio().split('|');
+    var listaIds = l.listaIds.split('|');
     log('initData2: $listaNombres');
+    imagen = l.imagen;
+    autor = l.autor;
+    descripcion = l.descripcion;
     List<Song> listaPodcasts = new List<Song>();
     for(int i = 0; i<listaNombres.length; i++){
-      listaPodcasts.add(new Song(1,"", listaNombres[i], "",0,0,listaUrls[i],null));
+      listaPodcasts.add(new Song(listaIds[i],"", listaNombres[i], "",0,0,listaUrls[i],null));
     }
 
     songs = listaPodcasts;
@@ -581,6 +589,7 @@ class PodcastScreenState extends State<PodcastScreen> {
         ),
         child: GestureDetector(
           onTap: () {
+            username.esCancion = false;
             Navigator.push(context, Scale(page: PlayBackPage()));
           },
           child:Padding(
@@ -657,14 +666,20 @@ class Canciones {
   final String respuesta;
   final String nombresAudio;
   final String urlsAudio;
-
-  Canciones({this.respuesta, this.nombresAudio,this.urlsAudio});
+  final String autor;
+  final String descripcion;
+  final String imagen;
+  final String listaIds;
+  Canciones({this.respuesta, this.nombresAudio,this.urlsAudio, this.autor, this.descripcion, this.imagen, this.listaIds});
 
   factory Canciones.fromJson(Map<String, dynamic> json) {
     return Canciones(
       nombresAudio: json['nombresPodcast'],
       urlsAudio: json['urlsPodcast'],
-
+      imagen: json['imagen'],
+      descripcion: json['descripcion'],
+      autor: json['autor'],
+      listaIds: json['idsPodcast'],
 
     );
 
