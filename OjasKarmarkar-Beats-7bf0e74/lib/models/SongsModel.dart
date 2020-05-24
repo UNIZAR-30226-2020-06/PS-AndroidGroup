@@ -49,7 +49,7 @@ class SongsModel extends ChangeNotifier {
     List<String> listaUrls = c.getUrlsAudio().split('|');
     List<String> listaIds = c.listaIds.split('|');
     for(int i = 0; i<listaNombres.length; i++){
-      songs.add(new Song(listaIds[0],"", listaNombres[i], "",0,0,listaUrls[i],null));
+      songs.add(new Song(int.parse(listaIds[0]),"", listaNombres[i], "",0,0,listaUrls[i],null));
       String yy = songs[i].title;
       debugPrint('data: $yy');
     }

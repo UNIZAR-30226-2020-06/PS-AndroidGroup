@@ -41,7 +41,7 @@ class CapPodcastsModel extends ChangeNotifier {
     List<String> listaUrls = c.getUrlsAudio().split('|');
     List<String> listaIds = c.listaIds.split('|');
     for(int i = 0; i<listaNombres.length; i++){
-      podcasts.add(new Song(listaIds[i],"", listaNombres[i], "",0,0,listaUrls[i],null));
+      podcasts.add(new Song(int.parse(listaIds[i]),"", listaNombres[i], "",0,0,listaUrls[i],null));
       String yy = podcasts[i].title;
       debugPrint('data: $yy');
     }

@@ -180,7 +180,7 @@ class _DirectosState extends State<Directos> {
     setState(() {
       songs = new List<Song>();
       for(int i = 0; i<listaNombres.length; i++){
-        songs.add(new Song("","", listaNombres[i], "",0,0,listaUrls[i],null));
+        songs.add(new Song(i,"", listaNombres[i], "",0,0,listaUrls[i],null));   //todo ojito aquí no estaba la lista de ID
       }
       for(String s in listaNombres){
         log('initData2: $s');

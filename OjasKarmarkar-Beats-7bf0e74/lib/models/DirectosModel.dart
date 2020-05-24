@@ -50,7 +50,7 @@ class DirectosModel extends ChangeNotifier {
     List<String> listaUrls = c.getUrlsAudio().split('|');
 
     for(int i = 0; i<listaNombres.length; i++){
-      songs.add(new Song("","", listaNombres[i], "",0,0,listaUrls[i],null));
+      songs.add(new Song(i,"", listaNombres[i], "",0,0,listaUrls[i],null));   //todo ojito aquí habia un "" en el id
       String yy = songs[i].title;
       debugPrint('data: $yy');
     }

@@ -262,7 +262,7 @@ class _MusicLibraryState extends State<MusicLibrary> {
     setState(() {
       songs = new List<Song>();
       for(int i = 0; i<listaNombres.length; i++){
-        songs.add(new Song(listaIds[i],"", listaNombres[i], "",0,0,listaUrls[i],null));
+        songs.add(new Song(int.parse(listaIds[i]),"", listaNombres[i], "",0,0,listaUrls[i],null));
       }
       for(String s in listaNombres){
         log('initData2: $s');

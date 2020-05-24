@@ -835,7 +835,7 @@ class _PlayBackPageState extends State<PlayBackPage> {
   darLike() async{
     await model.Like(user.email);
     await model.likeado(username.email);
-    InfoCancion i = await obtenerInfoCancion(model.currentSong.id);
+    InfoCancion i = await obtenerInfoCancion(model.currentSong.id.toString());
     setState(() {
       numLikes = i.numLikes;
     });
@@ -912,7 +912,7 @@ class _PlayBackPageState extends State<PlayBackPage> {
   void comprobarFavorito() async {
 
     Canciones c = await obtenerFavoritos(username.email);
-    InfoCancion i =await obtenerInfoCancion(model.currentSong.id);
+    InfoCancion i =await obtenerInfoCancion(model.currentSong.id.toString());
     List<String> nombresAudio = c.nombresAudio.split('|');
     List<String> urlsAudio = c.urlsAudio.split('|');
     List<String> listaIds = c.listaIds.split('|');
@@ -922,7 +922,7 @@ class _PlayBackPageState extends State<PlayBackPage> {
     tipo = i.tipo;
     List<Song> l = new List<Song>();
     for(int i = 0; i<nombresAudio.length; i++){
-      l.add(new Song(listaIds[i],"", nombresAudio[i], "",0,0,urlsAudio[i],null));
+      l.add(new Song(int.parse(listaIds[i]),"", nombresAudio[i], "",0,0,urlsAudio[i],null));
     }
     await model.likeado(username.email);
     setState(() {

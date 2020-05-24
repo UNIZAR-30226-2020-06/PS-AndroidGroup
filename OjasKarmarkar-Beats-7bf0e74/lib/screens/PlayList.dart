@@ -478,7 +478,7 @@ class _PLayListScreenState extends State<PLayListScreen> {
     descripcion = l.descripcion;
     List<Song> listaCanciones = new List<Song>();
     for(int i = 0; i<listaNombres.length; i++){
-      listaCanciones.add(new Song(listaIds[i],"", listaNombres[i], "",0,0,listaUrls[i],null));
+      listaCanciones.add(new Song(int.parse(listaIds[i]),"", listaNombres[i], "",0,0,listaUrls[i],null));
     }
 
     songs = listaCanciones;
