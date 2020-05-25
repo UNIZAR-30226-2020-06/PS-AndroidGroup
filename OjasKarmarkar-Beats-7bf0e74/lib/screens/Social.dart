@@ -55,6 +55,8 @@ class _SocialState extends State<Social> {
       String s = model.getUsers().elementAt(i);
       log('usuario: $s');
     }
+    List<String> fotos = model.imagenes;
+    log("fotos: $fotos");
 
     super.didChangeDependencies();
   }
@@ -145,19 +147,19 @@ class _SocialState extends State<Social> {
     ListaUsuariosDefault c = await obtenerListaUsuarios(username.email);
     List<String> listaNombres = c.getNombresUsuario().split('|');
     List<String> listaDescripciones = c.getDescripciones().split('|');
+    List<String> imagenes = c.imagenes.split('|');
+    log("imagenes: $imagenes");
     setState(() {
       usuarios = new List<String>();
       for(int i = 0; i<listaNombres.length; i++){
         usuarios.add(listaNombres[i]);
-      }
-      for(String s in listaNombres){
-        log('initData2: $s');
       }
       descripciones = new List<String>();
       for(int i = 0; i<listaDescripciones.length; i++){
         descripciones.add(listaDescripciones[i]);
       }
       model.fetchUsersManual(usuarios, descripciones);
+      model.imagenes = imagenes;
     });
 
   }
@@ -179,7 +181,7 @@ class _SocialState extends State<Social> {
                   differentUsername.setName(repo.usuarios[pos]);
                   push(context);
                 },
-                leading: CircleAvatar(child: getImage(model, pos)),
+                leading: getImage(model, pos),
                 title: Text(
                   model.usuarios[pos],
                   maxLines: 1,
@@ -208,13 +210,11 @@ class _SocialState extends State<Social> {
   }
 
   getImage(model, pos) {
-    /*if (model.imagenes[pos] != null) {
-      return ClipRRect(
-          borderRadius: BorderRadius.circular(20),
-          child:
-          Image.file(File.fromUri(Uri.parse(model.usuarios[pos].albumArt))));
-    } else {*/
-      return Container(
+    if (model.imagenes[pos] != "null") {
+         return
+           CircleAvatar(radius: 20,backgroundImage: NetworkImage(model.imagenes[pos]));
+    } else {
+      return CircleAvatar(radius: 20,child: Container(
           child: IconButton(
             onPressed: null,
             icon: Icon(
@@ -243,8 +243,8 @@ class _SocialState extends State<Social> {
                 Colors.pink,
               ],
             ),
-          ));
-    //}
+          )));
+    }
   }
 
   push(context) {

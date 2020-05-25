@@ -99,6 +99,7 @@ class ListaUsuariosDefault {
     return ListaUsuariosDefault(
       nombresUsuario: json['nombreUsuarios'],
       descripciones: json['descripciones'],
+      imagenes: json['imagenes'],
     );
   }
   String getNombresUsuario(){
