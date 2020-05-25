@@ -73,7 +73,7 @@ class _DirectosState extends State<Directos> {
     obtenerCancionesRandom(modelDirectos);
     modelDirectos.setEmail(username.email);
 
-    //playingStatus();
+    playingStatus();
 
     height = MediaQuery.of(context).size.height;
     width = MediaQuery.of(context).size.width;
@@ -213,7 +213,9 @@ class _DirectosState extends State<Directos> {
                   model.playlistSongs = songs;
                   model.currentSong = model.songs[pos];
                   username.urlDirecto = model.songs[pos].uri;*/
-                  modelSongs.pause();
+                  if(modelSongs.player != null) {
+                    modelSongs.pause();
+                  }
                   //Reset the list. So we can change to next song.
                   log("do it");
                   model.playURI(model.songs[pos].uri);
@@ -221,7 +223,7 @@ class _DirectosState extends State<Directos> {
                   Navigator.of(context).push(new MaterialPageRoute(
                       builder: (context) => new PlayerDirectos()));
 
-                  //playingStatus();
+                  playingStatus();
 
                 },
                 leading: CircleAvatar(child: getImage(model, pos)),
@@ -387,10 +389,10 @@ class _DirectosState extends State<Directos> {
                               username.urlDirecto = model.songs[pos].uri;
                               model.play();
 
-                              //playingStatus();
+                              playingStatus();
 
                             } else {
-                              //playingStatus();
+                              playingStatus();
                               model.pause();
                             }
                           },

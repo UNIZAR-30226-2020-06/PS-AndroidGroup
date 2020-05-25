@@ -28,7 +28,7 @@ class PlayerDirectos extends StatefulWidget {
 }
 
 class _PlayerDirectosState extends State<PlayerDirectos> {
-  DirectosModel model;
+  DirectosModel modelDirectos;
   ThemeChanger themeChanger;
   MusicLibrary x;
   PageController pg;
@@ -56,11 +56,9 @@ class _PlayerDirectosState extends State<PlayerDirectos> {
   void didChangeDependencies() {
     username = Provider.of<Username>(context);
     bm = Provider.of<BookmarkModel>(context);
-    model = Provider.of<DirectosModel>(context);
-    String s = model.currentSong.title;
-    c.obtenerListaComentarios(model.currentSong.title);
-    log("cancion actual: $s");
-    comprobarFavorito();
+    modelDirectos = Provider.of<DirectosModel>(context);
+    String s = modelDirectos.currentSong.title;
+    c.obtenerListaComentarios(modelDirectos.currentSong.title);
     cargado = true;
     super.didChangeDependencies();
   }
@@ -80,12 +78,14 @@ class _PlayerDirectosState extends State<PlayerDirectos> {
   @override
   Widget build(BuildContext context) {
     user = Provider.of<Username>(context);
-    model = Provider.of<DirectosModel>(context);
+    modelDirectos = Provider.of<DirectosModel>(context);
     playScreen = Provider.of<NowPlaying>(context);
     themeChanger = Provider.of<ThemeChanger>(context);
-    c.obtenerListaComentarios(model.currentSong.title);
+    c.obtenerListaComentarios(modelDirectos.currentSong.title);
     height = MediaQuery.of(context).size.height;
     width = MediaQuery.of(context).size.width;
+
+
 
     if (playScreen.getScreen() == true) {
       return Scaffold(
@@ -111,26 +111,6 @@ class _PlayerDirectosState extends State<PlayerDirectos> {
                       alignment: Alignment.center,
                     ),
                   ),
-                  Consumer<ProgressModel>(builder: (context, a, _) {
-                    return SliderTheme(
-                        child: Slider(
-                          max: a.duration.toDouble(),
-                          onChanged: (double value) {
-                            if (value.toDouble() == a.duration.toDouble()) {
-                              model.player.stop();
-                              model.next();
-                              model.playURI(username.urlDirecto);
-                            } else {
-                              a.setPosition(value);
-                              model.seek(value);
-                            }
-                          },
-                          value: a.position.toDouble(),
-                        ),
-                        data: SliderTheme.of(context).copyWith(
-                            thumbColor: Color(0xfff1f2f6),
-                            activeTrackColor: themeChanger.accentColor));
-                  }),
                   Container(
                     height: height * 0.035,
                     child: Padding(
@@ -301,34 +281,7 @@ class _PlayerDirectosState extends State<PlayerDirectos> {
                             },
                           ),
                         ),
-                        Padding(
-                          padding: EdgeInsets.only(left: 2.0),
-                          child: Consumer<BookmarkModel>(
-                            builder: (context, bookmark, _) => IconButton(
-                              onPressed: () {
-                                if (!bookmark
-                                    .alreadyExists(model.currentSong)) {
-                                  bookmark.add(model.currentSong);
-                                  anyadirFavorito(username.email, model.currentSong.title);
-                                } else {
-                                  bookmark.remove(model.currentSong);
-                                  eliminarFavorito(username.email, model.currentSong.title);
-                                }
-                              },
-                              icon: Icon(
-                                bookmark.alreadyExists(model.currentSong)
-                                    ? Icons.star //star
-                                    : Icons.star_border, //star_border
-                                color: bookmark
-                                    .alreadyExists(model.currentSong)
-                                    ? Colors.orange
-                                    : Colors.grey,
-                                size: 35.0,
-                              ),
-                            ),
-                          ),
-                        ),
-                        Consumer<PlaylistRepo>(
+                        Consumer<DirectosModel>(
                           builder: (context, repo, _) {
                             return IconButton(
                               onPressed: () {
@@ -389,7 +342,8 @@ class _PlayerDirectosState extends State<PlayerDirectos> {
       //player, está aquí normalmente
       height = MediaQuery.of(context).size.height;
       width = MediaQuery.of(context).size.width;
-      return Scaffold(
+      return WillPopScope(
+          child: Scaffold(
           body: Stack(children: <Widget>[
             AppBar(
               backgroundColor: Theme.of(context).backgroundColor,
@@ -403,7 +357,7 @@ class _PlayerDirectosState extends State<PlayerDirectos> {
                     color: Theme.of(context).textTheme.display1.color,
                   ),
                   onPressed: () {
-                    model.stop();
+                    modelDirectos.pause();
                     Navigator.pop(context);
                   },
                 ),
@@ -515,12 +469,17 @@ class _PlayerDirectosState extends State<PlayerDirectos> {
                           padding: EdgeInsets.only(top: height * 0.01),
                           child: InkWell(
                               onTap: () {
+                                String estado = model.currentState.toString();
+                                log("el estado: $estado");
                                 if (model.currentState == PlayerState.PAUSED ||
                                     model.currentState == PlayerState.STOPPED) {
                                   model.playURI(username.urlDirecto);
                                 } else {
+
                                   model.pause();
                                 }
+                                String estadofinal = model.currentState.toString();
+                                log("el estadofinal: $estadofinal");
                               },
                               child: MaterialButton(
                                 elevation: 30,
@@ -560,7 +519,6 @@ class _PlayerDirectosState extends State<PlayerDirectos> {
                           child: IconButton(
                             onPressed: () {
                               model.player.stop();
-                              model.next();
 
                               model.playURI(username.urlDirecto);
                             },
@@ -580,32 +538,6 @@ class _PlayerDirectosState extends State<PlayerDirectos> {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: <Widget>[
-                        Padding(
-                          padding: EdgeInsets.only(left: 2.0),
-                          child: Consumer<BookmarkModel>(
-                            builder: (context, bookmark, _) => IconButton(
-                              onPressed: () {
-                                if (!bookmark
-                                    .alreadyExists(model.currentSong)) {
-                                  bookmark.add(model.currentSong);
-                                  anyadirFavorito(username.email, model.currentSong.title);
-                                } else {
-                                  bookmark.remove(model.currentSong);
-                                  eliminarFavorito(username.email, model.currentSong.title);
-                                }
-                              },
-                              icon: Icon(
-                                bookmark.alreadyExists(model.currentSong)
-                                    ? Icons.star
-                                    : Icons.star_border,
-                                color: bookmark.alreadyExists(model.currentSong)
-                                    ? Colors.orange
-                                    : Colors.grey,
-                                size: 35.0,
-                              ),
-                            ),
-                          ),
-                        ),
                         IconButton(
                           onPressed: () {
                             model.repeat
@@ -654,126 +586,38 @@ class _PlayerDirectosState extends State<PlayerDirectos> {
                             size: 35.0,
                           ),
                         ),
-                        Consumer<PlaylistRepo>(
-                          builder: (context, repo, _) {
-                            return IconButton(
-                              onPressed: () {
-                                showDialog(
-                                    context: context,
-                                    builder: (context) {
-                                      return SimpleDialog(
-                                        shape: RoundedRectangleBorder(
-                                          side: BorderSide(),
-                                          borderRadius: BorderRadius.all(
-                                              Radius.circular(30.0)),
-                                        ),
-                                        backgroundColor:
-                                        Theme.of(context).backgroundColor,
-                                        children: <Widget>[
-                                          Row(
-                                            mainAxisAlignment:
-                                            MainAxisAlignment.spaceEvenly,
-                                            children: <Widget>[
-                                              Text(
-                                                "Añadir a Playlist",
-                                                style: Theme.of(context)
-                                                    .textTheme
-                                                    .display1,
-                                              ),
-                                              Container(
-                                                height: 25,
-                                                width: 25,
-                                                child: FloatingActionButton(
-                                                  backgroundColor:
-                                                  Theme.of(context)
-                                                      .backgroundColor,
-                                                  onPressed: () {
-                                                    _displayDialog(
-                                                        context, repo);
-                                                  },
-                                                  child: Icon(
-                                                    Icons.add_circle_outline,
-                                                    color: Colors.orangeAccent,
-                                                  ),
-                                                ),
-                                              )
-                                            ],
-                                          ),
-                                          Container(
-                                            width: double.maxFinite,
-                                            child: (repo.playlist.length != 0)
-                                                ? ListView.builder(
-                                              shrinkWrap: true,
-                                              itemCount:
-                                              repo.playlist.length,
-                                              itemBuilder:
-                                                  (context, index) {
-                                                return Padding(
-                                                  padding:
-                                                  EdgeInsets.only(
-                                                      left: 10.0),
-                                                  child: ListTile(
-                                                    onTap: () {
-                                                      PlaylistHelper(
-                                                          repo.playlist[
-                                                          index])
-                                                          .add(model
-                                                          .currentSong);
-                                                      Navigator.pop(
-                                                          context);
-                                                    },
-                                                    title: Text(
-                                                      repo.playlist[
-                                                      index],
-                                                      style: Theme.of(
-                                                          context)
-                                                          .textTheme
-                                                          .display2,
-                                                    ),
-                                                  ),
-                                                );
-                                              },
-                                            )
-                                                : Center(
-                                              child: Text("No Playlist"),
-                                            ),
-                                          )
-                                        ],
-                                      );
-                                    });
-                              },
-                              icon: Icon(
-                                Icons.playlist_add,
-                                color: Colors.grey,
-                                size: 35.0,
-                              ),
-                            );
-                          },
-                        ),
                       ],
                     ),
                   ),
                 ],
               ),
             )
-          ]));
+          ])
+    ),
+          onWillPop:(){
+
+        modelDirectos.pause();
+        Navigator.pop(context);
+
+      });
     }
+
   }
 
   onPageChanged(int index) {
     setState(() {
       if (currentPage > index) {
         currentPage = index;
-        model.player.stop();
-        model.previous();
+        modelDirectos.player.stop();
+        modelDirectos.previous();
 
-        model.playURI(username.urlDirecto);
+        modelDirectos.playURI(username.urlDirecto);
       } else if (currentPage < index) {
         currentPage = index;
-        model.player.stop();
-        model.next();
+        modelDirectos.player.stop();
+        modelDirectos.next();
 
-        model.playURI(username.urlDirecto);
+        modelDirectos.playURI(username.urlDirecto);
       }
     });
   }
@@ -829,69 +673,10 @@ class _PlayerDirectosState extends State<PlayerDirectos> {
       Navigator.of(context).pop();
     } else {}
   }
-  void comprobarFavorito() async {
 
-    Canciones c = await obtenerFavoritos(username.email);
-    await model.likeado(username.email);
-    setState(() {
-      bm.initFavorites(songs);
-      log("FAVORITOS ACTUALIZADOS");
-
-    });
-
-  }
 }
 
 
-
-anyadirFavorito(String email, String nombreCancion) async {
-  log("tuk: $email");
-  Map data = {
-    'email': email,
-    'nombreCancion': nombreCancion,
-  };
-  final http.Response response = await http.post(
-    'http://34.69.44.48:8080/Espotify/anyadir_favorito_android',
-    headers: <String, String>{
-      'Content-Type': 'application/json; charset=UTF-8',
-    },
-    body: jsonEncode(data),
-
-  );
-  if (response.statusCode == 200) {
-    // If the server did return a 201 CREATED response,
-    // then parse the JSON.
-    return Canciones.fromJson(json.decode(response.body));
-  } else {
-    // If the server did not return a 201 CREATED response,
-    // then throw an exception.
-    throw Exception('Fallo al enviar petición');
-  }
-}
-
-eliminarFavorito(String email, String nombreCancion) async {
-  Map data = {
-    'email': email,
-    'nombreCancion': nombreCancion,
-  };
-  final http.Response response = await http.post(
-    'http://34.69.44.48:8080/Espotify/eliminar_favorito_android',
-    headers: <String, String>{
-      'Content-Type': 'application/json; charset=UTF-8',
-    },
-    body: jsonEncode(data),
-
-  );
-  if (response.statusCode == 200) {
-    // If the server did return a 201 CREATED response,
-    // then parse the JSON.
-    return Canciones.fromJson(json.decode(response.body));
-  } else {
-    // If the server did not return a 201 CREATED response,
-    // then throw an exception.
-    throw Exception('Fallo al enviar petición');
-  }
-}
 
 class Canciones {
   final String respuesta;

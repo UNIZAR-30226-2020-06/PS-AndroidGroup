@@ -653,7 +653,7 @@ class _PlayBackPageState extends State<PlayBackPage> {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: <Widget>[
-                        Padding(
+                        (tipo=="cancion")? Padding(
                           padding: EdgeInsets.only(left: 2.0),
                           child: Consumer<BookmarkModel>(
                             builder: (context, bookmark, _) => IconButton(
@@ -678,7 +678,7 @@ class _PlayBackPageState extends State<PlayBackPage> {
                               ),
                             ),
                           ),
-                        ),
+                        ) : Text(""),
                         IconButton(
                           onPressed: () {
                             model.repeat

@@ -106,12 +106,13 @@ class DirectosModel extends ChangeNotifier {
         String directoQueSeArranca = song1.title; String uri = song1.uri;
         log("lanzo: $directoQueSeArranca");
         log("uri: $uri");
-        FlutterRadio.play();
+        FlutterRadio.play(url: song1.uri);
         currentState=PlayerState.PLAYING;
         log("arrancado: $currentState");
         break;
       }
     }
+    updateUI();
   }
 
 
@@ -141,7 +142,6 @@ class DirectosModel extends ChangeNotifier {
     var song = currentSong;
     FlutterRadio.play(url: song.uri);
     currentState = PlayerState.PLAYING;
-    showNotification(song.title, song.artist, true);
     updateUI();
   }
 
@@ -157,9 +157,8 @@ class DirectosModel extends ChangeNotifier {
   }
 
   pause() {
-    FlutterRadio.pause();
+    FlutterRadio.pause(url: currentSong.uri);
     currentState = PlayerState.PAUSED;
-    showNotification(currentSong.title, currentSong.artist, false);
     updateUI();
   }
 
