@@ -5,6 +5,7 @@ import 'package:beats/Animations/transitions.dart';
 import 'package:beats/models/DirectosModel.dart';
 import 'package:beats/models/PlayListHelper.dart';
 import 'package:beats/models/PlaylistRepo.dart';
+import 'package:beats/models/SongsModel.dart' as reproduccion;
 import 'package:beats/models/ThemeModel.dart';
 import 'package:beats/models/BookmarkModel.dart';
 import 'package:beats/models/Username.dart';
@@ -34,7 +35,7 @@ class _DirectosState extends State<Directos> {
 
   DirectosModel modelDirectos;
 
-  //SongsModel modelSongs;
+  reproduccion.SongsModel modelSongs;
 
   BookmarkModel b;
 
@@ -66,6 +67,8 @@ class _DirectosState extends State<Directos> {
     modelDirectos = Provider.of<DirectosModel>(context);
     b = Provider.of<BookmarkModel>(context);
     username = Provider.of<Username>(context);
+    modelSongs = Provider.of<reproduccion.SongsModel>(context);
+
 
     obtenerCancionesRandom(modelDirectos);
     modelDirectos.setEmail(username.email);
@@ -210,7 +213,7 @@ class _DirectosState extends State<Directos> {
                   model.playlistSongs = songs;
                   model.currentSong = model.songs[pos];
                   username.urlDirecto = model.songs[pos].uri;*/
-
+                  modelSongs.pause();
                   //Reset the list. So we can change to next song.
                   log("do it");
                   model.playURI(model.songs[pos].uri);
