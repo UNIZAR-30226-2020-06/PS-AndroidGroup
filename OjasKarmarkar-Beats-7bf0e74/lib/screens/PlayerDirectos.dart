@@ -520,6 +520,8 @@ class _PlayerDirectosState extends State<PlayerDirectos> {
                             onPressed: () {
                               model.player.stop();
 
+                              model.next();
+
                               model.playURI(username.urlDirecto);
                             },
                             icon: Icon(
