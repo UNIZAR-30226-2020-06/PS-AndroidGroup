@@ -36,7 +36,7 @@ class DirectosModel extends ChangeNotifier {
   String email;
   bool currentLike = false;
 
-  SongsModel(prov, rec) {
+  DirectosModel(prov, rec) {
     fetchSongs();
     prog = prov;
     recents = rec;
@@ -96,12 +96,19 @@ class DirectosModel extends ChangeNotifier {
 
   playURI(var uri1) {
     if(currentState == PlayerState.PLAYING){
+      log("parar el intento de arrancar");
       stop();
     }
     for (var song1 in songs) {
       if (song1.uri == uri1) {
+        log("arrancar: $currentState");
         currentSong = song1;
+        String directoQueSeArranca = song1.title; String uri = song1.uri;
+        log("lanzo: $directoQueSeArranca");
+        log("uri: $uri");
         FlutterRadio.play();
+        currentState=PlayerState.PLAYING;
+        log("arrancado: $currentState");
         break;
       }
     }

@@ -81,7 +81,7 @@ void main(List<String> args) {
       create: (context) => SongsModel(prov, rec),
     ),
     ChangeNotifierProvider<DirectosModel>(
-      create: (context) => DirectosModel(),
+      create: (context) => DirectosModel(prov, rec),
     ),
     ChangeNotifierProvider<CapPodcastsModel>(
       create: (context) => CapPodcastsModel(prov, rec),

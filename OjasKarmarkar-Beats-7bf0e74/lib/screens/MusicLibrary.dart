@@ -380,6 +380,7 @@ class _MusicLibraryState extends State<MusicLibrary> {
                   },
                 ),
                 onTap: () async {
+                  log("efectivamente");
                   model.player.stop();
                   model.playlist = true;
                   model.playlistSongs = songs;

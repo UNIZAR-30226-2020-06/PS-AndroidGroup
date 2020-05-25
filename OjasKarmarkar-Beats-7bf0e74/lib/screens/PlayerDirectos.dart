@@ -371,56 +371,10 @@ class _PlayerDirectosState extends State<PlayerDirectos> {
                                               )
                                             ],
                                           ),
-                                          Container(
-                                            width: double.maxFinite,
-                                            child: (repo.playlist.length !=
-                                                0)
-                                                ? ListView.builder(
-                                              shrinkWrap: true,
-                                              itemCount: repo
-                                                  .playlist.length,
-                                              itemBuilder:
-                                                  (context, index) {
-                                                return Padding(
-                                                  padding:
-                                                  EdgeInsets.only(
-                                                      left: 10.0),
-                                                  child: ListTile(
-                                                    onTap: () {
-                                                      PlaylistHelper(
-                                                          repo.playlist[
-                                                          index])
-                                                          .add(model
-                                                          .currentSong);
-                                                      Navigator.pop(
-                                                          context);
-                                                    },
-                                                    title: Text(
-                                                      repo.playlist[
-                                                      index],
-                                                      style: Theme.of(
-                                                          context)
-                                                          .textTheme
-                                                          .display2,
-                                                    ),
-                                                  ),
-                                                );
-                                              },
-                                            )
-                                                : Center(
-                                              child:
-                                              Text("No Playlist"),
-                                            ),
-                                          )
                                         ],
                                       );
                                     });
                               },
-                              icon: Icon(
-                                Icons.playlist_add,
-                                color: Colors.grey,
-                                size: 35.0,
-                              ),
                             );
                           },
                         ),
@@ -449,6 +403,7 @@ class _PlayerDirectosState extends State<PlayerDirectos> {
                     color: Theme.of(context).textTheme.display1.color,
                   ),
                   onPressed: () {
+                    model.stop();
                     Navigator.pop(context);
                   },
                 ),

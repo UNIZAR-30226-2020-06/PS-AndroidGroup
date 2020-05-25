@@ -32,7 +32,9 @@ class Directos extends StatefulWidget {
 class _DirectosState extends State<Directos> {
   TextEditingController editingController;
 
-  DirectosModel model;
+  DirectosModel modelDirectos;
+
+  //SongsModel modelSongs;
 
   BookmarkModel b;
 
@@ -45,7 +47,6 @@ class _DirectosState extends State<Directos> {
   Username username;
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     audioStart();
 
@@ -62,22 +63,22 @@ class _DirectosState extends State<Directos> {
   }
   @override
   void didChangeDependencies() {
-    model = Provider.of<DirectosModel>(context);
+    modelDirectos = Provider.of<DirectosModel>(context);
     b = Provider.of<BookmarkModel>(context);
     username = Provider.of<Username>(context);
 
-    obtenerCancionesRandom(model);
-    model.setEmail(username.email);
+    obtenerCancionesRandom(modelDirectos);
+    modelDirectos.setEmail(username.email);
 
-    playingStatus();
+    //playingStatus();
 
     height = MediaQuery.of(context).size.height;
     width = MediaQuery.of(context).size.width;
     themeChanger = Provider.of<ThemeChanger>(context);
 
-    for(int i=0; i<model.getSongs().length;i++){
-      String s = model.getSongs().elementAt(i).title;
-      log('cancion: $s');
+    for(int i=0; i<modelDirectos.getSongs().length;i++){
+      String s = modelDirectos.getSongs().elementAt(i).title;
+      log('directos: $s');
     }
 
     super.didChangeDependencies();
@@ -90,7 +91,7 @@ class _DirectosState extends State<Directos> {
       child: Scaffold(
           resizeToAvoidBottomInset: false,
           backgroundColor: Theme.of(context).backgroundColor,
-          body: (model.songs == null || (model.songs.length == 1 && model.songs[0].title == ""))
+          body: (modelDirectos.songs == null || (modelDirectos.songs.length == 1 && modelDirectos.songs[0].title == ""))
               ? Center(
             child: Text(
               "No hay directos",
@@ -156,11 +157,11 @@ class _DirectosState extends State<Directos> {
               body: Stack(
                 children: <Widget>[
                   Column(
-                    children: <Widget>[getLoading(model)],
+                    children: <Widget>[getLoading(modelDirectos)],
                   ),
                   Align(
                     alignment: Alignment.bottomLeft,
-                    child: showStatus(model, context),
+                    //child: showStatus(model, context),
                   )
                 ],
               ))),
@@ -176,14 +177,14 @@ class _DirectosState extends State<Directos> {
     List<String> listaUrls = c.getUrlsAudio().split('|');
     List<String> usuarios = c.getUsuariosAudio().split('|');
 
-    log("urls: $listaUrls");
+    log("urls2: $listaUrls");
     setState(() {
       songs = new List<Song>();
       for(int i = 0; i<listaNombres.length; i++){
         songs.add(new Song(i,"", listaNombres[i], "",0,0,listaUrls[i],null));   //todo ojito aquí no estaba la lista de ID
       }
       for(String s in listaNombres){
-        log('initData2: $s');
+        log('initData3: $s');
       }
       model.fetchSongsManual(songs);
     });
@@ -201,19 +202,23 @@ class _DirectosState extends State<Directos> {
         child: ListView.builder(
           itemCount: model.songs.length,
           itemBuilder: (context, pos) {
-            return Consumer<PlaylistRepo>(builder: (context, repo, _) {
+            return Consumer<DirectosModel>(builder: (context, repo, _) {
               return ListTile(
                 onTap: () async {
-                  model.player.stop();
+                  /*model.player.stop();
                   model.playlist = true;
                   model.playlistSongs = songs;
                   model.currentSong = model.songs[pos];
-                  username.urlDirecto = model.songs[pos].uri;
+                  username.urlDirecto = model.songs[pos].uri;*/
 
                   //Reset the list. So we can change to next song.
-                  model.playURI(username.urlDirecto);
+                  log("do it");
+                  model.playURI(model.songs[pos].uri);
 
-                  playingStatus();
+                  Navigator.of(context).push(new MaterialPageRoute(
+                      builder: (context) => new PlayerDirectos()));
+
+                  //playingStatus();
 
                 },
                 leading: CircleAvatar(child: getImage(model, pos)),
@@ -379,10 +384,10 @@ class _DirectosState extends State<Directos> {
                               username.urlDirecto = model.songs[pos].uri;
                               model.play();
 
-                              playingStatus();
+                              //playingStatus();
 
                             } else {
-                              playingStatus();
+                              //playingStatus();
                               model.pause();
                             }
                           },
