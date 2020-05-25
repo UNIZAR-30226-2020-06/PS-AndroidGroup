@@ -921,7 +921,7 @@ class Perfil {
       descripcionesPlay: json['listaDescripcion'],
       podcasts: json['podcasts'],
       descripcionesPod: json['podcastsDescripcion'],
-      canciones: json['audiosTitulo'],
+      canciones: json['audiosTitulo'],  //todo check, canciones está null
       urls: json['audiosUrl'],
       numSeguidores: json['numSeguidores'],
       imagenesPlaylists: json['imagenesPlaylists'],

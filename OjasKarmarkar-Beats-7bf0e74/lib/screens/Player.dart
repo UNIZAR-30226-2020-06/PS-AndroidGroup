@@ -33,6 +33,7 @@ class _PlayBackPageState extends State<PlayBackPage> {
   MusicLibrary x;
   PageController pg;
   NowPlaying playScreen;
+  List<String> listaPlaylist = [];
   TextEditingController comentario;
   Comentario c = new Comentario();
   Username user;
@@ -65,6 +66,8 @@ class _PlayBackPageState extends State<PlayBackPage> {
     c.obtenerListaComentarios(model.currentSong.title);
     log("cancion actual: $s");
     comprobarFavorito();
+
+    esperaObtenerPerfilPlayer(username.email);
 
     super.didChangeDependencies();
   }
@@ -752,32 +755,15 @@ class _PlayBackPageState extends State<PlayBackPage> {
                                                     .textTheme
                                                     .display1,
                                               ),
-                                              Container(
-                                                height: 25,
-                                                width: 25,
-                                                child: FloatingActionButton(
-                                                  backgroundColor:
-                                                      Theme.of(context)
-                                                          .backgroundColor,
-                                                  onPressed: () {
-                                                    _displayDialog(
-                                                        context, repo);
-                                                  },
-                                                  child: Icon(
-                                                    Icons.add_circle_outline,
-                                                    color: Colors.orangeAccent,
-                                                  ),
-                                                ),
-                                              )
                                             ],
                                           ),
                                           Container(
                                             width: double.maxFinite,
-                                            child: (repo.playlist.length != 0)
+                                            child: (listaPlaylist.length != 0)
                                                 ? ListView.builder(
                                                     shrinkWrap: true,
                                                     itemCount:
-                                                        repo.playlist.length,
+                                                        listaPlaylist.length,
                                                     itemBuilder:
                                                         (context, index) {
                                                       return Padding(
@@ -786,17 +772,12 @@ class _PlayBackPageState extends State<PlayBackPage> {
                                                                 left: 10.0),
                                                         child: ListTile(
                                                           onTap: () {
-                                                            PlaylistHelper(
-                                                                    repo.playlist[
-                                                                        index])
-                                                                .add(model
-                                                                    .currentSong);
+                                                            anyadirCancionAPlaylistBD(model.currentSong.title, listaPlaylist[index]);
                                                             Navigator.pop(
                                                                 context);
                                                           },
                                                           title: Text(
-                                                            repo.playlist[
-                                                                index],
+                                                            listaPlaylist[index],
                                                             style: Theme.of(
                                                                     context)
                                                                 .textTheme
@@ -898,6 +879,30 @@ class _PlayBackPageState extends State<PlayBackPage> {
         });
   }
 
+  Future<Respuesta> anyadirCancionAPlaylistBD(String cancion, String nombrePlaylist) async {
+    Map data = {
+      'email': username.email,
+      'nombreAudio': cancion,
+      'nombreLista': nombrePlaylist,
+    };
+    final http.Response response = await http.post(
+      'http://34.69.44.48:8080/Espotify/anyadir_audio_lista_android',
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+      body: jsonEncode(data),
+
+    );
+    if (response.statusCode == 200) {
+      // If the server did return a 201 CREATED response,
+      // then parse the JSON.
+      return Respuesta.fromJson(json.decode(response.body));
+    } else {
+      // If the server did not return a 201 CREATED response,
+      // then throw an exception.
+      throw Exception('Fallo al enviar petición');
+    }
+  }
 
   void validate(context, repo) {
     setState(() {
@@ -933,9 +938,103 @@ class _PlayBackPageState extends State<PlayBackPage> {
     });
 
   }
+
+  void esperaObtenerPerfilPlayer(String email) async {
+    PerfilPlayer p= await obtenerPerfilPlayer(email);
+
+    listaPlaylist = p.playlists.split('|');
+  }
+}
+
+class Respuesta {
+  final String generos;
+
+  Respuesta({this.generos});
+
+  factory Respuesta.fromJson(Map<String, dynamic> json) {
+    return Respuesta(
+      generos: json['generos'],
+
+    );
+
+  }
+  String getUserId(){
+    return generos;
+  }
 }
 
 
+class PerfilPlayer {
+  final String respuesta;
+  final String nombreUsuario;
+  final String descripcion;
+  final String email;
+  final String contrasenya;
+  final String repetirContraseya;
+  final String playlists;
+  final String descripcionesPlay;
+  final String podcasts;
+  final String descripcionesPod;
+  final String canciones;
+  final String urls;
+  final int numSeguidores;
+  final String imagen;
+  final String imagenesPlaylists;
+  final String imagenesPodcasts;
+  final String idsCanciones;
+
+  PerfilPlayer({this.respuesta, this.nombreUsuario, this.descripcion, this.email,
+    this.contrasenya, this.repetirContraseya, this.playlists, this.descripcionesPlay,
+    this.canciones, this.urls, this.podcasts,this.descripcionesPod,this.imagen,
+    this.numSeguidores, this.imagenesPlaylists, this.imagenesPodcasts, this.idsCanciones});
+
+  factory PerfilPlayer.fromJson(Map<String, dynamic> json) {
+    return PerfilPlayer(
+      nombreUsuario: json['nombreUsuario'],
+      descripcion: json['descripcion'],
+      imagen: json['imagen'],
+      email: json['email'],
+      playlists: json['lista'],
+      descripcionesPlay: json['listaDescripcion'],
+      podcasts: json['podcasts'],
+      descripcionesPod: json['podcastsDescripcion'],
+      canciones: json['audiosTitulo'],
+      urls: json['audiosUrl'],
+      numSeguidores: json['numSeguidores'],
+      imagenesPlaylists: json['imagenesPlaylists'],
+      imagenesPodcasts: json['imagenesPodcasts'],
+      idsCanciones: json['idsAudio'],
+    );
+
+  }
+  String getUserId(){
+    return respuesta;
+  }
+}
+
+Future<PerfilPlayer> obtenerPerfilPlayer(String email) async {
+  Map data = {
+    'email': email,
+  };
+  final http.Response response = await http.post(
+    'http://34.69.44.48:8080/Espotify/perfil_android',
+    headers: <String, String>{
+      'Content-Type': 'application/json; charset=UTF-8',
+    },
+    body: jsonEncode(data),
+
+  );
+
+  if (response.statusCode == 200) {
+    // If the server did return a 201 CREATED response,
+    // then parse the JSON.
+    return PerfilPlayer.fromJson(json.decode(response.body));
+  } else {
+    // If the server did not return a 201 CREATED response,
+    // then throw an exception.
+    throw Exception('Fallo al enviar petición');
+  }
+}
 
 anyadirFavorito(String email, String nombreCancion) async {
   log("tuk: $email");

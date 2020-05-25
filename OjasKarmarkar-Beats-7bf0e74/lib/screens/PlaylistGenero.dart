@@ -171,7 +171,7 @@ class _PlaylistGeneroState extends State<PlaylistGenero> {
           )
               : Center(
             child: Text(
-              "Vacío...",
+              "Vacío... ",
               style: Theme.of(context).textTheme.display2,
             ),
           )),
@@ -181,17 +181,20 @@ class _PlaylistGeneroState extends State<PlaylistGenero> {
   void initDataPlaylistGenero() async {
     Canciones l = await obtenerCancionesGenero(name);
     log("nameeee: $name");
-    var listaNombres = l.getNombresAudio().split('|');
-    var listaUrls = l.getUrlsAudio().split('|');
-    var listaIds = l.listaIds.split('|');
-    log('initData2: $listaNombres');
+
+    List<String> listaNombres = l.getNombresAudio().split('|');
+    log("nombresAudio2: $listaNombres");
+    List<String> listaUrls = l.getUrlsAudio().split('|');
+    log("nombresAudio3: $listaUrls");
+    List<String> listaIds = l.getListasId().split('|');
+    log("nombresAudio4: $listaIds");
     List<Song> listaPodcasts = new List<Song>();
     for(int i = 0; i<listaNombres.length; i++){
       listaPodcasts.add(new Song(int.parse(listaIds[i]),"", listaNombres[i], "",0,0,listaUrls[i],null));
     }
-
+    log("nombresAudio5: $listaNombres");
     songs = listaPodcasts;
-    model.fetchSongsManual(songs);
+    //model.fetchSongsManual(songs);
     setState(() {});
   }
 
@@ -311,6 +314,9 @@ class Canciones {
   String getUrlsAudio(){
     return urlsAudio;
   }
+  String getListasId(){
+    return listaIds;
+  }
 }
 
 Future<Canciones> obtenerCancionesGenero(String genero) async {
@@ -330,7 +336,7 @@ Future<Canciones> obtenerCancionesGenero(String genero) async {
     // If the server did return a 201 CREATED response,
     // then parse the JSON.
     Canciones c = Canciones.fromJson(json.decode(response.body));
-    String s = c.getNombresAudio();
+    String s = c.getListasId();
     log("nombresAudio: $s");
     return c;
   } else {
