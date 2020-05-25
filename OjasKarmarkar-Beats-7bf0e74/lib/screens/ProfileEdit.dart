@@ -3607,6 +3607,7 @@ Future<Respuesta> actualizarUser(String nombre, String descripcion, String email
     'email': email,
     'contrasenya': contra,
   };
+  info.log("datos a enviar: $nombre $descripcion $email $contra");
   final http.Response response = await http.post(
     'http://34.69.44.48:8080/Espotify/modificar_usuario_android',
     headers: <String, String>{

@@ -509,8 +509,11 @@ class _RegisterPageState extends State<RegisterPage> {
   }
   Future<Registro> registrarUsuario(String nombreUsuario, String contrasenya, String repiteContrasenya,
       String descripcion, String correo) async {
-    List<int> imageBytes = _profileImage.readAsBytesSync();
-    String base64Image = base64.encode(imageBytes);
+    String base64Image;
+    if(_profileImage != null) {
+      List<int> imageBytes = _profileImage.readAsBytesSync();
+      base64Image = base64.encode(imageBytes);
+    } else { base64Image = null;}
     Map data = {
       'nombreUsuario': nombreUsuario,
       'contrasenya': contrasenya,
