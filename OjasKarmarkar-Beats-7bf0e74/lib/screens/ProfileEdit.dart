@@ -168,7 +168,7 @@ class _ProfilePageState extends State<ProfilePage>
                               children: <Widget>[
                                 new GestureDetector(onTap: ampliarImagen,child: CircleAvatar(
                                     radius: 75.0,
-                                    backgroundImage: imagenPerfil == null
+                                    backgroundImage: (imagenPerfil == null || imagenPerfil == "null")
                                         ? new ExactAssetImage(
                                         'assets/prof.png')
                                         : NetworkImage(imagenPerfil),
