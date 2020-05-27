@@ -196,10 +196,12 @@ class PodcastNoEditableScreenState extends State<PodcastNoEditableScreen> {
     var listaNombres = l.getNombresAudio().split('|');
     var listaUrls = l.getUrlsAudio().split('|');
     var listaIds = l.listaIds.split('|');
-    log('initData2: $listaNombres');
+    if(listaIds[0] == ""){
+      listaIds[0] = "9999";
+    }
     List<Song> listaPodcasts = new List<Song>();
     for(int i = 0; i<listaNombres.length; i++){
-      listaPodcasts.add(new Song(int.parse(listaIds[i]),"", listaNombres[i], "",0,0,listaUrls[i],null));
+      listaPodcasts.add(new Song(int.parse(listaIds[i]),"", listaNombres[i], "",0,0,listaUrls[i],null, ""));
     }
 
     songs = listaPodcasts;
@@ -247,6 +249,34 @@ class PodcastNoEditableScreenState extends State<PodcastNoEditableScreen> {
     }
 
 
+  }
+
+  Future<Canciones> obtenerCapitulos(String nombrePodcast) async {
+    Map data = {
+      'email': username.email,
+      'podcast': nombrePodcast,
+    };
+    log("servlet: $nombrePodcast");
+    final http.Response response = await http.post(
+      'http://34.69.44.48:8080/Espotify/capitulos_podcast_android',
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+      body: jsonEncode(data),
+
+    );
+    if (response.statusCode == 200) {
+      // If the server did return a 201 CREATED response,
+      // then parse the JSON.
+      Canciones c = Canciones.fromJson(json.decode(response.body));
+      String s = c.getNombresAudio();
+      log("nombresAudio: $s");
+      return c;
+    } else {
+      // If the server did not return a 201 CREATED response,
+      // then throw an exception.
+      throw Exception('Fallo al enviar petición');
+    }
   }
 
   Future<Canciones> borrarCapPodcast(String email, String nombrePodcast, String nombreCapPodcast) async {
@@ -408,32 +438,7 @@ class Canciones {
   }
 }
 
-Future<Canciones> obtenerCapitulos(String nombrePodcast) async {
-  Map data = {
-    'podcast': nombrePodcast,
-  };
-  log("servlet: $nombrePodcast");
-  final http.Response response = await http.post(
-    'http://34.69.44.48:8080/Espotify/capitulos_podcast_android',
-    headers: <String, String>{
-      'Content-Type': 'application/json; charset=UTF-8',
-    },
-    body: jsonEncode(data),
 
-  );
-  if (response.statusCode == 200) {
-    // If the server did return a 201 CREATED response,
-    // then parse the JSON.
-    Canciones c = Canciones.fromJson(json.decode(response.body));
-    String s = c.getNombresAudio();
-    log("nombresAudio: $s");
-    return c;
-  } else {
-    // If the server did not return a 201 CREATED response,
-    // then throw an exception.
-    throw Exception('Fallo al enviar petición');
-  }
-}
 
 
 class Respuesta {

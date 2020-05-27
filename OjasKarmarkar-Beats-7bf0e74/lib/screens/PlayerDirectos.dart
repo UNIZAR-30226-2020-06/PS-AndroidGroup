@@ -456,7 +456,7 @@ class _PlayerDirectosState extends State<PlayerDirectos> {
                           onPressed: () {
                             model.player.stop();
                             model.previous();
-
+                            username.urlDirecto = model.currentSong.uri;
                             model.playURI(username.urlDirecto);
                           },
                           icon: Icon(
@@ -521,7 +521,7 @@ class _PlayerDirectosState extends State<PlayerDirectos> {
                               model.player.stop();
 
                               model.next();
-
+                              username.urlDirecto = model.currentSong.uri;
                               model.playURI(username.urlDirecto);
                             },
                             icon: Icon(

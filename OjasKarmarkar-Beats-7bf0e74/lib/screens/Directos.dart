@@ -34,7 +34,7 @@ class _DirectosState extends State<Directos> {
   TextEditingController editingController;
 
   DirectosModel modelDirectos;
-
+  DirectosModel modelTodosDirectos;
   reproduccion.SongsModel modelSongs;
 
   BookmarkModel b;
@@ -68,7 +68,7 @@ class _DirectosState extends State<Directos> {
     b = Provider.of<BookmarkModel>(context);
     username = Provider.of<Username>(context);
     modelSongs = Provider.of<reproduccion.SongsModel>(context);
-
+    modelTodosDirectos = Provider.of<DirectosModel>(context);
 
     obtenerCancionesRandom(modelDirectos);
     modelDirectos.setEmail(username.email);
@@ -95,12 +95,78 @@ class _DirectosState extends State<Directos> {
           resizeToAvoidBottomInset: false,
           backgroundColor: Theme.of(context).backgroundColor,
           body: (modelDirectos.songs == null || (modelDirectos.songs.length == 1 && modelDirectos.songs[0].title == ""))
-              ? Center(
-            child: Text(
-              "No hay directos",
-              style: Theme.of(context).textTheme.display1,
-            ),
-          )
+              ? NestedScrollView(
+              headerSliverBuilder: (context, innerBoxIsScrolled) => [
+                SliverOverlapAbsorber(
+                    child: SliverSafeArea(
+                      top: false,
+                      sliver: SliverAppBar(
+                        actions: <Widget>[
+                          Padding(
+                            padding: const EdgeInsets.only(right: 20),
+                            child: IconButton(
+                              icon: Icon(Icons.search,
+                                  color: Theme.of(context)
+                                      .textTheme
+                                      .display1
+                                      .color),
+                              onPressed: () {
+                                showSearch(
+                                    context: context,
+                                    delegate: Search());
+                              },
+                            ),
+                          ),
+                        ],
+                        backgroundColor:
+                        Theme.of(context).backgroundColor,
+                        expandedHeight: height * 0.11,
+                        pinned: true,
+                        flexibleSpace: Align(
+                          alignment: Alignment.centerLeft,
+                          child: Padding(
+                            padding:
+                            EdgeInsets.only(left: width * 0.06),
+                            child: Container(
+                              child: Stack(
+                                children: <Widget>[
+                                  Text(
+                                    "Directos",
+                                    style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 30,
+                                        color: Theme.of(context)
+                                            .textTheme
+                                            .display1
+                                            .color),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                    handle:
+                    NestedScrollView.sliverOverlapAbsorberHandleFor(
+                        context))
+              ],
+              body: Stack(
+                children: <Widget>[
+                  Column(
+                    children: <Widget>[Center(
+                      child: Text(
+                        "No hay directos",
+                        style: Theme.of(context).textTheme.display1,
+                      ),
+                    )],
+                  ),
+                  Align(
+                    alignment: Alignment.bottomLeft,
+                    //child: showStatus(model, context),
+                  )
+                ],
+              ))
               : NestedScrollView(
               headerSliverBuilder: (context, innerBoxIsScrolled) => [
                 SliverOverlapAbsorber(
@@ -184,7 +250,7 @@ class _DirectosState extends State<Directos> {
     setState(() {
       songs = new List<Song>();
       for(int i = 0; i<listaNombres.length; i++){
-        songs.add(new Song(i,"", listaNombres[i], "",0,0,listaUrls[i],null));   //todo ojito aquí no estaba la lista de ID
+        songs.add(new Song(i,"", listaNombres[i], "",0,0,listaUrls[i],null, ""));   //todo ojito aquí no estaba la lista de ID
       }
       for(String s in listaNombres){
         log('initData3: $s');
@@ -213,11 +279,13 @@ class _DirectosState extends State<Directos> {
                   model.playlistSongs = songs;
                   model.currentSong = model.songs[pos];
                   username.urlDirecto = model.songs[pos].uri;*/
+
                   if(modelSongs.player != null) {
                     modelSongs.pause();
                   }
                   //Reset the list. So we can change to next song.
                   log("do it");
+                  username.urlDirecto = model.songs[pos].uri;
                   model.playURI(model.songs[pos].uri);
 
                   Navigator.of(context).push(new MaterialPageRoute(
@@ -246,6 +314,7 @@ class _DirectosState extends State<Directos> {
                         fontFamily: 'Sans'),
                   ),
                 ),
+                trailing: Icon(Icons.looks, color: Colors.red,),
               );
             });
           },
@@ -416,6 +485,7 @@ class _DirectosState extends State<Directos> {
 
 class Search extends SearchDelegate<Song> {
   DirectosModel model;
+
   @override
   List<Widget> buildActions(BuildContext context) {
     // actions
@@ -454,6 +524,7 @@ class Search extends SearchDelegate<Song> {
   @override
   Widget buildSuggestions(BuildContext context) {
     model = Provider.of<DirectosModel>(context);
+    obtenerTodosLosDirectos(model);
     List<Song> dummy = <Song>[];
     List<Song> recents = <Song>[];
     for (int i = 0; i < model.songs.length; i++) {
@@ -499,10 +570,44 @@ class Search extends SearchDelegate<Song> {
               style: TextStyle(color: Colors.black, fontSize: 18),
             ),
             leading: CircleAvatar(backgroundColor: Colors.red, child: Icon(Icons.radio, color: Colors.white,)),
+            trailing: (comprobarEnVivo(suggestion[index].title, dummy))?Icon(Icons.looks, color: Colors.red,):Icon(Icons.looks, color: Colors.grey,)
           ),
         );
       },
     );
+  }
+  List<String> enVivo;
+
+  bool comprobarEnVivo(String nombreDirecto, List<Song> directos){
+    for(int i=0; i<directos.length; i++){
+      if(nombreDirecto == directos[i].title){
+        if(enVivo[i] == "true"){
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+  void obtenerTodosLosDirectos(DirectosModel dm) async{
+    ListaDirectos ld = await obtenerListaCompletaDirectos();
+    var listaNombres = ld.getNombresAudio().split('|');
+    var listaUrls = ld.getUrlsAudio().split('|');
+    var activaTransmision = ld.activaTransmision.split('|');
+    log('initData3: $listaNombres $listaUrls $activaTransmision');
+    List<Song> listaCanciones = new List<Song>();
+    for(int i = 0; i<listaNombres.length; i++){
+      if(listaNombres[i] != ""){
+        listaCanciones.add(new Song(i,"", listaNombres[i], "",0,0,listaUrls[i],null, ""));
+      }
+    }
+    for(String s in listaNombres){
+      log('initData3: $s');
+    }
+    List<Song> songs;
+    songs = listaCanciones;
+    enVivo = activaTransmision;
+
+    dm.fetchSongsManual(songs);
   }
 
 }
@@ -511,15 +616,16 @@ class ListaDirectos {
   final String nombresAudio;
   final String urlsAudio;
   final String usuarios;
+  final String activaTransmision;
 
-
-  ListaDirectos({this.nombresAudio, this.urlsAudio, this.usuarios});
+  ListaDirectos({this.nombresAudio, this.urlsAudio, this.usuarios,this.activaTransmision});
 
   factory ListaDirectos.fromJson(Map<String, dynamic> json) {
     return ListaDirectos(
       nombresAudio: json['nombresTransmision'],
       urlsAudio: json['urlsTransmision'],
       usuarios: json['usuariosTransmision'],
+      activaTransmision: json['activaTransmision'],
     );
   }
   String getNombresAudio(){
@@ -534,3 +640,26 @@ class ListaDirectos {
 }
 
 
+
+
+Future<ListaDirectos> obtenerListaCompletaDirectos() async {
+  Map data = {
+  };
+  final http.Response response = await http.post(
+    'http://34.69.44.48:8080/Espotify/todas_transmisiones_android',
+    headers: <String, String>{
+      'Content-Type': 'application/json; charset=UTF-8',
+    },
+    body: jsonEncode(data),
+
+  );
+  if (response.statusCode == 200) {
+    // If the server did return a 201 CREATED response,
+    // then parse the JSON.
+    return ListaDirectos.fromJson(json.decode(response.body));
+  } else {
+    // If the server did not return a 201 CREATED response,
+    // then throw an exception.
+    throw Exception('Fallo al enviar petición');
+  }
+}

@@ -4,6 +4,7 @@ import 'dart:io';
 import 'dart:math';
 import 'dart:typed_data';
 
+import 'package:beats/custom_icons.dart';
 import 'package:beats/icono_personalizado.dart';
 import 'package:beats/models/MisCancionesModel.dart';
 import 'package:beats/models/PlayListHelper.dart';
@@ -1047,16 +1048,11 @@ class _ProfilePageState extends State<ProfilePage>
 
                                                                             ),
                                                                             InkWell(
-                                                                              onTap: () async{
-                                                                                await actualizarPlaylist(username.email, playlistRepo.playlist[pos], txtDescripcion.text,txt.text);
+                                                                              onTap: () {
                                                                                 setState(()  {
+                                                                                  esperaActualizarPlaylist(playlistRepo.playlist[pos]);
                                                                                     playlistRepo.playlist[pos] = txt.text;
                                                                                     playlistRepo.descripciones[pos] = txtDescripcion.text;
-                                                                                    Navigator.pop(context);
-                                                                                    setState(() {
-                                                                                      anyadeDatosUsuario(username.email, playlistRepo, misCanciones, podcastRepo);
-                                                                                      _playlistImage = null;
-                                                                                    });
 
                                                                                 });
                                                                               },
@@ -2122,6 +2118,35 @@ class _ProfilePageState extends State<ProfilePage>
 
   }
 
+  Future<Respuesta> actualizarUser(String nombre, String descripcion, String email, String contra) async {
+    info.log("contra: $contra");
+    Map data = {
+      'nombre': nombre,
+      'descripcion': descripcion,
+      'email': username.email,
+      'emailNuevo': email,
+      'contrasenya': contra,
+    };
+    info.log("datos a enviar: $nombre $descripcion $email $contra");
+    final http.Response response = await http.post(
+      'http://34.69.44.48:8080/Espotify/modificar_usuario_android',
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+      body: jsonEncode(data),
+
+    );
+    if (response.statusCode == 200) {
+      // If the server did return a 201 CREATED response,
+      // then parse the JSON.
+      return Respuesta.fromJson(json.decode(response.body));
+    } else {
+      // If the server did not return a 201 CREATED response,
+      // then throw an exception.
+      throw Exception('Fallo al enviar petición');
+    }
+  }
+
   eliminarCuenta() async {
     Map data = {
       'email': username.email,
@@ -2237,6 +2262,7 @@ class _ProfilePageState extends State<ProfilePage>
        var imagenesPlaylists = p.imagenesPlaylists.split('|');
        var imagenesPodcasts = p.imagenesPodcasts.split('|');
        var rng = new Random();
+       info.log("imagensitas: $imagenesPlaylists");
        int counter;
        imageCache.clear();
          playlistRepo.generateInitialPlayListImage(playlistss, descripciones, imagenesPlaylists);
@@ -3474,6 +3500,18 @@ class _ProfilePageState extends State<ProfilePage>
   void esperarActualizarUser(String nombre, String descripcion, String email, String contra) async {
 
     await actualizarUser(nombre,descripcion,email, contra);
+    username.email = email;
+
+  }
+
+  void esperaActualizarPlaylist(String playlist) async{
+    await actualizarPlaylist(username.email, playlist, txtDescripcion.text,txt.text);
+    setState(() {
+      Navigator.pop(context);
+      obtenerPerfil(username.email);
+      anyadeDatosUsuario(username.email, playlistRepo, misCanciones, podcastRepo);
+      _playlistImage = null;
+    });
 
   }
 }
@@ -3600,32 +3638,7 @@ Future<Respuesta> borrarPodcast(String email, String nombrePodcast) async {
   }
 }
 
-Future<Respuesta> actualizarUser(String nombre, String descripcion, String email, String contra) async {
-  Map data = {
-    'nombre': nombre,
-    'descripcion': descripcion,
-    'email': email,
-    'contrasenya': contra,
-  };
-  info.log("datos a enviar: $nombre $descripcion $email $contra");
-  final http.Response response = await http.post(
-    'http://34.69.44.48:8080/Espotify/modificar_usuario_android',
-    headers: <String, String>{
-      'Content-Type': 'application/json; charset=UTF-8',
-    },
-    body: jsonEncode(data),
 
-  );
-  if (response.statusCode == 200) {
-    // If the server did return a 201 CREATED response,
-    // then parse the JSON.
-    return Respuesta.fromJson(json.decode(response.body));
-  } else {
-    // If the server did not return a 201 CREATED response,
-    // then throw an exception.
-    throw Exception('Fallo al enviar petición');
-  }
-}
 
 
 

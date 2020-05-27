@@ -288,7 +288,8 @@ class _PLayListScreenState extends State<PLayListScreen> {
                                                                 log("playlist: $s" );
                                                               }
 
-                                                                editarUnaCancionMia(username.email, model.songs[pos].title,txt.text, genero);  //editar en la BD
+                                                                editarUnaCancionMia(username.email, model.songs[pos].id.toString(),
+                                                                    model.songs[pos].title,txt.text, genero);  //editar en la BD
 
 
                                                               Navigator.pop(
@@ -473,12 +474,15 @@ class _PLayListScreenState extends State<PLayListScreen> {
     var listaUrls = l.getUrlsAudio().split('|');
     var listaIds = l.listaIds.split('|');
     log('initData2: $listaNombres');
+    if(listaIds[0] == ""){
+      listaIds[0] = "9999";
+    }
     imagen = l.imagen;
     autor = l.autor;
     descripcion = l.descripcion;
     List<Song> listaCanciones = new List<Song>();
     for(int i = 0; i<listaNombres.length; i++){
-      listaCanciones.add(new Song(int.parse(listaIds[i]),"", listaNombres[i], "",0,0,listaUrls[i],null));
+      listaCanciones.add(new Song(int.parse(listaIds[i]),"", listaNombres[i], "",0,0,listaUrls[i],null, ""));
     }
 
     songs = listaCanciones;
@@ -492,10 +496,12 @@ class _PLayListScreenState extends State<PLayListScreen> {
     var listaIds = username.getIdsCanciones().split('|');
     log('initData3: $listaNombres');
     List<Song> listaCanciones = new List<Song>();
-
+    if(listaIds[0] == ""){
+      listaIds[0] = "9999";
+    }
     for(int i = 0; i<listaNombres.length; i++){
       if(listaNombres[i] != ""){
-        listaCanciones.add(new Song(int.parse(listaIds[i]),"", listaNombres[i], "",0,0,listaUrls[i],null));
+        listaCanciones.add(new Song(int.parse(listaIds[i]),"", listaNombres[i], "",0,0,listaUrls[i],null, ""));
       }
 
     }
@@ -597,15 +603,15 @@ class _PLayListScreenState extends State<PLayListScreen> {
     } else {}
   }
 
-  void editarUnaCancionMia(String email, String title, String newTitle, String genero) async {
-    await editarCanciones(email, title, newTitle, genero);
+  void editarUnaCancionMia(String email, String idAudio,String title, String newTitle, String genero) async {
+    await editarCanciones(email, idAudio, title, newTitle, genero);
     await actualizarUsername(username.email);
     initDataMisCanciones();
   }
 
   void borrarCancionDeMisCanciones(String email, Song song) async {
 
-    await borrarCanciones(email, "misCanciones", song.title);
+    await borrarCanciones(email, "misCanciones", song.id.toString());
     await actualizarUsername(username.email);
     initDataMisCanciones();   //reiniciamos
 
@@ -615,7 +621,7 @@ class _PLayListScreenState extends State<PLayListScreen> {
     log("hecho $song");
     String s=song.title;
     log("data $email, $namePlaylist, $s");
-    await borrarCancionesPlaylist(email, namePlaylist, song.title);
+    await borrarCancionesPlaylist(email, namePlaylist, song.id.toString());
     log("hecho2");
     initDataPlaylists();
   }
@@ -806,9 +812,10 @@ Future<Canciones> obtenerCanciones(String email, String nombrePlaylist) async {
 
 
 
-Future<Canciones> editarCanciones(String email, String nombreCancion, String nuevoNombre, String genero) async {
+Future<Canciones> editarCanciones(String email,String idAudio, String nombreCancion, String nuevoNombre, String genero) async {
   Map data = {
     'email': email,
+    'idAudio': idAudio,
     'nombreCancionViejo': nombreCancion,
     'nombreCancionNuevo': nuevoNombre,
     'generoCancionNuevo': genero,
@@ -835,12 +842,12 @@ Future<Canciones> editarCanciones(String email, String nombreCancion, String nue
 
 }
 
-Future<Canciones> borrarCanciones(String email, String nombrePlaylist, String nombreCancion) async {
+Future<Canciones> borrarCanciones(String email, String nombrePlaylist, String idAudio) async {
   Map data = {
     'email': email,
-    'nombreCancion': nombreCancion,
+    'idAudio': idAudio,
   };
-  log("debug: $email, $nombrePlaylist, $nombreCancion");
+  log("debug: $email, $nombrePlaylist, $idAudio");
   final http.Response response = await http.post(
     'http://34.69.44.48:8080/Espotify/cancion_eliminar_android',
     headers: <String, String>{
@@ -860,13 +867,13 @@ Future<Canciones> borrarCanciones(String email, String nombrePlaylist, String no
   }
 }
 
-Future<Canciones> borrarCancionesPlaylist(String email, String nombrePlaylist, String nombreCancion) async {
+Future<Canciones> borrarCancionesPlaylist(String email, String nombrePlaylist, String idAudio) async {
   Map data = {
     'email': email,
-    'nombreCancion': nombreCancion,
+    'idAudio': idAudio,
     'nombrePlaylist': nombrePlaylist,
   };
-  log("debug: $email, $nombrePlaylist, $nombreCancion");
+  log("debug: $email, $nombrePlaylist, $idAudio");
   final http.Response response = await http.post(
     'http://34.69.44.48:8080/Espotify/eliminar_cancionlista_android',
     headers: <String, String>{

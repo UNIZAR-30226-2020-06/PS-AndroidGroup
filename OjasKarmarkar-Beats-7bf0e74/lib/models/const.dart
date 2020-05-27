@@ -5,7 +5,8 @@ class Constants{
   static const String ed = 'Editar canción';
   static const String de = 'Borrar canción';
   static const String ep = 'Editar podcast';
-  static const String dp = 'Borrar podcast';
+  static const String dp = 'Quitar podcast';
+  static const String dpp = 'Borrar podcast';
   //static const String de = 'Delete Song';
   //static const String re = 'Rename Song';
 
@@ -22,6 +23,12 @@ class Constants{
   ];
   static const List<String> opcionesPodcast = <String>[
     ep,
+    dp,
+    dpp,
+    //de,
+    //re
+  ];
+  static const List<String> opcionesPodcastAjeno = <String>[
     dp,
     //de,
     //re

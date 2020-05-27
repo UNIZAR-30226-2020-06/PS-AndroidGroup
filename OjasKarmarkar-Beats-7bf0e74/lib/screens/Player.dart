@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';
 import 'package:beats/models/Comentario.dart';
+import 'package:beats/models/PodcastRepo.dart';
 import 'package:beats/models/SongsModel.dart';
 import 'package:beats/models/ThemeModel.dart';
 import 'package:beats/models/PlaylistRepo.dart';
@@ -34,6 +35,7 @@ class _PlayBackPageState extends State<PlayBackPage> {
   PageController pg;
   NowPlaying playScreen;
   List<String> listaPlaylist = [];
+  List<String> listaPodcast = [];
   TextEditingController comentario;
   Comentario c = new Comentario();
   Username user;
@@ -48,6 +50,7 @@ class _PlayBackPageState extends State<PlayBackPage> {
   String numLikes;
   String genero;
   String tipo = "podcast";
+  PodcastRepo podcastRepo;
 
   @override
   void initState() {
@@ -62,6 +65,7 @@ class _PlayBackPageState extends State<PlayBackPage> {
     username = Provider.of<Username>(context);
     bm = Provider.of<BookmarkModel>(context);
     model = Provider.of<SongsModel>(context);
+    podcastRepo = Provider.of<PodcastRepo>(context);
     String s = model.currentSong.title;
     c.obtenerListaComentarios(model.currentSong.title);
     log("cancion actual: $s");
@@ -97,7 +101,7 @@ class _PlayBackPageState extends State<PlayBackPage> {
       return Scaffold(
         resizeToAvoidBottomInset: false,
         backgroundColor: Theme.of(context).backgroundColor,
-        body: Stack(
+        body: (cargado)?Stack(
           children: <Widget>[
             Consumer<SongsModel>(
                 builder: (context, model, _) => (cargado)?Column(children: [
@@ -316,10 +320,10 @@ class _PlayBackPageState extends State<PlayBackPage> {
                                     if (!bookmark
                                         .alreadyExists(model.currentSong)) {
                                       bookmark.add(model.currentSong);
-                                      anyadirFavorito(username.email, model.currentSong.title);
+                                      anyadirFavorito(username.email, model.currentSong.id.toString());
                                     } else {
                                       bookmark.remove(model.currentSong);
-                                      eliminarFavorito(username.email, model.currentSong.title);
+                                      eliminarFavorito(username.email, model.currentSong.id.toString());
                                     }
                                   },
                                   icon: Icon(
@@ -437,14 +441,14 @@ class _PlayBackPageState extends State<PlayBackPage> {
                       ),
                     ]) : Text("Cargando..."))
           ],
-        ),
+        ): Text("Cargando..."),
       );
     } else {
       //player, está aquí normalmente
       height = MediaQuery.of(context).size.height;
       width = MediaQuery.of(context).size.width;
       return Scaffold(
-          body: Stack(children: <Widget>[
+          body: (cargado)?Stack(children: <Widget>[
             AppBar(
               backgroundColor: Theme.of(context).backgroundColor,
               leading: Padding(
@@ -664,10 +668,10 @@ class _PlayBackPageState extends State<PlayBackPage> {
                                 if (!bookmark
                                     .alreadyExists(model.currentSong)) {
                                   bookmark.add(model.currentSong);
-                                  anyadirFavorito(username.email, model.currentSong.title);
+                                  anyadirFavorito(username.email, model.currentSong.id.toString());
                                 } else {
                                   bookmark.remove(model.currentSong);
-                                  eliminarFavorito(username.email, model.currentSong.title);
+                                  eliminarFavorito(username.email, model.currentSong.id.toString());
                                 }
                               },
                               icon: Icon(
@@ -772,7 +776,7 @@ class _PlayBackPageState extends State<PlayBackPage> {
                                                                 left: 10.0),
                                                         child: ListTile(
                                                           onTap: () {
-                                                            anyadirCancionAPlaylistBD(model.currentSong.title, listaPlaylist[index]);
+                                                            anyadirCancionAPlaylistBD(model.currentSong.id.toString(), listaPlaylist[index]);
                                                             Navigator.pop(
                                                                 context);
                                                           },
@@ -802,14 +806,87 @@ class _PlayBackPageState extends State<PlayBackPage> {
                               ),
                             );
                           },
-                        ): Text(""),
+                        ): Consumer<PodcastRepo>(
+                          builder: (context, repo, _) {
+                            return IconButton(
+                              onPressed: () {
+                                showDialog(
+                                    context: context,
+                                    builder: (context) {
+                                      return SimpleDialog(
+                                        shape: RoundedRectangleBorder(
+                                          side: BorderSide(),
+                                          borderRadius: BorderRadius.all(
+                                              Radius.circular(30.0)),
+                                        ),
+                                        backgroundColor:
+                                        Theme.of(context).backgroundColor,
+                                        children: <Widget>[
+                                          Row(
+                                            mainAxisAlignment:
+                                            MainAxisAlignment.spaceEvenly,
+                                            children: <Widget>[
+                                              Text(
+                                                "Añadir a Podcast",
+                                                style: Theme.of(context)
+                                                    .textTheme
+                                                    .display1,
+                                              ),
+                                            ],
+                                          ),
+                                          Container(
+                                            width: double.maxFinite,
+                                            child: (listaPodcast.length != 0)
+                                                ? ListView.builder(
+                                              shrinkWrap: true,
+                                              itemCount:
+                                              listaPodcast.length,
+                                              itemBuilder:
+                                                  (context, index) {
+                                                return Padding(
+                                                  padding:
+                                                  EdgeInsets.only(
+                                                      left: 10.0),
+                                                  child: ListTile(
+                                                    onTap: () {
+                                                      anyadirCancionAPlaylistBD(model.currentSong.id.toString(), listaPodcast[index]);
+                                                      Navigator.pop(
+                                                          context);
+                                                    },
+                                                    title: Text(
+                                                      listaPodcast[index],
+                                                      style: Theme.of(
+                                                          context)
+                                                          .textTheme
+                                                          .display2,
+                                                    ),
+                                                  ),
+                                                );
+                                              },
+                                            )
+                                                : Center(
+                                              child: Text("No hay podcasts"),
+                                            ),
+                                          )
+                                        ],
+                                      );
+                                    });
+                              },
+                              icon: Icon(
+                                Icons.playlist_add,
+                                color: Colors.grey,
+                                size: 35.0,
+                              ),
+                            );
+                          },
+                        ),
                       ],
                     ),
                   ),
                 ],
               ),
             )
-          ]));
+          ]): Text("Cargando..."));
     }
   }
 
@@ -879,10 +956,10 @@ class _PlayBackPageState extends State<PlayBackPage> {
         });
   }
 
-  Future<Respuesta> anyadirCancionAPlaylistBD(String cancion, String nombrePlaylist) async {
+  Future<Respuesta> anyadirCancionAPlaylistBD(String idAudio, String nombrePlaylist) async {
     Map data = {
       'email': username.email,
-      'nombreAudio': cancion,
+      'idAudio': idAudio,
       'nombreLista': nombrePlaylist,
     };
     final http.Response response = await http.post(
@@ -923,18 +1000,21 @@ class _PlayBackPageState extends State<PlayBackPage> {
     List<String> listaIds = c.listaIds.split('|');
     autor = i.autor;
     numLikes = i.numLikes;
+    log("numlikesss $numLikes");
     genero = i.genero;
     tipo = i.tipo;
+    if(listaIds[0] == ""){
+      listaIds[0] = "9999";
+    }
     List<Song> l = new List<Song>();
     for(int i = 0; i<nombresAudio.length; i++){
-      l.add(new Song(int.parse(listaIds[i]),"", nombresAudio[i], "",0,0,urlsAudio[i],null));
+      l.add(new Song(int.parse(listaIds[i]),"", nombresAudio[i], "",0,0,urlsAudio[i],null, ""));
     }
     await model.likeado(username.email);
     setState(() {
       songs = l;
       bm.initFavorites(songs);
       log("FAVORITOS ACTUALIZADOS");
-      cargado = true;
     });
 
   }
@@ -943,6 +1023,8 @@ class _PlayBackPageState extends State<PlayBackPage> {
     PerfilPlayer p= await obtenerPerfilPlayer(email);
 
     listaPlaylist = p.playlists.split('|');
+    listaPodcast = p.podcasts.split('|');
+    cargado = true;
   }
 }
 
@@ -1036,11 +1118,10 @@ Future<PerfilPlayer> obtenerPerfilPlayer(String email) async {
   }
 }
 
-anyadirFavorito(String email, String nombreCancion) async {
-  log("tuk: $email");
+anyadirFavorito(String email, String idAudio) async {
   Map data = {
     'email': email,
-    'nombreCancion': nombreCancion,
+    'idAudio': idAudio,
   };
   final http.Response response = await http.post(
     'http://34.69.44.48:8080/Espotify/anyadir_favorito_android',
@@ -1061,10 +1142,10 @@ anyadirFavorito(String email, String nombreCancion) async {
   }
 }
 
-eliminarFavorito(String email, String nombreCancion) async {
+eliminarFavorito(String email, String idAudio) async {
   Map data = {
     'email': email,
-    'nombreCancion': nombreCancion,
+    'idAudio': idAudio,
   };
   final http.Response response = await http.post(
     'http://34.69.44.48:8080/Espotify/eliminar_favorito_android',

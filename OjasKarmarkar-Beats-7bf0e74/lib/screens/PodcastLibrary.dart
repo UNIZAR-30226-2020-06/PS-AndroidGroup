@@ -63,12 +63,68 @@ class _PodcastLibraryState extends State<PodcastLibrary> {
           resizeToAvoidBottomInset: false,
           backgroundColor: Theme.of(context).backgroundColor,
           body: (!iniciado)
-              ? Center(
-            child: Text(
-              "No hay podcasts",
-              style: Theme.of(context).textTheme.display1,
-            ),
-          )
+              ? NestedScrollView(
+              headerSliverBuilder: (context, innerBoxIsScrolled) => [
+                SliverOverlapAbsorber(
+                    child: SliverSafeArea(
+                      top: false,
+                      sliver: SliverAppBar(
+                        actions: <Widget>[
+                          Padding(
+                            padding: const EdgeInsets.only(right: 20),
+                            child: IconButton(
+                              icon: Icon(Icons.search,
+                                  color: Theme.of(context)
+                                      .textTheme
+                                      .display1
+                                      .color),
+                              onPressed: () {
+                                showSearch(
+                                    context: context,
+                                    delegate: Search());
+                              },
+                            ),
+                          ),
+                        ],
+                        backgroundColor:
+                        Theme.of(context).backgroundColor,
+                        expandedHeight: height * 0.11,
+                        pinned: true,
+                        flexibleSpace: Align(
+                          alignment: Alignment.centerLeft,
+                          child: Padding(
+                            padding:
+                            EdgeInsets.only(left: width * 0.06),
+                            child: Container(
+                              child: Stack(
+                                children: <Widget>[
+                                  Text(
+                                    "Podcasts",
+                                    style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 30,
+                                        color: Theme.of(context)
+                                            .textTheme
+                                            .display1
+                                            .color),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                    handle:
+                    NestedScrollView.sliverOverlapAbsorberHandleFor(
+                        context))
+              ],
+              body: Center(
+                child: Text(
+                  "No hay podcasts",
+                  style: Theme.of(context).textTheme.display1,
+                ),
+              ))
               : NestedScrollView(
               headerSliverBuilder: (context, innerBoxIsScrolled) => [
                 SliverOverlapAbsorber(
@@ -467,7 +523,7 @@ class Search extends SearchDelegate<Song> {
     log('capitulitos: $listaNombres');
     List<Song> listaPodcasts = new List<Song>();
     for(int i = 0; i<listaNombres.length; i++){
-      listaPodcasts.add(new Song(int.parse(listaIds[i]),"", listaNombres[i], "",0,0,listaUrls[i],null));
+      listaPodcasts.add(new Song(int.parse(listaIds[i]),"", listaNombres[i], "",0,0,listaUrls[i],null, ""));
     }
 
     List<Song> songs = listaPodcasts;

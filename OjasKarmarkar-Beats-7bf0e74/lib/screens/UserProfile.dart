@@ -68,11 +68,10 @@ class _UserProfileState extends State<UserProfile>
     misCanciones = Provider.of<MisCancionesModel>(context);
     height = MediaQuery.of(context).size.height;
     width = MediaQuery.of(context).size.width;
-    recibirDatos();
-    setState(() {
 
+    setState(() {
       comprobarFollow();
-      anyadeDatosUsuario(differentUsername.email, playlistRepo, podcastRepo);
+      recibirDatos();
 
     });
     super.didChangeDependencies();
@@ -368,7 +367,7 @@ class _UserProfileState extends State<UserProfile>
                                                         fit: BoxFit.cover,
                                                       )
                                                   ),
-                                                  child: Stack(children: <Widget>[
+                                                  child:
                                                     Center(
                                                       child: Padding(padding: EdgeInsets.only(
                                                           left: 25.0, right: 25.0, top: 50.0, bottom: 13.0),
@@ -383,7 +382,7 @@ class _UserProfileState extends State<UserProfile>
                                                               TextStyle(color: Colors.white)),
                                                         ]),),
                                                     ),
-                                                  ]),
+
                                                 )),
                                           ),
                                         );
@@ -489,7 +488,7 @@ class _UserProfileState extends State<UserProfile>
                                                   fit: BoxFit.cover,
                                                   )
                                                   ),
-                                                  child: Stack(children: <Widget>[
+                                                  child:
                                                     Center(
                                                       child: Padding(padding: EdgeInsets.only(
                                                           left: 25.0, right: 25.0, top: 50.0, bottom: 13.0),
@@ -504,7 +503,7 @@ class _UserProfileState extends State<UserProfile>
                                                               TextStyle(color: Colors.white)),
                                                         ]),),
                                                     ),
-                                                  ]),),
+                                                  ),
                                           ),
                                         ));
 
@@ -811,7 +810,7 @@ class _UserProfileState extends State<UserProfile>
       emailController = p.email;
       passwordController = p.contrasenya;
       numeroSeguidores = "Seguidores:  " +p.numSeguidores.toString();
-
+      anyadeDatosUsuario(differentUsername.email, playlistRepo, podcastRepo);
       //Uint8List bd = base64.decode(p.imagen);
       //final buffer = bd.buffer;
       //_profileImage.writeAsBytes(
@@ -832,18 +831,25 @@ class _UserProfileState extends State<UserProfile>
       var descripcionesPodcasts = p.descripcionesPod.split('|');
       var imagenesPlaylists = p.imagenesPlaylists.split('|');
       var imagenesPodcasts = p.imagenesPodcasts.split('|');
+      var canciones = p.canciones.split('|');
       log('playlists: $playlistss');
       log('podcasts: $podcastss');
       log('descripsiones: $descripciones');
+      log('canciones: $canciones');
 
       imageCache.clear();
       playlistRepo.generateInitialPlayListImage(playlistss, descripciones, imagenesPlaylists);
       podcastRepo.generateInitialPodcastImage(podcastss, descripcionesPodcasts, imagenesPodcasts);
 
       setState(() {
-        differentUsername.setCanciones(p.canciones);
-        differentUsername.setCancionesUrl(p.urls);
-        differentUsername.setIdsCanciones(p.listaIds);
+        if(p.canciones == null || p.urls == null || p.listaIds == null){
+
+        }else{
+          differentUsername.setCanciones(p.canciones);
+          differentUsername.setCancionesUrl(p.urls);
+          differentUsername.setIdsCanciones(p.listaIds);
+        }
+
       });
     }
 

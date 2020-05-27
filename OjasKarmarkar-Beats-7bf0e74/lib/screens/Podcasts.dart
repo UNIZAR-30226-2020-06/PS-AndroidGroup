@@ -139,7 +139,8 @@ class PodcastScreenState extends State<PodcastScreen> {
                             ),
                             onSelected: (String choice) async {
                               log("data: $choice");
-                              if (choice == Constants.ep) {   //editar capítulo de podcast
+                              if (choice == Constants.ep) {
+                                txt.text = model.songs[pos].title;//editar capítulo de podcast
                                 showDialog(
                                   context: context,
                                   builder: (context) {
@@ -258,7 +259,8 @@ class PodcastScreenState extends State<PodcastScreen> {
                                               InkWell(
                                                 onTap: ()  {
                                                   setState(() {
-                                                    editarUnCapituloPodcast(username.email, model.songs[pos].title,txt.text, genero);  //editar en la BD
+                                                    editarUnCapituloPodcast(username.email, model.songs[pos].id.toString(),
+                                                        model.songs[pos].title,txt.text, genero);  //editar en la BD
 
                                                     Navigator.pop(
                                                         context);
@@ -303,10 +305,12 @@ class PodcastScreenState extends State<PodcastScreen> {
                                   },
                                 );
                               }else if(choice == Constants.dp){ //borrar canciones
-                                mostrarComprobacion(model.songs[pos]);
+                                mostrarComprobacion(model.songs[pos], choice);
+                              }else if(choice == Constants.dpp){
+                                mostrarComprobacion(model.songs[pos], choice);
                               }
                             },
-                            itemBuilder: (BuildContext context) {
+                            itemBuilder: (model.songs[pos].getEsMio() == "true")?(BuildContext context) {
                               return Constants.opcionesPodcast.map((String choice) {
                                 return PopupMenuItem<String>(
                                   value: choice,
@@ -319,7 +323,20 @@ class PodcastScreenState extends State<PodcastScreen> {
                                   ),
                                 );
                               }).toList();
-                            },
+                            } : (BuildContext context) {
+                              return Constants.opcionesPodcastAjeno.map((String choice) {
+                                return PopupMenuItem<String>(
+                                  value: choice,
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(8.0),
+                                    child: Text(
+                                      choice,
+                                      style: Theme.of(context).textTheme.display2,
+                                    ),
+                                  ),
+                                );
+                              }).toList();
+                            }
                           ),
                           onTap: () {
                             //isPlayed = true;
@@ -371,7 +388,7 @@ class PodcastScreenState extends State<PodcastScreen> {
           )),
     );
   }
-  void mostrarComprobacion(Song nombreCancion){
+  void mostrarComprobacion(Song nombreCancion, String choice){
     showDialog(
       context: context,
       builder: (context) {
@@ -421,11 +438,16 @@ class PodcastScreenState extends State<PodcastScreen> {
                           right: 30.0,
                           top: 30.0,
                           bottom: 30.0),
-                      child: Text("Borrar capítulo de podcast")
+                      child: (choice == Constants.dp)?Text("Quitar capítulo de podcast"):Text("Borrar capítulo de podcast"),
                   ),
                   InkWell(
                     onTap: () {
-                      borrarCapituloPodcast(username.email, name, nombreCancion);
+                      if(choice == Constants.dp){
+                        quitarCapituloPodcast(username.email, name, nombreCancion);
+                      }else{
+                        borrarCapituloPodcast(username.email, name, nombreCancion);
+                      }
+
                       Navigator.pop(context);
                     },
                     child: Container(
@@ -477,17 +499,23 @@ class PodcastScreenState extends State<PodcastScreen> {
   }
 
   void initDataPodcasts() async {
-    Canciones l = await obtenerCapitulos(name);
+    Canciones l = await obtenerCapitulos(name, username.email);
     var listaNombres = l.getNombresAudio().split('|');
     var listaUrls = l.getUrlsAudio().split('|');
     var listaIds = l.listaIds.split('|');
-    log('initData2: $listaNombres');
+    var sonMios = l.sonMios.split('|');
+    log('initData2: $sonMios');
+    if(listaIds[0] == ""){
+      listaIds[0] = "9999";
+    }
     imagen = l.imagen;
     autor = l.autor;
     descripcion = l.descripcion;
     List<Song> listaPodcasts = new List<Song>();
     for(int i = 0; i<listaNombres.length; i++){
-      listaPodcasts.add(new Song(int.parse(listaIds[i]),"", listaNombres[i], "",0,0,listaUrls[i],null));
+      Song song = new Song(int.parse(listaIds[i]),"", listaNombres[i], "",0,0,listaUrls[i],null, "");
+      song.esMio = sonMios[i];
+      listaPodcasts.add(song);
     }
 
     songs = listaPodcasts;
@@ -495,25 +523,61 @@ class PodcastScreenState extends State<PodcastScreen> {
     setState(() {});
   }
 
-  void editarUnCapituloPodcast(String email, String title, String newTitle, String genero) async {
+  void editarUnCapituloPodcast(String email, String idCapitulo, String title, String newTitle, String genero) async {
     log("pod: $title $newTitle $genero");
-    await editarCapPodcast(email, title, newTitle, genero);
+    InfoCancion ic = await obtenerInfoCancion(idCapitulo);
+    String aux = " ";
+    if(genero != null){
+      aux = genero;
+    }
+    await editarCapPodcast(email,idCapitulo, title, newTitle, aux, ic.genero);
     initDataPodcasts();
   }
 
+
+  Future<InfoCancion> obtenerInfoCancion(String idCancion) async {
+  Map data = {
+  'idCancion': idCancion,
+  };
+  final http.Response response = await http.post(
+  'http://34.69.44.48:8080/Espotify/info_audio_android',
+  headers: <String, String>{
+  'Content-Type': 'application/json; charset=UTF-8',
+  },
+  body: jsonEncode(data),
+
+  );
+  if (response.statusCode == 200) {
+  // If the server did return a 201 CREATED response,
+  // then parse the JSON.
+  return InfoCancion.fromJson(json.decode(response.body));
+  } else {
+  // If the server did not return a 201 CREATED response,
+  // then throw an exception.
+  throw Exception('Fallo al enviar petición');
+  }
+  }
   void borrarCapituloPodcast(String email,String nombrePodcast, Song song) async {
 
-    await borrarCapPodcast(email,nombrePodcast, song.title);
+    await borrarCapPodcast(email,nombrePodcast, song.id.toString());
+    initDataPodcasts();
+  }
+
+  void quitarCapituloPodcast(String email,String nombrePodcast, Song song) async {
+
+    await borrarCancionesPlaylist(email,nombrePodcast, song.id.toString());
     initDataPodcasts();
   }
 
 
-  Future<Canciones> editarCapPodcast(String email, String nombreViejo, String nuevoNombre, String genero) async {
+  Future<Canciones> editarCapPodcast(String email, String idCapitulo, String nombreViejo, String nuevoNombre, String genero,String generoViejo) async {
     log("pod: $nombreViejo $nuevoNombre $genero");
     Map data = {
       'email': email,
+      'idCapitulo': idCapitulo,
       'nombrePodcastViejo': nombreViejo,
       'nombrePodcastNuevo': nuevoNombre,
+      'generoPodcastViejo': generoViejo,
       'generoPodcastNuevo': genero,
     };
     final http.Response response = await http.post(
@@ -534,18 +598,16 @@ class PodcastScreenState extends State<PodcastScreen> {
       throw Exception('Fallo al enviar petición');
     }
 
-
   }
 
-  Future<Canciones> borrarCapPodcast(String email, String nombrePodcast, String nombreCapPodcast) async {
-
+  Future<Canciones> borrarCapPodcast(String email, String nombrePlaylist, String idAudio) async {
     Map data = {
       'email': email,
-      'nombrePodcast': nombrePodcast,
-      'nombreCapitulo': nombreCapPodcast,
+      'idAudio': idAudio,
     };
+    log("debug: $email, $nombrePlaylist, $idAudio");
     final http.Response response = await http.post(
-      'http://34.69.44.48:8080/Espotify/eliminar_capitulo_android',
+      'http://34.69.44.48:8080/Espotify/cancion_eliminar_android',
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
       },
@@ -561,8 +623,6 @@ class PodcastScreenState extends State<PodcastScreen> {
       // then throw an exception.
       throw Exception('Fallo al enviar petición');
     }
-
-
   }
 
 
@@ -670,7 +730,8 @@ class Canciones {
   final String descripcion;
   final String imagen;
   final String listaIds;
-  Canciones({this.respuesta, this.nombresAudio,this.urlsAudio, this.autor, this.descripcion, this.imagen, this.listaIds});
+  final String sonMios;
+  Canciones({this.respuesta, this.nombresAudio,this.urlsAudio, this.autor, this.descripcion, this.imagen, this.listaIds, this.sonMios});
 
   factory Canciones.fromJson(Map<String, dynamic> json) {
     return Canciones(
@@ -680,6 +741,7 @@ class Canciones {
       descripcion: json['descripcion'],
       autor: json['autor'],
       listaIds: json['idsPodcast'],
+      sonMios: json['sonMios'],
 
     );
 
@@ -695,8 +757,9 @@ class Canciones {
   }
 }
 
-Future<Canciones> obtenerCapitulos(String nombrePodcast) async {
+Future<Canciones> obtenerCapitulos(String nombrePodcast, String email) async {
   Map data = {
+    'email': email,
     'podcast': nombrePodcast,
   };
   log("servlet: $nombrePodcast");
@@ -759,5 +822,51 @@ Future<Respuesta> recibeGeneros() async {
     // If the server did not return a 201 CREATED response,
     // then throw an exception.
     throw Exception('Fallo al enviar petición');
+  }
+}
+
+Future<Canciones> borrarCancionesPlaylist(String email, String nombrePlaylist, String idAudio) async {
+  Map data = {
+    'email': email,
+    'idAudio': idAudio,
+    'nombrePlaylist': nombrePlaylist,
+  };
+  log("debug: $email, $nombrePlaylist, $idAudio");
+  final http.Response response = await http.post(
+    'http://34.69.44.48:8080/Espotify/eliminar_cancionlista_android',
+    headers: <String, String>{
+      'Content-Type': 'application/json; charset=UTF-8',
+    },
+    body: jsonEncode(data),
+
+  );
+  if (response.statusCode == 200) {
+    // If the server did return a 201 CREATED response,
+    // then parse the JSON.
+    return Canciones.fromJson(json.decode(response.body));
+  } else {
+    // If the server did not return a 201 CREATED response,
+    // then throw an exception.
+    throw Exception('Fallo al enviar petición');
+  }
+}
+
+
+class InfoCancion {
+  final String respuesta;
+  final String genero;
+  final String autor;
+  final String numLikes;
+  final String tipo;
+  InfoCancion({this.respuesta,this.genero, this.autor, this.numLikes, this.tipo});
+
+  factory InfoCancion.fromJson(Map<String, dynamic> json) {
+    return InfoCancion(
+      genero: json['genero'],
+      autor: json['autor'],
+      numLikes: json['numLikes'],
+      tipo: json['tipo'],
+    );
+
   }
 }

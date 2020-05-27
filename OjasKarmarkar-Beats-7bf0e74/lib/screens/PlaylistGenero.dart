@@ -190,7 +190,7 @@ class _PlaylistGeneroState extends State<PlaylistGenero> {
     log("nombresAudio4: $listaIds");
     List<Song> listaPodcasts = new List<Song>();
     for(int i = 0; i<listaNombres.length; i++){
-      listaPodcasts.add(new Song(int.parse(listaIds[i]),"", listaNombres[i], "",0,0,listaUrls[i],null));
+      listaPodcasts.add(new Song(int.parse(listaIds[i]),"", listaNombres[i], "",0,0,listaUrls[i],null, ""));
     }
     log("nombresAudio5: $listaNombres");
     songs = listaPodcasts;

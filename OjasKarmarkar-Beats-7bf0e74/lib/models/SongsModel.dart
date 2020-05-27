@@ -49,7 +49,7 @@ class SongsModel extends ChangeNotifier {
     List<String> listaUrls = c.getUrlsAudio().split('|');
     List<String> listaIds = c.listaIds.split('|');
     for(int i = 0; i<listaNombres.length; i++){
-      songs.add(new Song(int.parse(listaIds[0]),"", listaNombres[i], "",0,0,listaUrls[i],null));
+      songs.add(new Song(int.parse(listaIds[i]),"", listaNombres[i], "",0,0,listaUrls[i],null, ""));
       String yy = songs[i].title;
       debugPrint('data: $yy');
     }
@@ -240,7 +240,7 @@ class SongsModel extends ChangeNotifier {
   void Like(String email) async {
     Map data = {
       'email' : email,
-      'titulo' : this.currentSong.title,
+      'id' : this.currentSong.id.toString(),
       'tipo' : "audio",
       'url' : this.currentSong.uri,
     };
@@ -266,9 +266,11 @@ class SongsModel extends ChangeNotifier {
 
 
   Future<bool> likeado(String email) async{
+    String id = this.currentSong.id.toString();
+    log("bu: $id");
     Map data = {
       'email' : email,
-      'titulo' : this.currentSong.title,
+      'id' : this.currentSong.id.toString(),
       'tipo' : "audio",
       'url' : this.currentSong.uri,
     };

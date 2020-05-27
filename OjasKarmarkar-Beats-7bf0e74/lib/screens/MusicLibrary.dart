@@ -258,11 +258,13 @@ class _MusicLibraryState extends State<MusicLibrary> {
     List<String> listaNombres = c.getNombresAudio().split('|');
     List<String> listaUrls = c.getUrlsAudio().split('|');
     List<String> listaIds = c.listaIds.split('|');
-
+    if(listaIds[0] == ""){
+      listaIds[0] = "9999";
+    }
     setState(() {
       songs = new List<Song>();
       for(int i = 0; i<listaNombres.length; i++){
-        songs.add(new Song(int.parse(listaIds[i]),"", listaNombres[i], "",0,0,listaUrls[i],null));
+        songs.add(new Song(int.parse(listaIds[i]),"", listaNombres[i], "",0,0,listaUrls[i],null, ""));
       }
       for(String s in listaNombres){
         log('initData2: $s');
@@ -417,10 +419,10 @@ class _MusicLibraryState extends State<MusicLibrary> {
       );
     }
   }
-  Future<Respuesta> anyadirCancionAPlaylistBD(String cancion, String nombrePlaylist) async {
+  Future<Respuesta> anyadirCancionAPlaylistBD(String idAudio, String nombrePlaylist) async {
     Map data = {
       'email': username.email,
-      'nombreAudio': cancion,
+      'idAudio': idAudio,
       'nombreLista': nombrePlaylist,
     };
     final http.Response response = await http.post(
@@ -579,7 +581,7 @@ class _MusicLibraryState extends State<MusicLibrary> {
   void anyadirCancionAPlaylist(Song song, String playlist) async {
     String s = song.title;
     log("data $s, $playlist");
-    await anyadirCancionAPlaylistBD(song.title, playlist);
+    await anyadirCancionAPlaylistBD(song.id.toString(), playlist);
     log("done añadir a playlist");
   }
 }
