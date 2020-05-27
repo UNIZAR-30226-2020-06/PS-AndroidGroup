@@ -466,17 +466,6 @@ class Search extends SearchDelegate<Song> {
         return Padding(
           padding: const EdgeInsets.all(8.0),
           child: ListTile(
-            trailing: IconButton(
-                icon: Icon(
-                  Icons.thumb_up,
-                  size: 17,
-                  color: Colors.black54,
-                ),
-                onPressed: () async {
-                  Like(user.email, model.podcast[index], "playlist");
-                  likeado(user.email, model.podcast[index]);
-                }
-            ),
             onTap: () {
               if(model.podcast.contains(suggestion[index])){
                 model.selected = index;
