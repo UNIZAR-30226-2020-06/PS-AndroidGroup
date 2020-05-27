@@ -302,7 +302,7 @@ class Canciones {
     return Canciones(
       nombresAudio: json['nombresAudio'],
       urlsAudio: json['urlsAudio'],
-      listaIds: json['idsAudio'],
+      listaIds: json['idsAudio'], //todo DANI RESPONDE
     );
   }
   String getUserId(){
