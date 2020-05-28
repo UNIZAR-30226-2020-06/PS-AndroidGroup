@@ -2,12 +2,14 @@ import 'dart:convert';
 import 'dart:developer';
 
 import 'package:beats/Animations/transitions.dart';
+import 'package:beats/models/DirectosModel.dart';
 import 'package:beats/models/PlayListHelper.dart';
 import 'package:beats/models/PlaylistRepo.dart';
 import 'package:beats/models/ThemeModel.dart';
 import 'package:beats/models/BookmarkModel.dart';
 import 'package:beats/models/Username.dart';
 import 'package:beats/models/const.dart';
+import 'package:beats/screens/Directos.dart';
 import 'package:flute_music_player/flute_music_player.dart';
 import 'package:flutter/material.dart';
 import 'dart:io';
@@ -23,12 +25,12 @@ import 'PlaylistGenero.dart';
 import 'ProfileEdit.dart';
 
 
-class ComentariosLibrary extends StatefulWidget {
+class ComentariosDirectos extends StatefulWidget {
   @override
   _ComentariosLibraryState createState() => _ComentariosLibraryState();
 }
 
-class _ComentariosLibraryState extends State<ComentariosLibrary> {
+class _ComentariosLibraryState extends State<ComentariosDirectos> {
 
   double width, height;
   TextEditingController comentarioController;
@@ -45,7 +47,7 @@ class _ComentariosLibraryState extends State<ComentariosLibrary> {
   List<Song> songs;
   Username username;
   List<String> generos = [""];
-  SongsModel songsModel;
+  DirectosModel directosModel;
 
   @override
   void initState() {
@@ -57,7 +59,7 @@ class _ComentariosLibraryState extends State<ComentariosLibrary> {
   void didChangeDependencies() {
     b = Provider.of<BookmarkModel>(context);
     username = Provider.of<Username>(context);
-    songsModel = Provider.of<SongsModel>(context);
+    directosModel = Provider.of<DirectosModel>(context);
     String a = username.email;
     establecerNombre();
     log("Esta $a");
@@ -125,18 +127,18 @@ class _ComentariosLibraryState extends State<ComentariosLibrary> {
           },
           body: (comentarios.texto != null) ?
           Column(children: <Widget> [Expanded (child: buildCommentList()),
-          TextField(
-            controller: txtController,
-            onSubmitted: (String comment) async{
-              await comentarios.escribirComentario(comment, username.email, songsModel.currentSong.title);
-              setState(() {
-                txtController.clear();
-              });
-            },
-            decoration: InputDecoration(
-              hintText:"Escribe aquí tu comentario"
-            ),
-          )
+            TextField(
+              controller: txtController,
+              onSubmitted: (String comment) async{
+                await comentarios.escribirComentario(comment, username.email, directosModel.currentSong.title);
+                setState(() {
+                  txtController.clear();
+                });
+              },
+              decoration: InputDecoration(
+                  hintText:"Escribe aquí tu comentario"
+              ),
+            )
 
           ]):
           Column(children: <Widget> [Expanded (child: Center(
@@ -148,7 +150,7 @@ class _ComentariosLibraryState extends State<ComentariosLibrary> {
             TextField(
               controller: txtController,
               onSubmitted: (String comment) async {
-                await comentarios.escribirComentario(comment, username.email, songsModel.currentSong.title);
+                await comentarios.escribirComentario(comment, username.email, directosModel.currentSong.title);
                 actualizarComentarios();
                 setState(() {
                   txtController.clear();
@@ -176,7 +178,7 @@ class _ComentariosLibraryState extends State<ComentariosLibrary> {
 
   buildCommentList() {
     username = Provider.of<Username>(context);
-   return ListView.builder(
+    return ListView.builder(
         itemCount: comentarios.texto.length,
         itemBuilder: (context, pos) {
           String s = comentarios.usuarios[pos];
@@ -193,7 +195,7 @@ class _ComentariosLibraryState extends State<ComentariosLibrary> {
                   color: Colors.black54,
                 ),
                 onPressed: () async {
-                  await comentarios.borrarComentario(comentarios.texto[pos], comentarios.usuarios[pos], songsModel.currentSong.title);
+                  await comentarios.borrarComentario(comentarios.texto[pos], comentarios.usuarios[pos], directosModel.currentSong.title);
                   actualizarComentarios();
                 },
               ),
@@ -235,9 +237,9 @@ class _ComentariosLibraryState extends State<ComentariosLibrary> {
 
   void actualizarComentarios() async{
 
-    String s = songsModel.currentSong.title;
+    String s = directosModel.currentSong.title;
     log("lo de antes $s");
-    await comentarios.obtenerListaComentarios(songsModel.currentSong.title);
+    await comentarios.obtenerListaComentarios(directosModel.currentSong.title);
     List<String> ss = comentarios.getUsuarios();
     log("comentarios actualizados: $ss");
     setState(() {

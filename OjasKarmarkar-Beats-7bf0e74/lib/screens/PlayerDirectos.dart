@@ -20,6 +20,7 @@ import 'package:provider/provider.dart';
 import 'package:beats/models/ProgressModel.dart';
 import 'package:http/http.dart' as http;
 
+import 'ComentariosDirectos.dart';
 import 'ComentariosLibrary.dart';
 
 class PlayerDirectos extends StatefulWidget {
@@ -558,7 +559,7 @@ class _PlayerDirectosState extends State<PlayerDirectos> {
                           onPressed: () {
                             model.player.stop();
                             Navigator.of(context).push(new MaterialPageRoute(builder: (context) =>
-                            new ComentariosLibrary()));
+                            new ComentariosDirectos()));
                           },
                           icon: Icon(
                             Icons.comment,

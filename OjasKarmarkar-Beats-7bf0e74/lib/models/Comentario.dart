@@ -47,7 +47,7 @@ class Comentario extends ChangeNotifier {
       this.usuarios = a.usuarios.split("|");
       this.texto = a.texto.split("|");
       String stringer = a.usuarios;
-      log("$stringer");
+      log("usuarios que han escrito comentarios: $stringer");
     } else {
       // If the server did not return a 201 CREATED response,
       // then throw an exception.
