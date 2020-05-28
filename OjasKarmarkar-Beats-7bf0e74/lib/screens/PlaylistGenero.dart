@@ -49,9 +49,6 @@ class _PlaylistGeneroState extends State<PlaylistGenero> {
   void didChangeDependencies() {
     username = Provider.of<Username>(context);
     playlistRepo = Provider.of<PlaylistRepoGeneros>(context);
-    if(playlistRepo == null){
-      log("sip, no te devolví nada");
-    }
     model = Provider.of<SongsModel>(context);
     List<String> stringerr = playlistRepo.playlist;
 
@@ -135,6 +132,9 @@ class _PlaylistGeneroState extends State<PlaylistGenero> {
                             model.player.stop();
                             model.playlist = true;
                             model.playlistSongs = songs;
+                            String s = songs[pos].title;
+                            log("Las playlists de las canciones entre las que se elige "
+                                "$s");
                             model.currentSong = songs[pos];
                             //Navigator.of(context).push(new MaterialPageRoute(
                             //    builder: (context) => new ExampleApp(url: model.currentSong.uri)));
