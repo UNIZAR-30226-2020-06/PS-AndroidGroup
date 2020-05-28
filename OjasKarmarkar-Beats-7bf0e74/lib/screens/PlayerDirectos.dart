@@ -541,18 +541,6 @@ class _PlayerDirectosState extends State<PlayerDirectos> {
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: <Widget>[
                         IconButton(
-                          onPressed: () {
-                            model.repeat
-                                ? model.setRepeat(false)
-                                : model.setRepeat(true);
-                          },
-                          icon: Icon(
-                            Icons.loop,
-                            color: model.repeat ? Colors.orange : Colors.grey,
-                            size: 35.0,
-                          ),
-                        ),
-                        IconButton(
                           onPressed: () async {
                             await model.Like(user.email);
                             await model.likeado(username.email);
@@ -563,16 +551,6 @@ class _PlayerDirectosState extends State<PlayerDirectos> {
                           icon: Icon(
                             Icons.thumb_up,
                             color: model.currentLike ? Colors.orange : Colors.grey,
-                            size: 35.0,
-                          ),
-                        ),
-                        IconButton(
-                          onPressed: () {
-                            model.Like(user.email);
-                          },
-                          icon: Icon(
-                            Icons.shuffle,
-                            color: model.shuffle ? Colors.orange : Colors.grey,
                             size: 35.0,
                           ),
                         ),

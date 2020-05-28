@@ -485,10 +485,12 @@ class _DirectosState extends State<Directos> {
 
 class Search extends SearchDelegate<Song> {
   DirectosModel model;
-
+  reproduccion.SongsModel modelSongs;
+  bool isPlaying;
   @override
   List<Widget> buildActions(BuildContext context) {
     // actions
+
     return [
       IconButton(
         onPressed: () {
@@ -520,10 +522,16 @@ class Search extends SearchDelegate<Song> {
     // show results
     return null;
   }
+  Future playingStatus() async {
+    bool isP = await FlutterRadio.isPlaying();
+      isPlaying = isP;
+  }
 
   @override
   Widget buildSuggestions(BuildContext context) {
     model = Provider.of<DirectosModel>(context);
+    modelSongs = Provider.of<reproduccion.SongsModel>(context);
+    Username username = Provider.of<Username>(context);
     obtenerTodosLosDirectos(model);
     List<Song> dummy = <Song>[];
     List<Song> recents = <Song>[];
@@ -546,10 +554,22 @@ class Search extends SearchDelegate<Song> {
           padding: const EdgeInsets.all(8.0),
           child: ListTile(
             onTap: () {
-              model.player.stop();
+              /*model.player.stop();
               model.play();
               model.playlist = false;
-              close(context, null);
+              close(context, null);*/
+              if(model.player != null) {
+                model.pause();
+              }
+              //Reset the list. So we can change to next song.
+              log("do it");
+              username.urlDirecto = suggestion[index].uri;
+              model.playURI(suggestion[index].uri);
+
+              Navigator.of(context).push(new MaterialPageRoute(
+                  builder: (context) => new PlayerDirectos()));
+
+              playingStatus();
             },
             title: Text.rich(
               TextSpan(
