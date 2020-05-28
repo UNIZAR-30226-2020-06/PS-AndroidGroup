@@ -569,6 +569,7 @@ class Search extends SearchDelegate<Song> {
               Navigator.of(context).push(new MaterialPageRoute(
                   builder: (context) => new PlayerDirectos()));
 
+
               playingStatus();
             },
             title: Text.rich(
