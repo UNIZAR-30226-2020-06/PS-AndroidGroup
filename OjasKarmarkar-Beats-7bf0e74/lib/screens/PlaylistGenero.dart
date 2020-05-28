@@ -128,6 +128,7 @@ class _PlaylistGeneroState extends State<PlaylistGenero> {
                         const EdgeInsets.only(top: 0.0, left: 10.0),
                         child: ListTile(
                           onTap: () {
+
                             //isPlayed = true;
                             model.player.stop();
                             model.playlist = true;
@@ -136,9 +137,9 @@ class _PlaylistGeneroState extends State<PlaylistGenero> {
                             log("Las playlists de las canciones entre las que se elige "
                                 "$s");
                             model.currentSong = songs[pos];
-                            //Navigator.of(context).push(new MaterialPageRoute(
-                            //    builder: (context) => new ExampleApp(url: model.currentSong.uri)));
-                            model.play();
+                            Navigator.of(context).push(new MaterialPageRoute(
+                                builder: (context) => new PlayBackPage()));
+                            //model.play();
 
                           },
                           leading: CircleAvatar(backgroundColor: Colors.orange,child: getImage(pos)),
@@ -160,11 +161,11 @@ class _PlaylistGeneroState extends State<PlaylistGenero> {
                     }
                 )
             ),
-
+            /*
             Align(
               alignment: Alignment.bottomRight,
               child: showStatus(),
-            )
+            )*/
           ])
               : Center(
             child: Text(
