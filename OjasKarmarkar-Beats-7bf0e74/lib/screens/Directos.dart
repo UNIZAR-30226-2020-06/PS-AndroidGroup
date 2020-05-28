@@ -558,8 +558,8 @@ class Search extends SearchDelegate<Song> {
               model.play();
               model.playlist = false;
               close(context, null);*/
-              if(model.player != null) {
-                model.pause();
+              if(modelSongs.currentSong != null) {
+                modelSongs.pause();
               }
               //Reset the list. So we can change to next song.
               log("do it");
