@@ -44,6 +44,7 @@ class UploadSongDataState extends State<uploadSongData>   {
     archivo = username.archivoCancion;
     generos = username.listaGenerosCanciones;
     email = username.email;
+    titleController.text = "";
     super.didChangeDependencies();
   }
 
@@ -200,6 +201,7 @@ class UploadSongDataState extends State<uploadSongData>   {
                     textColor: Colors.white,
                     color: Colors.green,
                     onPressed: () async {
+                      if(genero != null){
                       if(titleController.text != ""){
                         Respuesta r = await uploadSong(email, titleController.text, genero);
                         if(r.getUserId() == "fail"){
@@ -207,6 +209,11 @@ class UploadSongDataState extends State<uploadSongData>   {
                         }else{
                           mostrarError("Canción subida con éxito.", context);
                         }
+                      }else{
+                        mostrarError("El nombre no puede estar vacío", context);
+                      }
+                      }else{
+                        mostrarError("Selecciona un género", context);
                       }
                     },
                     shape: new RoundedRectangleBorder(
@@ -319,7 +326,7 @@ class UploadSongDataState extends State<uploadSongData>   {
                   ),
                   InkWell(
                     onTap: () {
-                      if(textoError == "No se ha podido subir la canción."){
+                      if(textoError != "Canción subida con éxito."){
                         Navigator.pop(context);
                       }else{
                         Navigator.pop(context);

@@ -48,6 +48,7 @@ class UploadPodcastDataState extends State<uploadPodcastData>   {
     generos = username.listaGenerosPodcasts;
     email = username.email;
     nombrePodcast = username.nombrePodcast;
+    titleController.text = "";
     super.didChangeDependencies();
   }
 
@@ -204,13 +205,22 @@ class UploadPodcastDataState extends State<uploadPodcastData>   {
                     textColor: Colors.white,
                     color: Colors.green,
                     onPressed: () async {
-                      if(titleController.text != ""){
-                        Respuesta r = await uploadSong(email, titleController.text, genero);
-                        if(r.getUserId() == "fail"){
-                          mostrarError("No se ha podido subir el podcast.", context);
-                        }else{
-                          mostrarError("podcast subido con éxito.", context);
+                      if(genero != null) {
+                        if (titleController.text != "") {
+                          Respuesta r = await uploadSong(email, titleController
+                              .text, genero);
+                          if (r.getUserId() == "fail") {
+                            mostrarError(
+                                "No se ha podido subir el podcast.", context);
+                          } else {
+                            mostrarError("Capítulo subido con éxito.", context);
+                          }
                         }
+                      else{
+                      mostrarError("El nombre no puede estar vacío", context);
+                      }
+                      }else{
+                      mostrarError("Selecciona un género", context);
                       }
                     },
                     shape: new RoundedRectangleBorder(
@@ -324,7 +334,7 @@ class UploadPodcastDataState extends State<uploadPodcastData>   {
                   ),
                   InkWell(
                     onTap: () {
-                      if(textoError == "No se ha podido subir el podcast."){
+                      if(textoError != "Capítulo subido con éxito."){
                         Navigator.pop(context);
                       }else{
                         Navigator.pop(context);
