@@ -231,7 +231,7 @@ class _UserProfileState extends State<UserProfile>
                               )),
                           Padding(
                               padding: EdgeInsets.only(
-                                  left: 25.0, right: 25.0, top: 2.0),
+                                  left: 25.0, right: 0.0, top: 2.0),
                               child: new Row(
                                 mainAxisSize: MainAxisSize.max,
                                 children: <Widget>[
@@ -239,11 +239,14 @@ class _UserProfileState extends State<UserProfile>
                                     mainAxisAlignment: MainAxisAlignment.start,
                                     mainAxisSize: MainAxisSize.min,
                                     children: <Widget>[
-                                      new Text(
+                                      new Container (
+                                        padding: const EdgeInsets.all(16.0),
+                                        width: MediaQuery.of(context).size.width*0.8,
+                                        child: Text(
                                         descriptionController,
                                         style: TextStyle(
-                                            fontSize: 16.0,),
-                                      ),
+                                          fontSize: 16.0,),
+                                      ),),
                                     ],
                                   ),
                                 ],

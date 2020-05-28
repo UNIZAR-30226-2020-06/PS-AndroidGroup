@@ -298,7 +298,7 @@ class Search extends SearchDelegate<String> {
     List<String> recents = <String>[];
     for (int i = 0; i < model.usuarios.length; i++) {
       dummy.add(model.usuarios[i]);
-      recents.add(model.descripciones[i]);
+      recents.add(model.usuarios[i]);
     }
     //for (int i = 0; i < 4; i++) {
     // recents.add(model.songs[i].title);
@@ -327,14 +327,7 @@ class Search extends SearchDelegate<String> {
                     fontWeight: FontWeight.w800,
                     fontSize: 19,
                   ),
-                  children: <TextSpan>[
-                    new TextSpan(
-                        text: suggestion[index],
-                        style: TextStyle(
-                            color: Colors.black,
-                            fontSize: 17,
-                            fontWeight: FontWeight.w100))
-                  ]),
+                 ),
               style: TextStyle(color: Colors.black, fontSize: 18),
             ),
             leading: CircleAvatar(backgroundColor: Colors.orange,child: Icon(Icons.person_pin, color: Colors.white,)),
