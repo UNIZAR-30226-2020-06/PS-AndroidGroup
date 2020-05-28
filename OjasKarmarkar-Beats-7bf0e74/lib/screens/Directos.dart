@@ -279,8 +279,8 @@ class _DirectosState extends State<Directos> {
                   model.playlistSongs = songs;
                   model.currentSong = model.songs[pos];
                   username.urlDirecto = model.songs[pos].uri;*/
-
-                  if(modelSongs.player != null) {
+                  log("do it");
+                  if(modelSongs.currentSong != null) {
                     modelSongs.pause();
                   }
                   //Reset the list. So we can change to next song.
