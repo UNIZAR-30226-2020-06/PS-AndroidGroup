@@ -231,7 +231,7 @@ class _UserProfileState extends State<UserProfile>
                               )),
                           Padding(
                               padding: EdgeInsets.only(
-                                  left: 25.0, right: 0.0, top: 2.0),
+                                  left: 9.0, right: 0.0, top: 2.0),
                               child: new Row(
                                 mainAxisSize: MainAxisSize.max,
                                 children: <Widget>[
