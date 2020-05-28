@@ -49,10 +49,13 @@ class _PlaylistGeneroState extends State<PlaylistGenero> {
   void didChangeDependencies() {
     username = Provider.of<Username>(context);
     playlistRepo = Provider.of<PlaylistRepoGeneros>(context);
+    if(playlistRepo == null){
+      log("sip, no te devolví nada");
+    }
     model = Provider.of<SongsModel>(context);
-    int stringerr = playlistRepo.selected;
+    List<String> stringerr = playlistRepo.playlist;
 
-    log("playlistrepo: $stringerr");
+    log("playlistrepoPlaylistGenero: $stringerr");
     name = playlistRepo.playlist[playlistRepo.selected];
     playlistRepo.selected = null;
     log("nameee: $name");

@@ -49,7 +49,6 @@ class _MusicLibraryState extends State<MusicLibrary> {
   List<String> generos = [""];
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
 
   }
@@ -153,8 +152,7 @@ class _MusicLibraryState extends State<MusicLibrary> {
                                                         child: GestureDetector(
                                                           onTap: () {
                                                             playlistRepo.selected = pos;
-                                                            Navigator.of(context).push(new MaterialPageRoute(
-                                                                builder: (context) => new PlaylistGenero()));
+                                                            Navigator.push(context, Scale(page: PlaylistGenero()));
                                                           },
                                                           child: ClipRRect(
                                                               borderRadius: BorderRadius.circular(20),

@@ -241,7 +241,7 @@ class _UserProfileState extends State<UserProfile>
                                     children: <Widget>[
                                       new Container (
                                         padding: const EdgeInsets.all(16.0),
-                                        width: MediaQuery.of(context).size.width*0.8,
+                                        width: MediaQuery.of(context).size.width*0.9,
                                         child: Text(
                                         descriptionController,
                                         style: TextStyle(
