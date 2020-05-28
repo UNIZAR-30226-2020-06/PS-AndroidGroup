@@ -83,7 +83,7 @@ class UploadPodcastDataState extends State<uploadPodcastData>   {
                                     mainAxisSize: MainAxisSize.min,
                                     children: <Widget>[
                                       new Text(
-                                        'Información de el podcast',
+                                        'Información del podcast',
                                         style: TextStyle(
                                             fontSize: 18.0,
                                             fontWeight: FontWeight.bold),
